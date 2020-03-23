@@ -59,6 +59,7 @@ public class MouseControl implements MouseListener {
             destino = (galaxia) me.getSource();
             distancia distancia = new distancia(origen, destino);
             JOptionPane.showMessageDialog(inicio_partida.panel_tablero, distancia.getmsj());
+            inicio_partida.validarMov=true;
 
         }
         if (inicio_partida.medirDistancia) {

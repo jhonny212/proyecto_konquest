@@ -1,24 +1,16 @@
 package gramatica_guardar;
 import java_cup.runtime.Symbol;
-import java.awt.Dimension;
-import java.util.ArrayList;
-import planetas.planeta_jugador;
-import planetas_neutral.planeta_neutral;
-import jugadores.jugador;
 
 
 
 parser code {:
-   public static boolean azar_,mapaciego_,acumular_,naves_,estadisticas_,neutral_,isNeutral_; 
-   public static Dimension dimension_;
-   public static int Naves_,Produccion_,coord_x,coord_y,Red,Blue,Green,count;
-   public static String Nombre_,Tipo_,Nombre2_;
-   public static double Muertes_;
-   public static ArrayList<planeta_jugador> lista_;
-   public static ArrayList<planeta_neutral> neutrales_;
-   public static ArrayList<planeta_jugador> jugadores_;
-   public static ArrayList<jugador> players_;
-   
+ 
+    public static ArrayList<planeta_neutral> neutrales;
+    public static ArrayList<planeta_jugador> planetas;
+    public static ArrayList<String> jugadores;
+
+    public static String nombre_,dueño_;
+    public static int naves_,produccion_,rojo_,verde_,azul_,coordx_,coordy_;
    public void syntax_error(Symbol s){
         System.out.println("Error R de sintaxis: "+ s.value +" Linea "+(s.left+1)+" columna "+(s.right+1) );
     }
@@ -27,195 +19,211 @@ parser code {:
  }
 :}
 
-terminal abreCor, cierraCor, abreParen, cierraParen,mapa,dimensiones,dosPuntos,filas,columnas,azar,mapaCiego,
-acumular,neutrales,naves,estadisticas,planetas,neutral,nombre,produccion,muertes,pos,x,y,jugadores,
-tipo,bool,num,decimal,id,enter,space,ERROR,color,rojo,verde,azul;
+terminal neutrales,planetas,jugador,abreCor,cierraCor,abreLlaves,cierraLlaves,abreParen,cierraParen,
+coma,color,rojo,azul,verde,dosPuntos,naves,produccion,dueño,pos,x,y,nombre,comilla,abreComilla,
+cierraComilla,num,id,enter,space,ERROR,datos;
 
-non-terminal MAPA,PLANETAS,JUGADORES,DIMENSIONES,OP1,NEU,NEU1,ENTS,ENTS0,DATOS,POS,DATOS1,PLAYER,PLAYER1,PLAYER2,PLAYER3,
-ENTS1,COLORES;
-start with MAPA;
+non-terminal GAME,GAME1, PLANETAS, NEUTRALES, DATOS, NAME, NAME1,NAME2,NAME3,NAME4,
+COLORS,COLORS1,COLORS2,COLORS3,COLORS4, POS, POS1,POS2,POS3,POS4,ATRIBUTES, ATRIBUTES1,
+ATRIBUTES2,ATRIBUTES3,ATRIBUTES4,NOMBRE, COLORES, COLORES1, COMILLAS1,COMILLAS2,RED,RED1,BLUE,BLUE1,GREEN,GREEN1,POSICION,
+POS11, ATRIBUTOS,ATRI1,NAVES,NAVES1,PRODUCCION,PRODUCCION1,DUEÑO,DUEÑO1,EXPRESION, EXP,PLAYERS,PLAYERS1,PLAYERS2
+,GAME2,GAME3,GAME4,EXPRESION1,EXP2;
 
+start with GAME;
 //para mapas
 
-MAPA::= ENTS mapa ENTS dosPuntos ENTS abreCor ENTS 
-DIMENSIONES ENTS OP1 ENTS0 
-NEU ENTS cierraCor ENTS PLANETAS JUGADORES
-| error  mapa DIMENSIONES
-| error dosPuntos DIMENSIONES
-| error abreCor DIMENSIONES
-| error DIMENSIONES OP1;
-//-------------->
-DIMENSIONES::= dimensiones ENTS dosPuntos ENTS abreCor ENTS filas ENTS dosPuntos 
-ENTS num:e1 ENTS0 columnas ENTS dosPuntos ENTS num:e2 ENTS cierraCor 
+GAME::= abreLlaves GAME1  cierraLlaves    ;
+
+PLAYERS::=jugador dosPuntos abreCor PLAYERS1;
+PLAYERS1::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:};
+PLAYERS2::= coma PLAYERS1 | cierraCor ;
+
+GAME1::=  PLANETAS coma  GAME2
+        | NEUTRALES coma  GAME3
+        | PLAYERS  coma GAME4;
+
+GAME2::= NEUTRALES coma PLAYERS  | PLAYERS coma NEUTRALES;
+GAME3::= PLANETAS coma PLAYERS   | PLAYERS coma  PLANETAS;
+GAME4::= PLANETAS coma NEUTRALES | NEUTRALES coma  PLANETAS;
+
+
+PLANETAS::= planetas  dosPuntos  abreCor EXPRESION1 EXP2 cierraCor ;
+NEUTRALES::= neutrales dosPuntos  abreCor  EXPRESION EXP cierraCor ;
+
+// datos que van en el archivo
+EXPRESION1::= abreLlaves DATOS cierraLlaves 
 {:
-dimension_=new Dimension();
-int x=Integer.parseInt((String)e1);
-int y=Integer.parseInt((String)e2);
-dimension_.setSize(x,y);
-:}
-| error dimensiones dosPuntos
-| error dosPuntos abreCor
-| error abreCor filas;
-//-------------->
-OP1::= azar ENTS dosPuntos ENTS bool:e1 ENTS0 mapaCiego 
-ENTS dosPuntos ENTS bool:e2 ENTS0 acumular ENTS dosPuntos ENTS bool:e3
-{:
-azar_=Boolean.parseBoolean((String)e1);
-mapaciego_=Boolean.parseBoolean((String)e2);
-acumular_=Boolean.parseBoolean((String)e3);
-:}
-;
-//-------------->
-NEU::= neutrales ENTS dosPuntos ENTS abreCor ENTS 
-NEU1 ENTS  cierraCor;
-//-------------->
-NEU1::= naves ENTS dosPuntos ENTS bool:e1 
-ENTS0 estadisticas ENTS dosPuntos ENTS bool:e2 
-{:
-naves_=Boolean.parseBoolean((String)e1);
-estadisticas_=Boolean.parseBoolean((String)e2);
-:}
-;
-//---------->
-PLANETAS::= planetas ENTS dosPuntos ENTS abreCor DATOS ;
-//--------------->
-DATOS::= 
-ENTS abreParen ENTS 
-neutral ENTS dosPuntos ENTS bool:e1 ENTS0
-nombre ENTS dosPuntos ENTS id:e2 ENTS0
-naves ENTS dosPuntos ENTS num:e3 ENTS0
-produccion ENTS dosPuntos ENTS num:e4 ENTS0
-muertes ENTS dosPuntos ENTS decimal:e5 ENTS0 POS
-{:
-isNeutral_=Boolean.parseBoolean((String)e1);
-Nombre_=(String)e2;
-Naves_=Integer.parseInt((String)e3);
-Produccion_=Integer.parseInt((String)e4);
-Muertes_=Double.parseDouble((String)e5);
-
-if(isNeutral_){
-planeta_neutral n1=new planeta_neutral(Naves_,Muertes_,Nombre_,false,false,Produccion_);
-n1.setX_(coord_x);
-n1.setY_(coord_y);
-try{
-Nombre_.isEmpty();
-
-neutrales_.add(n1);
-}catch(NullPointerException e){
-}
-
-
-}else{
-planeta_jugador p1=new planeta_jugador(Naves_,Muertes_,Nombre_,false,false,Produccion_);
-p1.setX_(coord_x);
-p1.setY_(coord_y);
-try{
-Nombre_.isEmpty();
-jugadores_.add(p1);
-}catch(NullPointerException e){
-}
-
-}
-
+planeta_jugador t=new planeta_jugador(naves_,0,nombre_,false,false,produccion_);
+t.setColor(new Color(rojo_,verde_,azul_));
+t.setX_(coordx_);
+t.setY_(coordy_);
+t.setDueño(dueño_);
+planetas.add(t);
 
 :}
 ;
-//--------------->
-POS::= pos ENTS abreParen ENTS
-x ENTS dosPuntos ENTS num:e1 ENTS0
-y ENTS dosPuntos ENTS num:e2 ENTS
-cierraParen ENTS cierraParen 
-DATOS1
+EXP2 ::= coma EXPRESION1 EXP2
+
+ |
+
+ ;
+
+EXPRESION::= abreLlaves DATOS cierraLlaves 
 {:
-coord_x=Integer.parseInt((String)e1);
-coord_y=Integer.parseInt((String)e2);
-:};
-//--------------->
-DATOS1::= ENTS cierraCor ENTS 
-
-|DATOS 
-;
-//--------------->
-
-JUGADORES::= jugadores ENTS dosPuntos ENTS abreCor ENTS PLAYER;
-PLAYER::=  abreParen ENTS
-nombre ENTS dosPuntos ENTS id:e1 ENTS0
-tipo ENTS dosPuntos ENTS id:e2 ENTS0
-COLORES planetas ENTS dosPuntos ENTS abreCor 
-ENTS PLAYER1:ee ENTS cierraParen ENTS PLAYER3
-{:
-Nombre_=(String)e1;
-Tipo_=(String)e2;
-
-switch(Tipo_){
-case "dificil":
-
-dificil dif=new dificil(Nombre_,lista_);
-dif.setColor(Color.getHSBColor(Red,Green,Blue));
-players_.add(dif);
-break;
-
-case "facil":
-
-
-
-facil fac=new facil(Nombre_,lista_);
-fac.setColor(Color.getHSBColor(Red,Green,Blue));
-players_.add(fac);
-break;
-
-case "humano":
-
-humano hum=new humano(Nombre_,lista_);
-hum.setColor(Color.getHSBColor(Red,Green,Blue));
-players_.add(hum);
-break;
-
-
-}
-
-
-
-:};
-
-COLORES::= color ENTS dosPuntos ENTS abreCor ENTS
-rojo ENTS dosPuntos ENTS num:e1 ENTS0
-azul ENTS dosPuntos ENTS num:e2 ENTS0
-verde ENTS dosPuntos ENTS num:e3 ENTS cierraCor ENTS
-{:
-Red=Integer.parseInt((String)e1);
-Blue=Integer.parseInt((String)e2);
-Green=Integer.parseInt((String)e3);
-:};
-
-PLAYER1::=  
-nombre ENTS dosPuntos ENTS id:e1 ENTS PLAYER2 
-{:
-System.out.println((String)e1);
-lista_.add(new planeta_jugador((String)e1));
-RESULT=e1;
-:};
-PLAYER2::= cierraCor 
-{:
-lista_.add(new planeta_jugador("nuevo"));
-//System.out.println("nuevo----------->");
+planeta_neutral t=new planeta_neutral(naves_,0,nombre_,false,false,produccion_);
+t.setColor(new Color(rojo_,verde_,azul_));
+t.setX_(coordx_);
+t.setY_(coordy_);
+t.setDueño(dueño_);
+neutrales.add(t);
 :}
-| PLAYER1:e1 
+;
+EXP ::= coma EXPRESION EXP | ;
+
+DATOS::= NAME | COLORS | POS | ATRIBUTES 
+
+;
+
+NAME::=  NOMBRE coma NAME1;
+NAME1::= COLORES coma NAME2      |POSICION coma NAME3 | ATRIBUTOS coma NAME4;
+NAME2::= POSICION coma ATRIBUTOS | ATRIBUTOS coma POSICION;
+NAME3::= COLORES coma ATRIBUTOS  | ATRIBUTOS coma COLORES; 
+NAME4::= COLORES coma POSICION   | POSICION coma COLORES;
+
+COLORS ::= COLORES COLORS1;
+COLORS1::= NOMBRE COLORS2      |POSICION COLORS3 | ATRIBUTOS COLORS4;
+COLORS2::= POSICION ATRIBUTOS | ATRIBUTOS POSICION;
+COLORS3::= NOMBRE ATRIBUTOS  | ATRIBUTOS NOMBRE; 
+COLORS4::= NOMBRE POSICION   | POSICION NOMBRE;
+
+POS ::= POSICION POS1;
+POS1::= NOMBRE POS2       |COLORES POS3 | ATRIBUTOS POS4;
+POS2::= COLORES ATRIBUTOS | ATRIBUTOS COLORES;
+POS3::= NOMBRE ATRIBUTOS  | ATRIBUTOS NOMBRE; 
+POS4::= NOMBRE COLORES    | POSICION NOMBRE;
+
+ATRIBUTES ::= ATRIBUTOS ATRIBUTES1;
+ATRIBUTES1::= NOMBRE  ATRIBUTES2 |COLORES ATRIBUTES3 | POSICION ATRIBUTES4;
+ATRIBUTES2::= COLORES POSICION   | POSICION COLORES ;
+ATRIBUTES3::= NOMBRE  POSICION   | POSICION NOMBRE; 
+ATRIBUTES4::= NOMBRE  COLORES    | COLORES NOMBRE;
+
+
+
+
+
+
+
+//atributos 
+NOMBRE::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 {: nombre_=(String)e;:} ;
+//colores
+COLORES::= color dosPuntos abreLlaves COLORES1 cierraLlaves;
+COLORES1::= RED | BLUE | GREEN;
+RED::= rojo dosPuntos num:e coma RED1 {: rojo_= Integer.parseInt((String)e); :};
+RED1::= azul dosPuntos num:e coma verde dosPuntos num:e1 
 {:
+ azul_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:} 
+| verde dosPuntos num:e2 coma azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:} 
+;
+BLUE::= azul dosPuntos num:e coma BLUE1
+{:
+ azul_= Integer.parseInt((String)e); 
+:} ;
+BLUE1::= rojo dosPuntos num:e coma verde dosPuntos num:e1
+{:
+ rojo_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:} 
+ | verde dosPuntos num:e2 coma rojo dosPuntos num:e3
+{:
+ rojo_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:} 
+;
+GREEN::= verde dosPuntos num:e coma GREEN1
+{:
+ verde_= Integer.parseInt((String)e); 
+:} 
+;
+GREEN1::= rojo dosPuntos num:e coma azul dosPuntos num:e1 
+{:
+ rojo_= Integer.parseInt((String)e); 
+ azul_= Integer.parseInt((String)e1); 
+:} 
+| azul dosPuntos num:e2 coma rojo dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e2); 
+ rojo_= Integer.parseInt((String)e3); 
+:} 
+;
+//----------------------------------------------->
 
-:};
-PLAYER3::= PLAYER 
-| cierraCor ENTS;
+//posicion
+POSICION::= pos dosPuntos abreLlaves POS11 cierraLlaves;
+POS11::=  x dosPuntos num:e coma y dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e);
+coordy_=Integer.parseInt((String)e1);
+:}
+ | y dosPuntos num:e coma x dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e1);
+coordy_=Integer.parseInt((String)e);
+:}
+;
+//------------------->
+ // atributos
+ATRIBUTOS::= datos dosPuntos abreLlaves ATRI1 cierraLlaves;
+ATRI1::= NAVES | PRODUCCION | DUEÑO ;
+NAVES::= naves dosPuntos num:e coma NAVES1 {: naves_=Integer.parseInt((String)e);:};
+NAVES1::= produccion dosPuntos num:e coma dueño dosPuntos COMILLAS1 id:e1 COMILLAS2 
+{: 
+produccion_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+:}
+| dueño dosPuntos COMILLAS1 id:e1 COMILLAS2  coma  produccion dosPuntos num:e
+{:
+produccion_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+:}
+;
+
+PRODUCCION::= produccion dosPuntos num:e coma PRODUCCION1 {: produccion_=Integer.parseInt((String)e);:};
+PRODUCCION1::= naves dosPuntos num:e1 coma dueño dosPuntos COMILLAS1 id:e2 COMILLAS2 
+{:
+naves_=Integer.parseInt((String)e1);
+dueño_=(String)e2;
+:}
+| dueño dosPuntos COMILLAS1 id:e1 COMILLAS2  coma  naves dosPuntos num:e2
+{:
+naves_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+:}
+;
+
+DUEÑO::=dueño dosPuntos COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:};
+DUEÑO1::= naves dosPuntos num:e coma produccion dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:}  
+| produccion dosPuntos num:e1  coma  naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:} 
+;
+
+//--------------->
+
+//abre comillas
+COMILLAS1::= comilla | abreComilla;
+COMILLAS2::= comilla | cierraComilla;
 
 
-
-
-//espacios
-ENTS::= space ENTS
-| enter ENTS
-|   ;
-//---------->
-ENTS0::=enter ENTS1
-| space ENTS1;
-ENTS1::= 
-| ENTS0;

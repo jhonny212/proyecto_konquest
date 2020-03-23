@@ -1,0 +1,147 @@
+package gramaticaReplay;
+import java_cup.runtime.Symbol;
+
+
+parser code {:
+    public static ArrayList<Turno> turnos_;
+    public static ArrayList<Ataque> ataques;
+    public static String jugador_,origen_,destino_;
+    public static int turno_,naves_,numeroTurno;
+    public static boolean complete_;
+   public void syntax_error(Symbol s){
+        System.out.println("Error R de sintaxis: "+ s.value +" Linea "+(s.left+1)+" columna "+(s.right+1) );
+    }
+    public void unrecovered_syntax_error(Symbol s) throwsjava.lang.Exception{
+    System.out.println("La Cadena:" +s.value+" en la Linea:"+(s.right+1) +" ,Columna: "+s.left+"esta fuera de contexto." );
+ }
+:}
+
+terminal turno,abreCor,cierraCor,abreLlaves,cierraLlaves,coma,dosPuntos,naves,datos,
+nombre,comilla,abreComilla,cierraComilla,num,id,ERROR,espacio,origen,destino,complete,bool,numeroTurno, ataque;
+
+non-terminal TURNO, COMILLAS1, COMILLAS2, TURNOS,TURNO1,NAME,NAME1,NUM,NUM1,ATAQUE,ATAQUE1,
+ATAQ,ATAQ1,ATAQ2,ATAQ3,ATAQ4,GALAXY,GALAXY1,O,O1,D,D1,T,T1,DATOS,DATA,ATAQ22;
+
+start with TURNO;
+//para mapas
+TURNO::= abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves ;
+TURNOS::= abreLlaves TURNO1 cierraLlaves 
+{:
+turnos_.add(new Turno(ataques,jugador_,numeroTurno));
+:}
+ ;
+TURNO1::= NAME | ATAQUE | NUM  ;
+NAME::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma NAME1 {:nombre_=(String)e1;:};
+NAME1::= numeroTurno dosPuntos num:e coma ATAQ 
+{:numeroTurno=Integer.parseInt((String)e);:}
+| ATAQ coma numeroTurno dosPuntos num:e 
+{:numeroTurno=Integer.parseInt((String)e);:} ;
+
+ATAQUE::= ATAQ  coma ATAQUE1;
+ATAQUE1::= numeroTurno dosPuntos num:e coma nombre dosPuntos COMILLAS1 id:e1 COMILLAS2  
+{:numeroTurno=Integer.parseInt((String)e);
+jugador_=(String)e1;
+:}
+
+| nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma numeroTurno dosPuntos num:e 
+{:numeroTurno=Integer.parseInt((String)e);
+jugador_=(String)e1;
+:}
+;
+
+NUM::= numeroTurno dosPuntos num:e  coma NUM1
+{:numeroTurno=Integer.parseInt((String)e);:}
+;
+NUM1::= ATAQ coma nombre dosPuntos COMILLAS1 id:e COMILLAS2  
+{:
+jugador_=(String)e;
+:}
+| nombre dosPuntos COMILLAS1 id:e COMILLAS2 coma ATAQ 
+{:
+jugador_=(String)e;
+:}
+;
+
+ATAQ::= ataque dosPuntos abreLlaves ATAQ22 cierraLlaves  ;
+ATAQ22::= ATAQ1 | ;
+ATAQ1::= abreLlaves ATAQ2  cierraLlaves  ATAQ3;
+
+ATAQ2::= GALAXY coma DATOS 
+{: 
+Ataque ataque=new Ataque(origen_,destino_,turno_,naves_,complete_);
+
+ataques.add(ataque);
+:}
+ | DATOS coma GALAXY 
+{: 
+Ataque ataque=new Ataque(origen_,destino_,turno_,naves_,complete_);
+
+ataques.add(ataque);
+:}
+;
+ATAQ3::= coma ATAQ1 |  ;
+ATAQ4::= coma TURNOS ATAQ4 |  ;
+
+
+
+GALAXY::= espacio dosPuntos abreLlaves GALAXY1 cierraLlaves;
+GALAXY1::= O | D | T;
+O::= origen dosPuntos COMILLAS1 id:e COMILLAS2 coma O1
+{:origen_=(String)e;:}
+;
+O1::= destino dosPuntos COMILLAS1 id:e COMILLAS2 coma turno dosPuntos  num:e1
+{:destino_=(String)e;
+turno_=Integer.parseInt((String)e1);
+:} 
+| turno dosPuntos  num:e1 coma destino dosPuntos COMILLAS1 id:e COMILLAS2
+{:destino_=(String)e;
+turno_=Integer.parseInt((String)e1);
+:} 
+ ;
+
+D::= destino dosPuntos COMILLAS1 id:e COMILLAS2 coma D1 {:destino_=(String)e:};
+D1::= origen dosPuntos COMILLAS1 id:e COMILLAS2 coma turno dosPuntos  num:e1
+{:origen_=(String)e;
+turno_=Integer.parseInt((String)e1);
+:}  
+| turno dosPuntos  num:e1 coma origen dosPuntos COMILLAS1 id:e COMILLAS2 
+{:origen_=(String)e;
+turno_=Integer.parseInt((String)e1);
+:} 
+;
+
+T::= turno dosPuntos num:e coma T1 {:turno_=Integer.parseInt((String)e);:};
+T1::= origen dosPuntos COMILLAS1 id:e COMILLAS2 coma destino dosPuntos COMILLAS1 id:e1 COMILLAS2 
+{:
+origen_=(String)e;
+destino_=(String)e;
+:}
+| destino dosPuntos COMILLAS1 id:e1 COMILLAS2 coma origen dosPuntos COMILLAS1 id:e COMILLAS2
+{:
+origen_=(String)e;
+destino_=(String)e;
+:}
+ ;
+
+DATOS::= datos dosPuntos abreLlaves DATA cierraLlaves;
+DATA::= naves dosPuntos num:e coma complete dosPuntos bool:e1 
+{:
+naves_=Integer.parseInt((String)e);
+complete_= Boolean.parseBoolean((String)e1);
+:}
+| complete dosPuntos bool:e1 coma naves dosPuntos num:e 
+{:
+naves_=Integer.parseInt((String)e);
+complete_= Boolean.parseBoolean((String)e1);
+:}
+;
+
+
+
+
+
+//abre comillas
+COMILLAS1::= comilla | abreComilla;
+COMILLAS2::= comilla | cierraComilla;
+
+

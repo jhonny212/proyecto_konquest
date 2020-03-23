@@ -6,15 +6,23 @@
 package interfaz;
 
 import classes.Ataque;
+import classes.CuadroTexto;
 import classes.MouseControl;
+import classes.Replay;
 import classes.Turno;
+import classes.archivoEntrada;
+import classes.cliente;
 import classes.distancia;
 import classes.guardar;
-import classes.mouseListener;
+import classes.servidor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.border.Border;
@@ -35,17 +43,44 @@ public class inicio_partida extends javax.swing.JFrame {
      */
     public static juego game;
     public static galaxia tablero[][];
-    public static int filas, columnas;
+    public static int filas, columnas, contadorDeTurnos;
+    public static Replay replay;
+    public static boolean isVs;
+    public static cliente cliente;
+    private servidor server;
+
+    public static void ejecutarTurnos() {
+        int x = contadorDeTurnos + 1;
+        mensajes_txt.setEditable(true);
+        inicio_partida.mensajes_txt.append(Color.white, "Turno " + x + " \n \n");
+
+        if (!turnos.isEmpty()) {
+            for (int i = 0; i < turnos.size(); i++) {
+                if (turnos.get(i).isValidar_()) {
+                    turnos.get(i).realizarAtaque(contadorDeTurnos + 1);
+                }
+            }
+            turnos.get(0).construir(game.getMapa().isAcumular());
+
+        }
+        contadorDeTurnos++;
+        mensajes_txt.setEditable(false);
+    }
+
     Dimension dimension;
-    boolean showtools;
+    boolean showtools, showmensajes;
     public static boolean medirDistancia, destino, validarMov, origenMov;
     Border bd;
     public static int count_player;
     public static galaxia _o, _d;
-    static ArrayList<Turno> turnos;
+    public static ArrayList<Turno> turnos;
     static ArrayList<Ataque> ataques;
+    public static CuadroTexto mensajes_txt;
+    public static String mensajeServidor;
 
     public inicio_partida() {
+        contadorDeTurnos = 0;
+        mensajeServidor = "";
         turnos = new ArrayList();
         ataques = new ArrayList();
         count_player = 0;
@@ -56,27 +91,44 @@ public class inicio_partida extends javax.swing.JFrame {
         initComponents();
         bd = this.terminar_partida.getBorder();
         showtools = true;
+        showmensajes = true;
         dimension = more_options.getSize();
         more_options.disable();
         more_options.setBackground(Color.white);
-        options.setSize(0, 0);
         options.setVisible(false);
         show.setEnabled(true);
         medirDistancia = false;
         validarMov = false;
         _o = new galaxia();
         _d = new galaxia();
+        jPanel1.setSize(new Dimension(1290, 660));
+        mensajes_txt = new CuadroTexto();
+        mensajes_txt.setSize(new Dimension(1280, 550));
+        mensajes_txt.setBackground(Color.BLACK);
+        jScrollPane1.setViewportView(mensajes_txt);
+        contenido_mapa.setSize(new Dimension((int) contenido_mapa.getSize().getWidth(), 500));
+        jScrollPane1.setSize(new Dimension(0, 0));
+        showmensajes = false;
+        iniciarTablero();
+
     }
 
     public static void iniciarContadorPlayer() {
         try {
             msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         } catch (IndexOutOfBoundsException e) {
+            ejecutarTurnos();
             count_player = 0;
         }
         msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         cant_envios.disable();
-        validarMov = true;
+        if (isVs && contadorDeTurnos > 0) {
+            cliente.enviarMensaje(mensajeServidor);
+            mensajeServidor = "";
+            validarMov = false;
+        } else {
+            validarMov = true;
+        }
 
     }
 
@@ -88,26 +140,33 @@ public class inicio_partida extends javax.swing.JFrame {
     public static void iniciarTablero() {
         panel_tablero.removeAll();
         panel_tablero.repaint();
-        MouseControl btn = new MouseControl(game);
-        panel_tablero.setLayout(new java.awt.GridLayout(filas, columnas));
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                ActionListener[] action = tablero[i][j].getActionListeners();
-                try {
-                    tablero[i][j].removeActionListener((ActionListener) action[0]);
+        try {
+            MouseControl btn = new MouseControl(game);
+            panel_tablero.setLayout(new java.awt.GridLayout(filas, columnas));
+            for (int i = 0; i < filas; i++) {
+                for (int j = 0; j < columnas; j++) {
+                    ActionListener[] action = tablero[i][j].getActionListeners();
+                    try {
+                        tablero[i][j].removeActionListener((ActionListener) action[0]);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                    }
+                    if (!tablero[i][j].isEmpty()) {
+                        tablero[i][j].setCoordx_(i);
+                        tablero[i][j].setCoordy_(j);
+                        tablero[i][j].addMouseListener(btn);
+                        reiniciar(i, j);
 
-                } catch (ArrayIndexOutOfBoundsException e) {
-                }
-                if (!tablero[i][j].isEmpty()) {
-                    tablero[i][j].setCoordx_(i);
-                    tablero[i][j].setCoordy_(j);
-                    tablero[i][j].addMouseListener(btn);
-                    reiniciar(i, j);
+                    }
+                    tablero[i][j].setFocusPainted(false);
+                    tablero[i][j].setBorder(javax.swing.BorderFactory.createLineBorder(Color.white));
+
+                    panel_tablero.add(tablero[i][j]);
 
                 }
-                panel_tablero.add(tablero[i][j]);
+
             }
 
+        } catch (Exception e) {
         }
         contenido_mapa.repaint();
         contenido_mapa.validate();
@@ -145,11 +204,12 @@ public class inicio_partida extends javax.swing.JFrame {
         medir_distancia = new javax.swing.JButton();
         mostrar_posiciones = new javax.swing.JButton();
         vista_general = new javax.swing.JButton();
+        barra_mensajes = new javax.swing.JButton();
         options = new javax.swing.JPanel();
         msj_jugador = new javax.swing.JLabel();
         end_turno = new javax.swing.JButton();
         cant_envios = new javax.swing.JPasswordField();
-        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         menu_juego = new javax.swing.JMenuBar();
         juego = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -178,7 +238,7 @@ public class inicio_partida extends javax.swing.JFrame {
 
         contenido_mapa.setViewportView(panel_tablero);
 
-        jPanel1.add(contenido_mapa, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 1130, 440));
+        jPanel1.add(contenido_mapa, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 1110, 370));
 
         more_options.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -242,6 +302,11 @@ public class inicio_partida extends javax.swing.JFrame {
                 mostrar_posicionesMouseEntered(evt);
             }
         });
+        mostrar_posiciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrar_posicionesActionPerformed(evt);
+            }
+        });
         more_options.add(mostrar_posiciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 0, -1, 40));
 
         vista_general.setBackground(java.awt.Color.white);
@@ -256,7 +321,23 @@ public class inicio_partida extends javax.swing.JFrame {
                 vista_generalMouseEntered(evt);
             }
         });
+        vista_general.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vista_generalActionPerformed(evt);
+            }
+        });
         more_options.add(vista_general, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 0, -1, 40));
+
+        barra_mensajes.setBackground(java.awt.Color.white);
+        barra_mensajes.setText("Ocultar/Mostrar barra de mensajes");
+        barra_mensajes.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        barra_mensajes.setFocusPainted(false);
+        barra_mensajes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                barra_mensajesActionPerformed(evt);
+            }
+        });
+        more_options.add(barra_mensajes, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 0, 330, 40));
 
         jPanel1.add(more_options, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 40));
 
@@ -289,11 +370,8 @@ public class inicio_partida extends javax.swing.JFrame {
         jPanel1.add(options, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 1290, 50));
         options.getAccessibleContext().setAccessibleDescription("");
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 590));
-
-        jLabel1.setFont(new java.awt.Font("URW Bookman L", 1, 18)); // NOI18N
-        jLabel1.setText("Turno no. 0");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 1290, 30));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, 510));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 512, 1280, 150));
 
         menu_juego.setOpaque(false);
 
@@ -400,32 +478,56 @@ public class inicio_partida extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea agregar cargar un archivo JSON?", "Message", 1);
+        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea jugar vs otra maquina?", "Message", 1);
+        archivoEntrada archivo = new archivoEntrada();
 
         switch (seleccion) {
-            case 0:
 
-                game = Konquest_Pj1.probar1();
+            case 0:
+               
+                game = Konquest_Pj1.probar1(archivo.generateFile());
                 game.voidValidarTodos();
+                isVs = false;
                 if (game.isValidarJuego()) {
                     nuevo_juego nuevo_cargado = new nuevo_juego();
                     nuevo_cargado.show();
+                    mensajes_txt.setText("");
                     nuevo_cargado.iniciarJuego(game);
                     nuevo_cargado.setSize();
                 } else {
 
                     JOptionPane.showMessageDialog(this, game.getMsj());
                 }
-
                 break;
             case 1:
-                nuevo_juego nuevo = new nuevo_juego();
-                nuevo.show();
+                game = Konquest_Pj1.probar2(archivo.generateFile());
+                game.voidValidarTodos();
+                isVs = true;
+                if (game.isValidarJuego() && game.getArray_jugadores().size() == 2) {
+                    nuevo_juego nuevo_cargado = new nuevo_juego();
+                    nuevo_cargado.setVs(true);
+                    String ip = JOptionPane.showInputDialog(this, "Escriba la ip del jugador contrincante", "Ejemplo 192.168.0.10", 0);
+                    try {
+                        ip.isEmpty();
+                        server = new servidor();
+                        server.start();
+                        cliente = new cliente(ip);
+                        cliente.start();
+                        nuevo_cargado.show();
+                        mensajes_txt.setText("");
+                        nuevo_cargado.iniciarJuego(game);
+                        nuevo_cargado.setSize();
+                    } catch (NullPointerException e) {
+                        JOptionPane.showMessageDialog(this, "Vuelva pronto...");
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(this, game.getMsj());
+                }
                 break;
             case 2:
                 break;
         }
-
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void showActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showActionPerformed
@@ -442,19 +544,16 @@ public class inicio_partida extends javax.swing.JFrame {
     private void terminar_partidaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_terminar_partidaMouseEntered
         // TODO add your handling code here:
         this.terminar_partida.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(130, 206, 246)));
-
     }//GEN-LAST:event_terminar_partidaMouseEntered
 
     private void terminar_partidaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_terminar_partidaMouseExited
         // TODO add your handling code here:
         this.terminar_partida.setBorder(bd);
-
     }//GEN-LAST:event_terminar_partidaMouseExited
 
     private void fin_turnoMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fin_turnoMouseEntered
         // TODO add your handling code here:
         this.fin_turno.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(130, 206, 246)));
-
     }//GEN-LAST:event_fin_turnoMouseEntered
 
     private void fin_turnoMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fin_turnoMouseExited
@@ -465,7 +564,6 @@ public class inicio_partida extends javax.swing.JFrame {
     private void medir_distanciaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_medir_distanciaMouseEntered
         // TODO add your handling code here:
         this.medir_distancia.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(130, 206, 246)));
-
     }//GEN-LAST:event_medir_distanciaMouseEntered
 
     private void medir_distanciaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_medir_distanciaMouseExited
@@ -481,19 +579,16 @@ public class inicio_partida extends javax.swing.JFrame {
     private void mostrar_posicionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mostrar_posicionesMouseEntered
         // TODO add your handling code here:
         this.mostrar_posiciones.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(130, 206, 246)));
-
     }//GEN-LAST:event_mostrar_posicionesMouseEntered
 
     private void vista_generalMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_vista_generalMouseEntered
         // TODO add your handling code here:
         this.vista_general.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(130, 206, 246)));
-
     }//GEN-LAST:event_vista_generalMouseEntered
 
     private void vista_generalMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_vista_generalMouseExited
         // TODO add your handling code here:
         this.vista_general.setBorder(bd);
-
     }//GEN-LAST:event_vista_generalMouseExited
 
     private void medir_distanciaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_medir_distanciaActionPerformed
@@ -502,20 +597,37 @@ public class inicio_partida extends javax.swing.JFrame {
         medirDistancia = true;
         validarMov = false;
     }//GEN-LAST:event_medir_distanciaActionPerformed
-
-
-    private void end_turnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_end_turnoActionPerformed
+    public void atacar(Turno trn) {
         options.enable();
         origenMov = false;
-        turnos.add(new Turno(ataques, game.getArray_jugadores().get(count_player)));
+        // Turno trn = new Turno(ataques, game.getArray_jugadores().get(count_player));
+        //   
+
+        turnos.add(trn);
         if (!turnos.isEmpty()) {
             for (int i = 0; i < turnos.size(); i++) {
                 if (turnos.get(i).isValidar_()) {
                     turnos.get(i).realizarAtaque(turnos.size());
+                    trn.construir(game.getMapa().isAcumular());
                 }
             }
         }
 
+        ataques = new ArrayList();
+        count_player++;
+        cant_envios.disable();
+        end_turno.disable();
+        iniciarContadorPlayer();
+    }
+
+    private void end_turnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_end_turnoActionPerformed
+        options.enable();
+        origenMov = false;
+        Turno trn = new Turno(ataques, game.getArray_jugadores().get(count_player));
+        if (isVs) {
+            mensajeServidor += trn.msj(turnos.size());
+        }
+        turnos.add(trn);
         ataques = new ArrayList();
         count_player++;
         cant_envios.disable();
@@ -542,9 +654,11 @@ public class inicio_partida extends javax.swing.JFrame {
             if (cant <= _o.getPlaneta().getNaves()) {
                 distancia d = new distancia(_o, _d);
                 Object t[] = d.turno();
+                int tr = (int) t[0];
+                tr += contadorDeTurnos;
                 String msj = "La distancia desde el planeta " + _o.getPlaneta().getNombre() + " al planeta " + _d.getPlaneta().getNombre() + ""
                         + " es de " + t[1] + " años luz. \n"
-                        + "Una nave partiendo desde este turno llegara en el turno " + t[0];
+                        + "Una nave partiendo desde este turno llegara en el turno " + tr;
                 JOptionPane.showMessageDialog(this, msj);
                 cant_envios.setText("");
                 int naves_ = tablero[_o.getCoordx_()][_o.getCoordy_()].getPlaneta().getNaves();
@@ -552,7 +666,7 @@ public class inicio_partida extends javax.swing.JFrame {
                 reiniciar(_o.getCoordx_(), _o.getCoordy_());
                 validarMov = true;
                 _o.getPlaneta().setNaves(naves_ - cant);
-                Ataque tmp = new Ataque(_o, _d, (int) t[0] + turnos.size(), cant, false);
+                Ataque tmp = new Ataque(_o, _d, tr, cant, false);
                 ataques.add(tmp);
             } else {
                 JOptionPane.showMessageDialog(this, "No tiene suficiente naves, solo tiene " + _o.getPlaneta().getNaves());
@@ -561,24 +675,161 @@ public class inicio_partida extends javax.swing.JFrame {
     }//GEN-LAST:event_cant_enviosKeyReleased
 
     private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
-        guardar save_ = new guardar(game, tablero);
+        guardar save_ = new guardar(game, tablero, turnos);
+
     }//GEN-LAST:event_saveActionPerformed
 
     private void openActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openActionPerformed
         // TODO add your handling code here:
-        Konquest_Pj1 cargar = new Konquest_Pj1();
+        mensajes_txt.setText("");
         game = null;
-        game = Konquest_Pj1.leer2();
-        JOptionPane.showMessageDialog(this, game.getArray_neutrales().size());
-        cargarTablero();
-        iniciarTablero();
-        inicio_partida.options.setVisible(true);
-        inicio_partida.options.setSize(inicio_partida.more_options.getWidth(), 100);
-        inicio_partida.more_options.enable();
-        inicio_partida.iniciarContadorPlayer();
-    }//GEN-LAST:event_openActionPerformed
-    private void cargarTablero() {
         tablero = null;
+        Konquest_Pj1 p = new Konquest_Pj1();
+        archivoEntrada archivo=new archivoEntrada();
+        game = p.probar1(archivo.generateFile());
+        guardar save = p.leer2(archivo.generateFile());
+        p.leer3(archivo.generateFile(),"",false);
+        ArrayList<Turno> turn = p.listTurnos;
+        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea hacer un replay del juego?");
+        replay = new Replay();;
+        if (seleccion == 0) {
+            replay(turn, save, true);
+            cargarTablero(save, true);
+            iniciarTablero();
+            inicio_partida.options.setVisible(true);
+            inicio_partida.more_options.enable();
+            replay.time = 3;
+            replay.start();
+        } else if (seleccion == 1) {
+            replay(turn, save, true);
+            cargarTablero(save, true);
+            iniciarTablero();
+            inicio_partida.options.setVisible(true);
+            inicio_partida.more_options.enable();
+            replay.time = 0;
+            replay.start();
+        }
+
+
+    }//GEN-LAST:event_openActionPerformed
+
+    private void mostrar_posicionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_posicionesActionPerformed
+        // TODO add your handling code here:
+        String txt = "hola jeje";
+        try {
+            Socket socket = new Socket("127.0.0.1", 9999);
+            DataOutputStream flujo = new DataOutputStream(socket.getOutputStream());
+            flujo.writeUTF(txt);
+            flujo.close();
+            socket.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }//GEN-LAST:event_mostrar_posicionesActionPerformed
+
+    private void barra_mensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barra_mensajesActionPerformed
+
+        if (showmensajes) {
+            jPanel1.setSize(new Dimension(1290, 660));
+            contenido_mapa.setSize(new Dimension((int) contenido_mapa.getSize().getWidth(), 500));
+            jScrollPane1.setSize(new Dimension(0, 0));
+            showmensajes = false;
+            iniciarTablero();
+
+        } else {
+
+            jScrollPane1.setSize(new Dimension(1290, 140));
+            jPanel1.setSize(new Dimension(1290, 510));
+            contenido_mapa.setSize(new Dimension((int) contenido_mapa.getSize().getWidth(), 400));
+            iniciarTablero();
+            showmensajes = true;
+        }
+
+    }//GEN-LAST:event_barra_mensajesActionPerformed
+
+    private void vista_generalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vista_generalActionPerformed
+        flota fl = new flota();
+        fl.setTurno(turnos);
+        fl.set();
+        fl.setVisible(true);
+
+    }//GEN-LAST:event_vista_generalActionPerformed
+    private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
+        for (int i = 0; i < turn.size(); i++) {
+            for (int j = 0; j < game.getArray_jugadores().size(); j++) {
+                if (game.getArray_jugadores().get(j).getJugador().equals(turn.get(i).getJugador_())) {
+                    turn.get(i).setJugador(game.getArray_jugadores().get(j));
+                    break;
+                }
+
+            }
+            for (int j = 0; j < turn.get(i).getAtaques().size(); j++) {
+                if (v) {
+                    turn.get(i).getAtaques().get(j).setVerificar(false);
+                }
+                for (int k = 0; k < game.getArray_neutrales().size(); k++) {
+                    for (int l = 0; l < save.getNeutrales().size(); l++) {
+                        if (save.getNeutrales().get(l).getNombre().equals(game.getArray_neutrales().get(k).getNombre())) {
+                            int x = save.getNeutrales().get(l).getX_();
+                            int y = save.getNeutrales().get(l).getY_();
+
+                            game.getArray_neutrales().get(k).setX_(x);
+                            game.getArray_neutrales().get(k).setY_(y);
+                            break;
+                        }
+                    }
+                    for (int l = 0; l < save.getPlanetas().size(); l++) {
+                        if (save.getPlanetas().get(l).getNombre().equals(game.getPlanetas().get(k).getNombre())) {
+                            int x = save.getPlanetas().get(l).getX_();
+                            int y = save.getPlanetas().get(l).getY_();
+
+                            game.getPlanetas().get(k).setX_(x);
+                            game.getPlanetas().get(k).setY_(y);
+                            game.getPlanetas().get(k).setColor(save.getPlanetas().get(l).getColorPlaneta());
+
+                            break;
+                        }
+                    }
+                    if (turn.get(i).getAtaques().get(j).getO_().equals(game.getArray_neutrales().get(k).getNombre())) {
+                        galaxia o = new galaxia();
+                        o.setCoordx_(game.getArray_neutrales().get(k).getX_());
+                        o.setCoordy_(game.getArray_neutrales().get(k).getY_());
+                        o.inicializarPlanetaNeutral(game.getArray_neutrales().get(k));
+                        turn.get(i).getAtaques().get(j).setO(o);
+                    } else if (turn.get(i).getAtaques().get(j).getD_().equals(game.getArray_neutrales().get(k).getNombre())) {
+                        galaxia d = new galaxia();
+                        d.setCoordx_(game.getArray_neutrales().get(k).getX_());
+                        d.setCoordy_(game.getArray_neutrales().get(k).getY_());
+                        d.inicializarPlanetaNeutral(game.getArray_neutrales().get(k));
+                        turn.get(i).getAtaques().get(j).setD(d);
+
+                    }
+                }
+
+                for (int k = 0; k < game.getPlanetas().size(); k++) {
+                    if (turn.get(i).getAtaques().get(j).getO_().equals(game.getPlanetas().get(k).getNombre())) {
+                        galaxia o = new galaxia();
+                        o.setCoordx_(game.getPlanetas().get(k).getX_());
+                        o.setCoordy_(game.getPlanetas().get(k).getY_());
+                        o.inicializarPlanetaJugador(game.getPlanetas().get(k));
+                        turn.get(i).getAtaques().get(j).setO(o);
+                    } else if (turn.get(i).getAtaques().get(j).getD_().equals(game.getPlanetas().get(k).getNombre())) {
+                        galaxia d = new galaxia();
+                        d.setCoordx_(game.getPlanetas().get(k).getX_());
+                        d.setCoordy_(game.getPlanetas().get(k).getY_());
+                        d.inicializarPlanetaJugador(game.getPlanetas().get(k));
+                        turn.get(i).getAtaques().get(j).setD(d);
+
+                    }
+                }
+            }
+
+        }
+        turnos = turn;
+    }
+
+    private void cargarTablero(guardar save, boolean par) {
         filas = (int) game.getMapa().getTamaño().getWidth();
         columnas = (int) game.getMapa().getTamaño().getHeight();
         tablero = new galaxia[filas][columnas];
@@ -586,20 +837,65 @@ public class inicio_partida extends javax.swing.JFrame {
             for (int j = 0; j < columnas; j++) {
                 tablero[i][j] = new galaxia();
                 tablero[i][j].setBackground(tablero[i][j].getColor());
+
             }
         }
 
         for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+            if (!par) {
+                for (int j = 0; j < save.getNeutrales().size(); j++) {
+                    if (save.getNeutrales().get(j).getNombre().equals(game.getArray_neutrales().get(i).getNombre())) {
+                        String dueño = save.getNeutrales().get(j).getDueño();
+                        int naves = save.getNeutrales().get(j).getNaves();
+                        int produc = save.getNeutrales().get(j).getProduccion();
+                        int x = save.getNeutrales().get(j).getX_();
+                        int y = save.getNeutrales().get(j).getY_();
+
+                        Color c = save.getNeutrales().get(j).getColorPlaneta();
+                        if (!dueño.equals("none")) {
+                            game.getArray_neutrales().get(i).setDueño(dueño);
+                        }
+                        game.getArray_neutrales().get(i).setColor(c);
+                        game.getArray_neutrales().get(i).setNaves(naves);
+                        game.getArray_neutrales().get(i).setProduccion(produc);
+                        game.getArray_neutrales().get(i).setX_(x);
+                        game.getArray_neutrales().get(i).setY_(y);
+                        break;
+                    }
+
+                }
+            }
+
             tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].inicializarPlanetaNeutral(game.getArray_neutrales().get(i));
             tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].setBackground(tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].getColor());
 
         }
         for (int i = 0; i < game.getPlanetas().size(); i++) {
-            tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].inicializarPlanetaJugador(game.getPlanetas().get(i));
+
+            for (int j = 0; j < save.getPlanetas().size(); j++) {
+                if (save.getPlanetas().get(j).getNombre().equals(game.getPlanetas().get(i).getNombre())) {
+                    String dueño = save.getPlanetas().get(j).getDueño();
+                    int naves = save.getPlanetas().get(j).getNaves();
+                    int produc = save.getPlanetas().get(j).getProduccion();
+                    int x = save.getPlanetas().get(j).getX_();
+                    int y = save.getPlanetas().get(j).getY_();
+                    Color c = save.getPlanetas().get(j).getColorPlaneta();
+                    game.getPlanetas().get(i).setDueño(dueño);
+                    if (!par) {
+                        game.getPlanetas().get(i).setColor(c);
+                        game.getPlanetas().get(i).setNaves(naves);
+                        game.getPlanetas().get(i).setProduccion(produc);
+                        game.getPlanetas().get(i).setX_(x);
+                        game.getPlanetas().get(i).setY_(y);
+                    }
+
+                    break;
+                }
+
+            }
+
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].inicializarPlanetaJugador(game.getPlanetas().get(i));
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].setBackground(tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].getColor());
-
-            //   tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].setBackground( tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].getColor());
         }
     }
 
@@ -610,7 +906,7 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
                         + "        <br>\n"
-                        + "        Dueño:\n"
+                        + "        Dueño:" + tablero[i][j].getPlaneta().getDueño() + "\n"
                         + "        <br>\n"
                         + "        Naves:" + tablero[i][j].getPlaneta().getNaves() + "\n"
                         + "        <br>\n"
@@ -625,7 +921,7 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
                         + "        <br>\n"
-                        + "        Dueño:\n"
+                        + "        Dueño:" + tablero[i][j].getPlaneta().getNombre() + "\n"
                         + "        <br>\n"
                         + "        Produccion:" + tablero[i][j].getPlaneta().getProduccion() + "\n"
                         + "        <br>\n"
@@ -700,13 +996,14 @@ public class inicio_partida extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton barra_mensajes;
     public static javax.swing.JPasswordField cant_envios;
     private static javax.swing.JScrollPane contenido_mapa;
     private static javax.swing.JButton end_turno;
     private javax.swing.JButton fin_turno;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JMenu juego;
     private javax.swing.JButton medir_distancia;
     private javax.swing.JMenuBar menu_juego;
@@ -714,7 +1011,7 @@ public class inicio_partida extends javax.swing.JFrame {
     private javax.swing.JButton mostrar_posiciones;
     private static javax.swing.JLabel msj_jugador;
     private javax.swing.JMenu opciones;
-    private javax.swing.JMenuItem open;
+    private static javax.swing.JMenuItem open;
     public static javax.swing.JPanel options;
     public static javax.swing.JPanel panel_tablero;
     private javax.swing.JMenuItem save;

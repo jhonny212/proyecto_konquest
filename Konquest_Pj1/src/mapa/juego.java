@@ -35,7 +35,19 @@ public class juego {
     public ArrayList<planeta_jugador> getPlanetas() {
         return planetas;
     }
-
+    public void setiniciales(){
+        for (int i = 0; i < array_neutrales.size(); i++) {
+            array_neutrales.get(i).setInicial(array_neutrales.get(i).getNaves());
+            
+        }
+        
+        for (int i = 0; i < planetas.size(); i++) {
+            planetas.get(i).setInicial(planetas.get(i).getNaves());
+            
+        }
+    
+    }
+    
     public void setPlanetas(ArrayList<planeta_jugador> planetas) {
         this.planetas = planetas;
     }

@@ -38,6 +38,7 @@ public class planeta_neutral extends planeta {
         this.nombre = nombre;
         this.produc = false;
         color=Color.yellow;
+       
     }
 
     public planeta_neutral() {
@@ -104,7 +105,6 @@ public class planeta_neutral extends planeta {
 
     @Override
     public Color getColorPlaneta() {
-        JButton br = new JButton();
        return color;
 
     }

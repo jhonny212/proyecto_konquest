@@ -22,6 +22,7 @@ public class planeta_jugador extends planeta {
         this.naves = naves;
         this.muertes = muertes;
         this.nombre = nombre;
+      
         
     }
     public planeta_jugador(String nombre) {

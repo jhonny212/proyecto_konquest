@@ -23,15 +23,13 @@ public class distancia {
     Object t[]=new Object[2];    
     int x=(destino.getCoordx_()-orige.getCoordx_())*(destino.getCoordx_()-orige.getCoordx_());
     int y=(destino.getCoordy_()-orige.getCoordy_())*(destino.getCoordy_()-orige.getCoordy_());
-    int turno=(int) (Math.sqrt((x+y)));
     double n=(Math.sqrt((x+y)));
-    if((turno+0.5)>n){
-   // turno+=1;
-    }
-    DecimalFormat df = new DecimalFormat("#.00");
-    double time=(x+y)/2;
+    DecimalFormat df = new DecimalFormat("#.0");
+    double time=(n);
     df.format(time);
-    t[0]=turno;
+    double aux=time+0.5;
+    t[0]=(int)aux;
+    time=redondearDecimales(time,2);
     t[1]=time;
     return t;
     }
@@ -39,6 +37,16 @@ public class distancia {
     Object[] t=turno();    
     String msj="La distancia desde el planeta "+orige.getPlaneta().getNombre()+" al planeta "+destino.getPlaneta().getNombre()+""
             + " es de "+t[1]+" años luz. \n"
-            + "Una nave partiendo desde este turno llegara en el turno "+t[0];
+            + "Una nave partiendo desde este punto tomara  "+t[0]+" turnos";
     return msj;}
+    
+        public static double redondearDecimales(double valorInicial, int numeroDecimales) {
+        double parteEntera, resultado;
+        resultado = valorInicial;
+        parteEntera = Math.floor(resultado);
+        resultado=(resultado-parteEntera)*Math.pow(10, numeroDecimales);
+        resultado=Math.round(resultado);
+        resultado=(resultado/Math.pow(10, numeroDecimales))+parteEntera;
+        return resultado;
+    }
 }

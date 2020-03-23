@@ -20,12 +20,16 @@ abstract public class jugador {
     protected String tipo;
     private boolean validarJuego;
     private String msj;
-    private Color color;
+    public Color color;
     abstract double daño();
     public Color getColor() {
         return color;
     }
 
+    public jugador(String jugador) {
+        this.jugador = jugador;
+    }
+    
     public void setColor(Color color) {
         this.color = color;
          iniciarColores();
@@ -41,7 +45,6 @@ abstract public class jugador {
     public void iniciarColores(){
         for (int i = 0; i < planetas.size(); i++) {
             planetas.get(i).setColor(color);
-            
         }
     }
     

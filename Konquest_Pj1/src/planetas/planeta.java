@@ -14,7 +14,17 @@ import java.awt.Color;
 abstract public class planeta {
     protected String dueño="";
     protected int x_,y_;
+    protected  int inicial;
 
+    public void setInicial(int inicial) {
+        this.inicial = inicial;
+    }
+
+    public int getInicial() {
+        return inicial;
+    }
+
+    
     public int getX_() {
         return x_;
     }

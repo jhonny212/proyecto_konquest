@@ -44,6 +44,16 @@ public class nuevo_juego extends javax.swing.JFrame {
     /**
      * Creates new form nuevo_juego
      */
+    private boolean vs;
+
+    public boolean isVs() {
+        return vs;
+    }
+
+    public void setVs(boolean vs) {
+        this.vs = vs;
+    }
+    
     DefaultComboBoxModel modelo;
     Border border2;
     Border border1;
@@ -210,18 +220,30 @@ public class nuevo_juego extends javax.swing.JFrame {
                 if (juego.getArray_neutrales().get(i).getNombre().equals(tablero[x][y].getPlaneta().getNombre())) {
                     coord_x = x;
                     coord_y = y;
-                    data_planets.setSelectedIndex(i);
+                    
+                     for (int j = 0; j < data_planets.getItemCount(); j++) {
+                        if (data_planets.getItemAt(j).equals(tablero[x][y].getPlaneta().getNombre())) {
+                            data_planets.setSelectedIndex(j);
+
+                        }
+                    }
                     break;
                 }
             }
         } else {
             for (int i = 0; i < juego.getPlanetas().size(); i++) {
                 if (juego.getPlanetas().get(i).getNombre().equals(tablero[x][y].getPlaneta().getNombre())) {
-                    porcentaje_muertes.setText(String.valueOf(juego.getPlanetas().get(i).getMuertes()));
-                    produccion.setText(String.valueOf(juego.getPlanetas().get(i).getProduccion()));
+                    System.out.println(tablero[x][y].getPlaneta().getNombre() + " hola" + i);
+                    porcentaje_muertes.setText(String.valueOf(tablero[x][y].getPlaneta().getMuertes()));
+                    produccion.setText(String.valueOf(tablero[x][y].getPlaneta().getProduccion()));
                     coord_x = x;
                     coord_y = y;
-                    data_planets.setSelectedIndex(juego.getArray_neutrales().size() + i);
+                    for (int j = 0; j < data_planets.getItemCount(); j++) {
+                        if (data_planets.getItemAt(j).equals(tablero[x][y].getPlaneta().getNombre())) {
+                            data_planets.setSelectedIndex(j);
+
+                        }
+                    }
                     break;
                 }
             }
@@ -846,13 +868,15 @@ public class nuevo_juego extends javax.swing.JFrame {
     }//GEN-LAST:event_alturaStateChanged
 
     private void aceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptActionPerformed
+        if(this.isVs()){
+        
+        }
         inicio_partida.game = juego;
         inicio_partida.tablero = tablero;
         inicio_partida.filas = filas;
         inicio_partida.columnas = columnas;
         inicio_partida.iniciarTablero();
         inicio_partida.options.setVisible(true);
-        inicio_partida.options.setSize(inicio_partida.more_options.getWidth(), 100);
         inicio_partida.more_options.enable();
         inicio_partida.iniciarContadorPlayer();
         dispose();
@@ -926,6 +950,7 @@ public class nuevo_juego extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             if (!tablero[coord_x][coord_y].isEmpty()) {
+
                 int _produc = Integer.parseInt(produccion.getText());
                 tablero[coord_x][coord_y].getPlaneta().setProduccion(_produc);
             }
@@ -1069,11 +1094,13 @@ public class nuevo_juego extends javax.swing.JFrame {
                                 juego.getArray_neutrales().add(tmp2);
                                 juego.validarDimensiones();
                                 if (juego.isValidarJuego()) {
+
                                     v = false;
                                 } else {
                                     juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
                                 }
                             }
+
                             data_planets.addItem(tmp2.getNombre());
                             reiniciarTablero();
 

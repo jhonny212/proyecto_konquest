@@ -13,11 +13,21 @@ import planetas.planeta_jugador;
  * @author jhonny
  */
 public class humano extends jugador{
-    
+
     public humano(String jugador, ArrayList<planeta_jugador> planetas) {
         super(jugador, planetas);
-        this.tipo="HUMANO";
     }
+
+    public humano(String jugador) {
+        super(jugador);
+    }
+    
+ 
+    /**
+     *
+     * @param string
+     */
+    
 
     @Override
     double daño() {
