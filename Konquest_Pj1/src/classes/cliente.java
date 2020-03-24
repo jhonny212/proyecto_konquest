@@ -8,6 +8,7 @@ package classes;
 import interfaz.inicio_partida;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -48,18 +49,24 @@ public class cliente extends Thread {
                 Turno turno = p.leer3(null, msj, true);
                 turno.setJugador(new humano(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
-                inicio_partida.count_player=inicio_partida.cliente.numJugador;
-              
-              if (inicio_partida.count_player == 1) {
+                //inicio_partida.count_player = inicio_partida.cliente.numJugador;
+
+                File file = new File(".");
+                System.out.println(inicio_partida.count_player + " aca" + file.getAbsoluteFile());
+
+                if (inicio_partida.count_player == 1) {
                     inicio_partida.count_player = 0;
                     inicio_partida.ejecutarTurnos();
-                    inicio_partida.validarMov = true;
+                    inicio_partida.cant_envios.disable();
+                    inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(0).getJugador());
                 } else {
                     inicio_partida.count_player = 1;
+                    inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(1).getJugador());
+
                 }
-             
+
                 inicio_partida.validarMov = true;
-                
+
                 flujo.close();
                 socket.close();
             }

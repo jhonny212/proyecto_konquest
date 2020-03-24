@@ -11,6 +11,7 @@ import classes.MouseControl;
 import classes.Replay;
 import classes.Turno;
 import classes.archivoEntrada;
+import classes.archivoVs;
 import classes.cliente;
 import classes.distancia;
 import classes.guardar;
@@ -112,6 +113,7 @@ public class inicio_partida extends javax.swing.JFrame {
         iniciarTablero();
 
     }
+    static int count2 = 0;
 
     public static void iniciarContadorPlayer() {
         try {
@@ -122,19 +124,24 @@ public class inicio_partida extends javax.swing.JFrame {
         }
         msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         cant_envios.disable();
-        if (isVs && contadorDeTurnos > 0) {
+        if (isVs && count2 > 0) {
             cliente.enviarMensaje(mensajeServidor);
             mensajeServidor = "";
             validarMov = false;
-            JOptionPane.showMessageDialog(panel_tablero, "entra aca------------------>");
+            //  JOptionPane.showMessageDialog(panel_tablero, "entra aca------Xd----------->");
         } else {
-            if (contadorDeTurnos == 0 && cliente.getNumJugador() == 0) {
-                validarMov = false;
-            } else {
+            try {
+                if (contadorDeTurnos == 0 && cliente.getNumJugador() != 0) {
+                    validarMov = false;
+                } else {
+                    validarMov = true;
+                }
+            } catch (NullPointerException e) {
                 validarMov = true;
             }
-        }
 
+        }
+        count2++;
     }
 
     public static void ininiar_O_D(galaxia o, galaxia d) {
@@ -220,6 +227,7 @@ public class inicio_partida extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         open = new javax.swing.JMenuItem();
         save = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         opciones = new javax.swing.JMenu();
         show = new javax.swing.JCheckBoxMenuItem();
 
@@ -420,6 +428,14 @@ public class inicio_partida extends javax.swing.JFrame {
         });
         juego.add(save);
 
+        jMenuItem2.setText("Cargar archivo para vs");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        juego.add(jMenuItem2);
+
         menu_juego.add(juego);
 
         opciones.setText("Opciones");
@@ -511,13 +527,13 @@ public class inicio_partida extends javax.swing.JFrame {
                 if (game.isValidarJuego() && game.getArray_jugadores().size() == 2) {
                     nuevo_juego nuevo_cargado = new nuevo_juego();
                     nuevo_cargado.setVs(true);
-                    String ip = JOptionPane.showInputDialog(this, "Escriba la ip del jugador contrincante", "Ejemplo 192.168.0.10", 0);
-                    String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese el numero de jugador que desea ser", 0);
+                    //  String ip = JOptionPane.showInputDialog(this, "Escriba la ip del jugador contrincante", "Ejemplo 192.168.0.10", 0);
+                    // String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese el numero de jugador que desea ser", 0);
                     try {
-                        ip.isEmpty();
+                        //  ip.isEmpty();
                         server = new servidor();
                         server.start();
-                        cliente = new cliente(ip, Integer.parseInt(numeroJugador));
+                        cliente = new cliente("192.168.1.9", Integer.parseInt("0"));
                         cliente.start();
                         nuevo_cargado.show();
                         mensajes_txt.setText("");
@@ -633,6 +649,8 @@ public class inicio_partida extends javax.swing.JFrame {
         Turno trn = new Turno(ataques, game.getArray_jugadores().get(count_player));
         if (isVs) {
             mensajeServidor += trn.msj(turnos.size());
+
+            System.out.println(mensajeServidor);
         }
         turnos.add(trn);
         ataques = new ArrayList();
@@ -725,16 +743,7 @@ public class inicio_partida extends javax.swing.JFrame {
 
     private void mostrar_posicionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_posicionesActionPerformed
         // TODO add your handling code here:
-        String txt = "hola jeje";
-        try {
-            Socket socket = new Socket("127.0.0.1", 9999);
-            DataOutputStream flujo = new DataOutputStream(socket.getOutputStream());
-            flujo.writeUTF(txt);
-            flujo.close();
-            socket.close();
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
+
 
     }//GEN-LAST:event_mostrar_posicionesActionPerformed
 
@@ -765,73 +774,42 @@ public class inicio_partida extends javax.swing.JFrame {
         fl.setVisible(true);
 
     }//GEN-LAST:event_vista_generalActionPerformed
-    private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
-        for (int i = 0; i < turn.size(); i++) {
-            for (int j = 0; j < game.getArray_jugadores().size(); j++) {
-                if (game.getArray_jugadores().get(j).getJugador().equals(turn.get(i).getJugador_())) {
-                    turn.get(i).setJugador(game.getArray_jugadores().get(j));
-                    break;
-                }
 
-            }
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        mensajes_txt.setText("");
+        game = null;
+        tablero = null;
+        Konquest_Pj1 p = new Konquest_Pj1();
+        archivoEntrada archivo = new archivoEntrada();
+        JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
+        game = p.probar1(archivo.generateFile());
+        JOptionPane.showMessageDialog(this, "Seleccione un archivo prediseñado y guardado de de guardado");
+        guardar save = p.leer2(archivo.generateFile());
+        archivoVs vs = new archivoVs(null);
+        for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+            vs.ArreglarNeutrales(save, i);
+        }
+        cargarTablero(save,false);
+        iniciarTablero();
+        inicio_partida.options.setVisible(true);
+        inicio_partida.more_options.enable();
+        inicio_partida.iniciarContadorPlayer();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
+        archivoVs vs = new archivoVs(turn);
+        for (int i = 0; i < turn.size(); i++) {
+            vs.ArreglarJugadores(i);
             for (int j = 0; j < turn.get(i).getAtaques().size(); j++) {
                 if (v) {
                     turn.get(i).getAtaques().get(j).setVerificar(false);
                 }
                 for (int k = 0; k < game.getArray_neutrales().size(); k++) {
-                    for (int l = 0; l < save.getNeutrales().size(); l++) {
-                        if (save.getNeutrales().get(l).getNombre().equals(game.getArray_neutrales().get(k).getNombre())) {
-                            int x = save.getNeutrales().get(l).getX_();
-                            int y = save.getNeutrales().get(l).getY_();
-
-                            game.getArray_neutrales().get(k).setX_(x);
-                            game.getArray_neutrales().get(k).setY_(y);
-                            break;
-                        }
-                    }
-                    for (int l = 0; l < save.getPlanetas().size(); l++) {
-                        if (save.getPlanetas().get(l).getNombre().equals(game.getPlanetas().get(k).getNombre())) {
-                            int x = save.getPlanetas().get(l).getX_();
-                            int y = save.getPlanetas().get(l).getY_();
-
-                            game.getPlanetas().get(k).setX_(x);
-                            game.getPlanetas().get(k).setY_(y);
-                            game.getPlanetas().get(k).setColor(save.getPlanetas().get(l).getColorPlaneta());
-
-                            break;
-                        }
-                    }
-                    if (turn.get(i).getAtaques().get(j).getO_().equals(game.getArray_neutrales().get(k).getNombre())) {
-                        galaxia o = new galaxia();
-                        o.setCoordx_(game.getArray_neutrales().get(k).getX_());
-                        o.setCoordy_(game.getArray_neutrales().get(k).getY_());
-                        o.inicializarPlanetaNeutral(game.getArray_neutrales().get(k));
-                        turn.get(i).getAtaques().get(j).setO(o);
-                    } else if (turn.get(i).getAtaques().get(j).getD_().equals(game.getArray_neutrales().get(k).getNombre())) {
-                        galaxia d = new galaxia();
-                        d.setCoordx_(game.getArray_neutrales().get(k).getX_());
-                        d.setCoordy_(game.getArray_neutrales().get(k).getY_());
-                        d.inicializarPlanetaNeutral(game.getArray_neutrales().get(k));
-                        turn.get(i).getAtaques().get(j).setD(d);
-
-                    }
+                    vs.ArreglarNeutrales(save, k);
+                    vs.arreglarDatosDeTurnos(i, k, j);
                 }
 
                 for (int k = 0; k < game.getPlanetas().size(); k++) {
-                    if (turn.get(i).getAtaques().get(j).getO_().equals(game.getPlanetas().get(k).getNombre())) {
-                        galaxia o = new galaxia();
-                        o.setCoordx_(game.getPlanetas().get(k).getX_());
-                        o.setCoordy_(game.getPlanetas().get(k).getY_());
-                        o.inicializarPlanetaJugador(game.getPlanetas().get(k));
-                        turn.get(i).getAtaques().get(j).setO(o);
-                    } else if (turn.get(i).getAtaques().get(j).getD_().equals(game.getPlanetas().get(k).getNombre())) {
-                        galaxia d = new galaxia();
-                        d.setCoordx_(game.getPlanetas().get(k).getX_());
-                        d.setCoordy_(game.getPlanetas().get(k).getY_());
-                        d.inicializarPlanetaJugador(game.getPlanetas().get(k));
-                        turn.get(i).getAtaques().get(j).setD(d);
-
-                    }
+                    vs.arreglarPlanetas(i, j, k);
                 }
             }
 
@@ -1012,6 +990,7 @@ public class inicio_partida extends javax.swing.JFrame {
     private static javax.swing.JButton end_turno;
     private javax.swing.JButton fin_turno;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JMenu juego;
@@ -1019,7 +998,7 @@ public class inicio_partida extends javax.swing.JFrame {
     private javax.swing.JMenuBar menu_juego;
     public static javax.swing.JPanel more_options;
     private javax.swing.JButton mostrar_posiciones;
-    private static javax.swing.JLabel msj_jugador;
+    public static javax.swing.JLabel msj_jugador;
     private javax.swing.JMenu opciones;
     private static javax.swing.JMenuItem open;
     public static javax.swing.JPanel options;
