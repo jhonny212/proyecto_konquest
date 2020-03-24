@@ -7,6 +7,7 @@ package interfaz;
 
 import classes.ButtonController;
 import classes.mouseListener;
+import static interfaz.inicio_partida.cliente;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -879,6 +880,7 @@ public class nuevo_juego extends javax.swing.JFrame {
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
         inicio_partida.iniciarContadorPlayer();
+    
         dispose();
 
     }//GEN-LAST:event_aceptActionPerformed

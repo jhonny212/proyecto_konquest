@@ -11,8 +11,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jugadores.humano;
 import konquest_pj1.Konquest_Pj1;
 
@@ -23,9 +21,15 @@ import konquest_pj1.Konquest_Pj1;
 public class cliente extends Thread {
 
     private final String ip;
+    private final int numJugador;
 
-    public cliente(String ip) {
+    public cliente(String ip, int numJugador) {
         this.ip = ip;
+        this.numJugador = numJugador;
+    }
+
+    public int getNumJugador() {
+        return numJugador;
     }
 
     public String getIp() {
@@ -41,19 +45,21 @@ public class cliente extends Thread {
                 DataInputStream flujo = new DataInputStream(socket.getInputStream());
                 String msj = flujo.readUTF();
                 Konquest_Pj1 p = new Konquest_Pj1();
-                Turno turno = p.leer3(null,msj,true);
+                Turno turno = p.leer3(null, msj, true);
                 turno.setJugador(new humano(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
-                if(inicio_partida.count_player==1)
-                {
-                inicio_partida.count_player=0;
-                inicio_partida.ejecutarTurnos();
-                inicio_partida.validarMov=true;
+                inicio_partida.count_player=inicio_partida.cliente.numJugador;
+              
+              if (inicio_partida.count_player == 1) {
+                    inicio_partida.count_player = 0;
+                    inicio_partida.ejecutarTurnos();
+                    inicio_partida.validarMov = true;
+                } else {
+                    inicio_partida.count_player = 1;
                 }
-                else {
-                inicio_partida.count_player=1;
-                inicio_partida.validarMov=true;
-                }
+             
+                inicio_partida.validarMov = true;
+                
                 flujo.close();
                 socket.close();
             }
@@ -72,5 +78,5 @@ public class cliente extends Thread {
         } catch (IOException ex) {
             System.out.println(ex.getMessage() + "ESTE");
         }
-   }
+    }
 }

@@ -126,8 +126,13 @@ public class inicio_partida extends javax.swing.JFrame {
             cliente.enviarMensaje(mensajeServidor);
             mensajeServidor = "";
             validarMov = false;
+            JOptionPane.showMessageDialog(panel_tablero, "entra aca------------------>");
         } else {
-            validarMov = true;
+            if (contadorDeTurnos == 0 && cliente.getNumJugador() == 0) {
+                validarMov = false;
+            } else {
+                validarMov = true;
+            }
         }
 
     }
@@ -484,7 +489,7 @@ public class inicio_partida extends javax.swing.JFrame {
         switch (seleccion) {
 
             case 0:
-               
+
                 game = Konquest_Pj1.probar1(archivo.generateFile());
                 game.voidValidarTodos();
                 isVs = false;
@@ -507,11 +512,12 @@ public class inicio_partida extends javax.swing.JFrame {
                     nuevo_juego nuevo_cargado = new nuevo_juego();
                     nuevo_cargado.setVs(true);
                     String ip = JOptionPane.showInputDialog(this, "Escriba la ip del jugador contrincante", "Ejemplo 192.168.0.10", 0);
+                    String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese el numero de jugador que desea ser", 0);
                     try {
                         ip.isEmpty();
                         server = new servidor();
                         server.start();
-                        cliente = new cliente(ip);
+                        cliente = new cliente(ip, Integer.parseInt(numeroJugador));
                         cliente.start();
                         nuevo_cargado.show();
                         mensajes_txt.setText("");
@@ -519,6 +525,7 @@ public class inicio_partida extends javax.swing.JFrame {
                         nuevo_cargado.setSize();
                     } catch (NullPointerException e) {
                         JOptionPane.showMessageDialog(this, "Vuelva pronto...");
+                    } catch (NumberFormatException ex) {
                     }
 
                 } else {
@@ -685,10 +692,13 @@ public class inicio_partida extends javax.swing.JFrame {
         game = null;
         tablero = null;
         Konquest_Pj1 p = new Konquest_Pj1();
-        archivoEntrada archivo=new archivoEntrada();
+        archivoEntrada archivo = new archivoEntrada();
+        JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
         game = p.probar1(archivo.generateFile());
+        JOptionPane.showMessageDialog(this, "Seleccione un archivo de de guardado");
         guardar save = p.leer2(archivo.generateFile());
-        p.leer3(archivo.generateFile(),"",false);
+        JOptionPane.showMessageDialog(this, "Seleccione un de replay");
+        p.leer3(archivo.generateFile(), "", false);
         ArrayList<Turno> turn = p.listTurnos;
         int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea hacer un replay del juego?");
         replay = new Replay();;
