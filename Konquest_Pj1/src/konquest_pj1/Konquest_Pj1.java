@@ -12,6 +12,8 @@ import gramaticaReplay.lexico_replay;
 import gramaticaReplay.parser_replay;
 import static gramaticaReplay.parser_replay.ataques;
 import static gramaticaReplay.parser_replay.turnos_;
+import gramaticaTurnosCliente_Servidor.lexico_cliente_servidor;
+import gramaticaTurnosCliente_Servidor.parser_cliente_servidor;
 import gramatica_guardar.lexico_save;
 import gramatica_guardar.parser_save;
 import gramatica_juego.lexico_juego;
@@ -40,7 +42,7 @@ public class Konquest_Pj1 {
      * @param txt
      * @param isVs
      * @param args the command line arguments
-     * @return 
+     * @return
      */
     public static Turno leer3(File file, String txt, boolean isVs) {
         parser_replay parser = null;
@@ -110,14 +112,32 @@ public class Konquest_Pj1 {
         return juego;
     }
 
-    String nombre;
+    public static Turno leer4(String txt) {
+        parser_cliente_servidor parser = null;
+        parser.ataques = new ArrayList();
+        parser.turnos_ = new ArrayList();
+        try {
+            lexico_cliente_servidor scan = new lexico_cliente_servidor(new BufferedReader(new StringReader(txt)));
+
+            parser = new parser_cliente_servidor(scan);
+
+            parser.parse();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        listTurnos = parser.turnos_;
+        return parser.turnos_.get(0);
+    }
 
     public static void main(String[] args) {
         //  turnos = new ArrayList();
         System.out.println("hola--------------------->");
-        inicio_partida start = new inicio_partida();
-        start.show();
-       
+        //inicio_partida start = new inicio_partida();
+        // start.show();
+
+     //   leer4("");
         // generarCompilador();
         // leer2();
         //  leer3();
@@ -148,10 +168,10 @@ public class Konquest_Pj1 {
 
     private static void generarCompilador() {
         try {
-            String ruta = "src/gramaticaReplay/"; //ruta donde tenemos los archivos con extension .jflex y .cup
-            String opcFlex[] = {ruta + "lexico_replay.jflex", "-d", ruta};
+            String ruta = "src/gramaticaTurnosCliente_Servidor/"; //ruta donde tenemos los archivos con extension .jflex y .cup
+            String opcFlex[] = {ruta + "lexico_cliente_servidor.jflex", "-d", ruta};
             jflex.Main.generate(opcFlex);
-            String opcCUP[] = {"-destdir", ruta, "-parser", "parser_replay", ruta + "parser_replay.cup"};
+            String opcCUP[] = {"-destdir", ruta, "-parser", "parser_cliente_servidor", ruta + "parser_cliente_servidor.cup"};
             java_cup.Main.main(opcCUP);
         } catch (Exception e) {
             e.printStackTrace();

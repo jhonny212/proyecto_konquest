@@ -46,7 +46,8 @@ public class cliente extends Thread {
                 DataInputStream flujo = new DataInputStream(socket.getInputStream());
                 String msj = flujo.readUTF();
                 Konquest_Pj1 p = new Konquest_Pj1();
-                Turno turno = p.leer3(null, msj, true);
+                Turno turno = p.leer4(msj);
+                
                 turno.setJugador(new humano(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
                 //inicio_partida.count_player = inicio_partida.cliente.numJugador;

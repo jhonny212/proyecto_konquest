@@ -1,0 +1,158 @@
+package gramaticaTurnosCliente_Servidor;
+import java_cup.runtime.Symbol;
+
+
+parser code {:
+    public static ArrayList<Turno> turnos_;
+    public static ArrayList<Ataque> ataques;
+    public static String jugador_,origen_,destino_;
+    public static int turno_,naves_,x_,y_,x2_,y2_;
+    public static boolean complete_;
+   public void syntax_error(Symbol s){
+        System.out.println("Error R de sintaxis: "+ s.value +" Linea "+(s.left+1)+" columna "+(s.right+1) );
+    }
+    public void unrecovered_syntax_error(Symbol s) throwsjava.lang.Exception{
+    System.out.println("La Cadena:" +s.value+" en la Linea:"+(s.right+1) +" ,Columna: "+s.left+"esta fuera de contexto." );
+ }
+:}
+
+terminal turno,abreCor,cierraCor,abreLlaves,cierraLlaves,coma,dosPuntos,naves,datos,
+nombre,comilla,abreComilla,cierraComilla,num,id,ERROR,espacio,origen,destino,complete,bool,posicion, ataque,
+posicionX,posicionY;
+
+non-terminal TURNO, COMILLAS1, COMILLAS2, TURNOS,TURNO1,NAME,NAME1,NUM,NUM1,ATAQUE,ATAQUE1,
+ATAQ,ATAQ1,ATAQ2,ATAQ3,ATAQ4,GALAXY,GALAXY1,O,O1,D,D1,T,T1,DATOS,DATA,ATAQ22,POSICION,POSICION2,COORD,COORD2
+,ORIGEN,DESTINO;
+
+start with TURNO;
+//para mapas
+TURNO::= abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves ;
+TURNOS::= abreLlaves TURNO1 cierraLlaves 
+{:
+Turno tmp=new Turno(ataques,jugador_,0);
+galaxia
+turnos_.add(tmp);
+:}
+ ;
+TURNO1::= NAME | ATAQUE  ;
+NAME::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma NAME1 {:nombre_=(String)e1;:};
+NAME1::=  ATAQ; 
+
+COORD::= posicion dosPuntos abreCor POSICION  cierraCor;
+COORD2::= posicion dosPuntos abreCor POSICION2  cierraCor;
+
+POSICION::= posicionX dosPuntos num:e coma posicionY dosPuntos num:e2 
+{:
+x_=Integer.parseInt((String)e);
+y_=Integer.parseInt((String)e2);
+:}
+| posicionY dosPuntos num:e coma posicionX dosPuntos num:e2
+{:
+x_=Integer.parseInt((String)e2);
+y_=Integer.parseInt((String)e);
+:}
+;
+
+POSICION2::= posicionX dosPuntos num:e coma posicionY dosPuntos num:e2 
+{:
+x2_=Integer.parseInt((String)e);
+y2_=Integer.parseInt((String)e2);
+:}
+| posicionY dosPuntos num:e coma posicionX dosPuntos num:e2
+{:
+x2_=Integer.parseInt((String)e2);
+y2_=Integer.parseInt((String)e);
+:}
+;
+ATAQUE::= ATAQ  coma ATAQUE1;
+ATAQUE1::=  nombre dosPuntos COMILLAS1 id:e1 COMILLAS2  
+{:
+jugador_=(String)e1;
+:};
+
+
+
+ATAQ::= ataque dosPuntos abreLlaves ATAQ22 cierraLlaves  ;
+ATAQ22::= ATAQ1 | ;
+ATAQ1::= abreLlaves ATAQ2  cierraLlaves  ATAQ3;
+
+ATAQ2::= GALAXY coma DATOS 
+{: 
+galaxia o=iniciar_partida.tablero[x_][y_];
+galaxia d=iniciar_partida.tablero[x2_][y2_];
+
+Ataque ataque=new Ataque(o,d,turno_,naves_,complete_);
+
+ataques.add(ataque);
+:}
+ | DATOS coma GALAXY 
+{: 
+galaxia o=iniciar_partida.tablero[x_][y_];
+galaxia d=iniciar_partida.tablero[x2_][y2_];
+Ataque ataque=new Ataque(o,d,turno_,naves_,complete_);
+
+ataques.add(ataque);
+:}
+;
+ATAQ3::= coma ATAQ1 |  ;
+ATAQ4::= coma TURNOS ATAQ4 |  ;
+
+ORIGEN::= COMILLAS1 id:e COMILLAS2 coma COORD {:origen_=(String)e;:}
+| COORD coma COMILLAS1 id:e COMILLAS2 {:origen_=(String)e;:};
+
+DESTINO::= COMILLAS1 id:e COMILLAS2 coma COORD2 {:destino_=(String)e;:} 
+| COORD2 COMILLAS1 id:e COMILLAS2 {:destino_=(String)e;:};
+
+GALAXY::= espacio dosPuntos abreLlaves GALAXY1 cierraLlaves;
+GALAXY1::= O | D | T;
+O::= origen dosPuntos abreCor ORIGEN cierraCor coma O1;
+O1::= destino dosPuntos abreCor DESTINO cierraCor coma turno dosPuntos  num:e1
+{:
+turno_=Integer.parseInt((String)e1);
+:} 
+| turno dosPuntos  num:e1 coma destino dosPuntos abreCor DESTINO cierraCor
+{:
+turno_=Integer.parseInt((String)e1);
+:} 
+ ;
+
+D::= destino dosPuntos abreCor DESTINO cierraCor coma D1 ;
+D1::= origen dosPuntos abreCor ORIGEN cierraCor coma turno dosPuntos  num:e1
+{:
+turno_=Integer.parseInt((String)e1);
+:}  
+| turno dosPuntos  num:e1 coma origen dosPuntos abreCor ORIGEN cierraCor 
+{:
+turno_=Integer.parseInt((String)e1);
+:} 
+;
+
+T::= turno dosPuntos num:e coma T1 {:turno_=Integer.parseInt((String)e);:};
+T1::= origen dosPuntos abreCor ORIGEN cierraCor coma destino dosPuntos abreCor DESTINO cierraCor 
+
+| destino dosPuntos abreCor DESTINO cierraCor coma origen dosPuntos abreCor ORIGEN cierraCor
+
+ ;
+
+DATOS::= datos dosPuntos abreLlaves DATA cierraLlaves;
+DATA::= naves dosPuntos num:e coma complete dosPuntos bool:e1 
+{:
+naves_=Integer.parseInt((String)e);
+complete_= Boolean.parseBoolean((String)e1);
+:}
+| complete dosPuntos bool:e1 coma naves dosPuntos num:e 
+{:
+naves_=Integer.parseInt((String)e);
+complete_= Boolean.parseBoolean((String)e1);
+:}
+;
+
+
+
+
+
+//abre comillas
+COMILLAS1::= comilla | abreComilla;
+COMILLAS2::= comilla | cierraComilla;
+
+

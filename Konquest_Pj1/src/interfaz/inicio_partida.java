@@ -776,9 +776,14 @@ public class inicio_partida extends javax.swing.JFrame {
     }//GEN-LAST:event_vista_generalActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        isVs=true;
         mensajes_txt.setText("");
         game = null;
         tablero = null;
+        server = new servidor();
+        server.start();
+        cliente = new cliente("192.168.1.9", Integer.parseInt("0"));
+        cliente.start();
         Konquest_Pj1 p = new Konquest_Pj1();
         archivoEntrada archivo = new archivoEntrada();
         JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
@@ -789,7 +794,7 @@ public class inicio_partida extends javax.swing.JFrame {
         for (int i = 0; i < game.getArray_neutrales().size(); i++) {
             vs.ArreglarNeutrales(save, i);
         }
-        cargarTablero(save,false);
+        cargarTablero(save, false);
         iniciarTablero();
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
