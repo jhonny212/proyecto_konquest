@@ -51,19 +51,18 @@ public class cliente extends Thread {
                 turno.config();
                 turno.setJugador(jugador(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
+                inicio_partida.count_player = inicio_partida.cliente.numJugador;
 
-               
-                if (inicio_partida.count_player == 1) {
+                /* if (inicio_partida.count_player == 1) {
                     inicio_partida.count_player = 0;
                   //  inicio_partida.ejecutarTurnos();
                     inicio_partida.cant_envios.disable();
                     inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(0).getJugador());
                 } else {
                     inicio_partida.count_player = 1;
-                    inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(1).getJugador());
-
-                }
-
+               
+                }*/
+                inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(1).getJugador());
                 inicio_partida.validarMov = true;
 
                 flujo.close();

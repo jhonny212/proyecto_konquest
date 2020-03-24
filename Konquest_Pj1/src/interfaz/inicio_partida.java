@@ -116,23 +116,22 @@ public class inicio_partida extends javax.swing.JFrame {
     static int count2 = 0;
 
     public static void iniciarContadorPlayer() {
-      
-        try {
-            msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
-        } catch (IndexOutOfBoundsException e) {
-            if(isVs){
-            ejecutarTurnos();
+       
+            try {
+                msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
+            } catch (IndexOutOfBoundsException e) {
+
+                //ejecutarTurnos();
+
+                count_player = 0;
             }
-            count_player = 0;
-        }
-        
+      
         msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         cant_envios.disable();
         if (isVs && count2 > 0) {
             cliente.enviarMensaje(mensajeServidor);
             mensajeServidor = "";
             validarMov = false;
-            //  JOptionPane.showMessageDialog(panel_tablero, "entra aca------Xd----------->");
         } else {
             try {
                 if (contadorDeTurnos == 0 && cliente.getNumJugador() != 0) {
@@ -780,7 +779,7 @@ public class inicio_partida extends javax.swing.JFrame {
     }//GEN-LAST:event_vista_generalActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        isVs=true;
+        isVs = true;
         mensajes_txt.setText("");
         game = null;
         tablero = null;
