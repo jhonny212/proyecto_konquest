@@ -116,12 +116,16 @@ public class inicio_partida extends javax.swing.JFrame {
     static int count2 = 0;
 
     public static void iniciarContadorPlayer() {
+      
         try {
             msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         } catch (IndexOutOfBoundsException e) {
+            if(isVs){
             ejecutarTurnos();
+            }
             count_player = 0;
         }
+        
         msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         cant_envios.disable();
         if (isVs && count2 > 0) {
