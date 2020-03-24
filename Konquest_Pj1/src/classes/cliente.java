@@ -6,12 +6,14 @@
 package classes;
 
 import interfaz.inicio_partida;
+import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javax.swing.JOptionPane;
 import jugadores.humano;
 import jugadores.jugador;
 import konquest_pj1.Konquest_Pj1;
@@ -49,10 +51,14 @@ public class cliente extends Thread {
                 Konquest_Pj1 p = new Konquest_Pj1();
                 Turno turno = p.leer4(msj);
                 turno.config();
+                inicio_partida.end_turno.setVisible(true);
                 turno.setJugador(jugador(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
                 inicio_partida.count_player = inicio_partida.cliente.numJugador;
-
+                if (inicio_partida.count_player == 0) {
+                    inicio_partida.ejecutarTurnos();
+                    inicio_partida.cant_envios.disable();
+                }
                 /* if (inicio_partida.count_player == 1) {
                     inicio_partida.count_player = 0;
                   //  inicio_partida.ejecutarTurnos();
@@ -62,7 +68,7 @@ public class cliente extends Thread {
                     inicio_partida.count_player = 1;
                
                 }*/
-                inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(1).getJugador());
+                inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
                 inicio_partida.validarMov = true;
 
                 flujo.close();
@@ -87,13 +93,22 @@ public class cliente extends Thread {
 
     public humano jugador(String name) {
         humano humano = null;
-        for (int i = 0; i < inicio_partida.game.getArray_jugadores().size(); i++) {
-            if (name.equals(inicio_partida.game.getArray_jugadores().get(i).getJugador())) {
-                humano = (humano) inicio_partida.game.getArray_jugadores().get(i);
-                break;
+        for (int i = 0; i < inicio_partida.game.getMapa().getTamaño().getWidth(); i++) {
+            for (int j = 0; j < inicio_partida.game.getMapa().getTamaño().getHeight(); j++) {
+                if(!inicio_partida.tablero[i][j].isEmpty())
+                {
+                   if (name.equals(inicio_partida.tablero[i][j].getPlaneta().getDueño())) {
+                    humano = new humano(name);
+                    humano.color=inicio_partida.tablero[i][j].getColor();
+                    break;
+                }
+                }
+             
             }
-
         }
+
         return humano;
     }
+    
+  
 }

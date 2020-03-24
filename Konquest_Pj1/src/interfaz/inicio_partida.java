@@ -144,6 +144,9 @@ public class inicio_partida extends javax.swing.JFrame {
             }
 
         }
+        if(count_player!=cliente.getNumJugador()){
+        end_turno.setVisible(false);
+        }
         count2++;
     }
 
@@ -373,6 +376,11 @@ public class inicio_partida extends javax.swing.JFrame {
         });
         options.add(end_turno, new org.netbeans.lib.awtextra.AbsoluteConstraints(1150, 10, -1, -1));
 
+        cant_envios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cant_enviosActionPerformed(evt);
+            }
+        });
         cant_envios.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 cant_enviosKeyTyped(evt);
@@ -431,6 +439,7 @@ public class inicio_partida extends javax.swing.JFrame {
         });
         juego.add(save);
 
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem2.setText("Cargar archivo para vs");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -649,7 +658,11 @@ public class inicio_partida extends javax.swing.JFrame {
     private void end_turnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_end_turnoActionPerformed
         options.enable();
         origenMov = false;
+        
         Turno trn = new Turno(ataques, game.getArray_jugadores().get(count_player));
+       if(isVs){
+        trn.getJugador().color=_o.getColor();
+       }
         if (isVs) {
             mensajeServidor += trn.msj(turnos.size());
 
@@ -659,6 +672,7 @@ public class inicio_partida extends javax.swing.JFrame {
         ataques = new ArrayList();
         count_player++;
         cant_envios.disable();
+        
         end_turno.disable();
         iniciarContadorPlayer();
 
@@ -801,8 +815,13 @@ public class inicio_partida extends javax.swing.JFrame {
         iniciarTablero();
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
+        
         inicio_partida.iniciarContadorPlayer();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void cant_enviosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cant_enviosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cant_enviosActionPerformed
     private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
         archivoVs vs = new archivoVs(turn);
         for (int i = 0; i < turn.size(); i++) {
@@ -893,6 +912,7 @@ public class inicio_partida extends javax.swing.JFrame {
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].inicializarPlanetaJugador(game.getPlanetas().get(i));
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].setBackground(tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].getColor());
         }
+        
     }
 
     public static void reiniciar(int i, int j) {
@@ -995,7 +1015,7 @@ public class inicio_partida extends javax.swing.JFrame {
     private javax.swing.JButton barra_mensajes;
     public static javax.swing.JPasswordField cant_envios;
     private static javax.swing.JScrollPane contenido_mapa;
-    private static javax.swing.JButton end_turno;
+    public static javax.swing.JButton end_turno;
     private javax.swing.JButton fin_turno;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;

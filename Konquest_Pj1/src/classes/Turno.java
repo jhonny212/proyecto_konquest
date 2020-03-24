@@ -8,8 +8,6 @@ package classes;
 import interfaz.inicio_partida;
 import java.awt.Color;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
-import javax.xml.soap.Text;
 import jugadores.jugador;
 import planetas.galaxia;
 
@@ -219,6 +217,7 @@ public class Turno {
             int x=ataques.get(i).getO().getCoordx_();
             int y=ataques.get(i).getO().getCoordy_();
             inicio_partida.tablero[x][y].getPlaneta().setNaves(naves-ataques.get(i).getCant());
+            inicio_partida.reiniciar(x, y);
         }
     }
 }
