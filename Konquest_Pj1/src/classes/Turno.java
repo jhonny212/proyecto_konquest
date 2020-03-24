@@ -213,4 +213,12 @@ public class Turno {
 
         return txt;
     }
+    public void config(){
+        for (int i = 0; i < ataques.size(); i++) {
+            int naves=ataques.get(i).getO().getPlaneta().getNaves();
+            int x=ataques.get(i).getO().getCoordx_();
+            int y=ataques.get(i).getO().getCoordy_();
+            inicio_partida.tablero[x][y].getPlaneta().setNaves(naves-ataques.get(i).getCant());
+        }
+    }
 }

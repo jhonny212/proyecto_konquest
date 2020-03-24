@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import jugadores.humano;
+import jugadores.jugador;
 import konquest_pj1.Konquest_Pj1;
 
 /**
@@ -47,14 +48,11 @@ public class cliente extends Thread {
                 String msj = flujo.readUTF();
                 Konquest_Pj1 p = new Konquest_Pj1();
                 Turno turno = p.leer4(msj);
-                
-                turno.setJugador(new humano(turno.getJugador_()));
+                turno.config();
+                turno.setJugador(jugador(turno.getJugador_()));
                 inicio_partida.turnos.add(turno);
-                //inicio_partida.count_player = inicio_partida.cliente.numJugador;
 
-                File file = new File(".");
-                System.out.println(inicio_partida.count_player + " aca" + file.getAbsoluteFile());
-
+                
                 if (inicio_partida.count_player == 1) {
                     inicio_partida.count_player = 0;
                     inicio_partida.ejecutarTurnos();
@@ -86,5 +84,17 @@ public class cliente extends Thread {
         } catch (IOException ex) {
             System.out.println(ex.getMessage() + "ESTE");
         }
+    }
+
+    public humano jugador(String name) {
+        humano humano = null;
+        for (int i = 0; i < inicio_partida.game.getArray_jugadores().size(); i++) {
+            if (name.equals(inicio_partida.game.getArray_jugadores().get(i).getJugador())) {
+                humano = (humano) inicio_partida.game.getArray_jugadores().get(i);
+                break;
+            }
+
+        }
+        return humano;
     }
 }

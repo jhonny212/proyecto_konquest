@@ -134,8 +134,8 @@ public class Konquest_Pj1 {
     public static void main(String[] args) {
         //  turnos = new ArrayList();
         System.out.println("hola--------------------->");
-        //inicio_partida start = new inicio_partida();
-        // start.show();
+        inicio_partida start = new inicio_partida();
+         start.show();
 
      //   leer4("");
         // generarCompilador();

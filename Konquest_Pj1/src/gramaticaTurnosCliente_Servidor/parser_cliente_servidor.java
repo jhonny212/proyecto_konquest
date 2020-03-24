@@ -704,7 +704,7 @@ class CUP$parser_cliente_servidor$actions {
 
                 galaxia o = inicio_partida.tablero[x_][y_];
                 galaxia d = inicio_partida.tablero[x2_][y2_];
-                Ataque ataque = new Ataque("d", "f", turno_, naves_, complete_);
+                Ataque ataque = new Ataque(o, d, turno_, naves_, complete_);
                 System.out.println(x_ + " " + y_);
                 System.out.println(x2_ + " " + y2_);
                 System.out.println(o.getPlaneta().getNombre());
@@ -724,7 +724,7 @@ class CUP$parser_cliente_servidor$actions {
                 galaxia o = inicio_partida.tablero[x_][y_];
                 galaxia d = inicio_partida.tablero[x2_][y2_];
 
-                Ataque ataque = new Ataque("f", "d", turno_, naves_, complete_);
+                Ataque ataque = new Ataque(o, d, turno_, naves_, complete_);
                 System.out.println(x_ + " " + y_);
                 System.out.println(x2_ + " " + y2_);
                 System.out.println(o.getPlaneta().getNombre());
