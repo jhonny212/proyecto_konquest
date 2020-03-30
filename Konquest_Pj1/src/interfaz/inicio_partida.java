@@ -850,10 +850,9 @@ public class inicio_partida extends javax.swing.JFrame {
         tablero = null;
         server = new servidor();
         server.start();
-        String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
-        try {
-            seleccion = Integer.parseInt(numeroJugador);
-            cliente = new cliente(numeroJugador, 0);
+       // String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
+    
+            cliente = new cliente("192.168.1.9", 0);
             cliente.start();
             archivoEntrada archivo = new archivoEntrada();
             game = Konquest_Pj1.probar1(archivo.generateFile());
@@ -878,8 +877,7 @@ public class inicio_partida extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, game.getMsj());
             }
-        } catch (NumberFormatException e) {
-        }
+        
 
         /* JOptionPane.showMessageDialog(this,"Usted sera el jugador 1");
         estadoDeVs=1;
@@ -913,6 +911,7 @@ public class inicio_partida extends javax.swing.JFrame {
             } catch (NumberFormatException e) {
             }
          */
+                 
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void cant_enviosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cant_enviosActionPerformed

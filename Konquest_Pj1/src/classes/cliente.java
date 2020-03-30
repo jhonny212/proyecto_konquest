@@ -5,6 +5,7 @@
  */
 package classes;
 
+import gramatica_guardar.LeerArchivoSave;
 import gramatica_juego.LeerArchivoJuego;
 import interfaz.inicio_partida;
 import interfaz.nuevo_juego;
@@ -52,21 +53,33 @@ public class cliente extends Thread {
                         if (msj.equals("esperando...")) {
                             guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
                             String msjEnvio = save.config();
+                            msj += " ENDLESS " + save.planetas();
                             inicio_partida.estadoDeVs = 2;
                             enviarMensaje(msjEnvio);
                         } else {
+                            String array[] = msj.split("ENDLESS");
                             LeerArchivoJuego p = new LeerArchivoJuego();
-                            juego game = p.getGame(msj);
+                            juego game = p.getGame(array[0]);
+
+                            LeerArchivoSave sav = new LeerArchivoSave();
+                            guardar save = sav.getSave(array[1]);
+                            archivoVs vs = new archivoVs(null);
                             nuevo_juego nuevo_cargado = new nuevo_juego();
-                            nuevo_cargado.show();
                             nuevo_cargado.iniciarJuego(game);
-                            nuevo_cargado.setSize();
+
+                            for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+                                vs.ArreglarNeutrales2(save, i);
+                            }
+                            configurarTableroCliente t=new configurarTableroCliente();
+                            t.cargarTablero(save, false);
+                            nuevo_cargado.show();
+
                             inicio_partida.estadoDeVs = 2;
                         }
 
                         break;
                     case 2:
-                        
+
                         break;
                     case 3:
                         Konquest_Pj1 p = new Konquest_Pj1();

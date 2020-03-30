@@ -51,11 +51,9 @@ public class guardar {
     public guardar(juego juego, galaxia[][] tablero) {
         this.juego = juego;
         this.tablero = tablero;
-        System.out.println(config());
+
     }
 
-   
-   
     public guardar(juego juego, galaxia[][] tablero, ArrayList<Turno> list) {
         this.juego = juego;
         this.tablero = tablero;
@@ -73,9 +71,9 @@ public class guardar {
         txt += planetas() + "\n";
         txt += turnos();
         System.out.println(txt);
-        txt=config();
+        txt = config();
         System.out.println(txt);
-        
+
     }
 
     public String config() {
@@ -123,20 +121,18 @@ public class guardar {
             }
 
         }
-        
-        txt     ="{\n"
+
+        txt = "{\n"
                 + "     PLANETAS : ["
                 + planetas
                 + "     ] , \n"
                 + "     PLANETAS_NEUTRALES : ["
                 + neutrales
                 + "     ] , \n"
-                + mapa(1)
+                + mapa(2)
                 + "\n"
                 + ","
-                + "     JUGADORES : ["
-                + jugadores()
-                + "     ]"
+                + players(col, fil)
                 + "}";
         return txt;
     }
@@ -214,22 +210,22 @@ public class guardar {
                     + "]";
         } else {
             txt = " MAPA: {\n"
-                    + "	id: “"+juego.getMapa().getNombre()+"”,\n"
+                    + "	id: “" + juego.getMapa().getNombre() + "”,\n"
                     + "	tamaño: {\n"
-                    + "	columnas: "+fil+",\n"
-                    + "  	filas: "+col+"\n"
+                    + "	columnas: " + fil + ",\n"
+                    + "  	filas: " + col + "\n"
                     + "  	  \n"
                     + "	},\n"
-                    + "	alAzar: "+azar+",\n"
+                    + "	alAzar: " + azar + ",\n"
                     + "	planetasNeutrales: 3,\n"
-                    + "	mapaCiego: "+mciego+",\n"
-                    + "	acumular: "+acum+",\n"
+                    + "	mapaCiego: " + mciego + ",\n"
+                    + "	acumular: " + acum + ",\n"
                     + "	NEUTRALES: {\n"
-                    + "  	  mostrarNaves: "+showNaves+",\n"
-                    + "  	  mostrarEstadisticas: "+showestadisticas+",\n"
-                    + "  	  produccion: "+juego.getMapa().getNeutral().getProduccion()+"\n"
+                    + "  	  mostrarNaves: " + showNaves + ",\n"
+                    + "  	  mostrarEstadisticas: " + showestadisticas + ",\n"
+                    + "  	  produccion: " + juego.getMapa().getNeutral().getProduccion() + "\n"
                     + "	},\n"
-                    + "	finalizacion: "+juego.getMapa().getFinalizacion()+"\n"
+                    + "	finalizacion: " + juego.getMapa().getFinalizacion() + "\n"
                     + "  }";
 
         }
@@ -237,7 +233,7 @@ public class guardar {
         return txt;
     }
 
-    private String planetas() {
+    public String planetas() {
         String txt = "";
         String planetas = "";
         String neutrales = "";
@@ -355,13 +351,14 @@ public class guardar {
             }
             jugadores
                     += "{\n"
-                    + "      nombre= “" + name + "” ,\n"
+                    + "      nombre: “" + name + "” ,\n"
                     + "      planetas: [";
             name = "";
             count2 = 0;
             for (int i = 0; i < col; i++) {
                 for (int j = 0; j < fil; j++) {
                     if (!tablero[i][j].isEmpty()) {
+
                         if (tablero[i][j].getPlaneta().getDueño().equals(juego.getArray_jugadores().get(k).getJugador())) {
                             if (count2 > 0) {
                                 name += ",\n";
@@ -373,10 +370,12 @@ public class guardar {
                     }
                 }
             }
+            jugadores+=name;
             name = juego.getArray_jugadores().get(k).getClass().getSimpleName();
+            name=name.toUpperCase();
             jugadores
                     += "       ] ,"
-                    + "       tipo: “" + name + "”"
+                    + "       tipo: " + name + ""
                     + "}";
             count++;
 

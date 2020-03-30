@@ -54,7 +54,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     public void setVs(boolean vs) {
         this.vs = vs;
     }
-    
+
     DefaultComboBoxModel modelo;
     Border border2;
     Border border1;
@@ -107,10 +107,7 @@ public class nuevo_juego extends javax.swing.JFrame {
         setTabla();
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
-        if(inicio_partida.isVs){
-        jScrollPane1.setEnabled(false);
-        tabla_jugadores.setEnabled(false);
-        }
+
     }
 
     private void opciones() {
@@ -128,6 +125,25 @@ public class nuevo_juego extends javax.swing.JFrame {
             estadisticas.setSelected(true);
         }
         production.setValue(map.getNeutral().getProduccion());
+
+    }
+
+    public void setSize2() {
+        mapa map = juego.getMapa();
+        map = juego.getMapa();
+        this.altura.setValue(map.getTamaño().getHeight());
+        this.ancho.setValue(map.getTamaño().getWidth());
+        this.cant_planetaNeutrales.setValue(map.getPlanetasNeutrales());
+        content_map.setBorder(javax.swing.BorderFactory.createTitledBorder(map.getNombre()));
+        filas = (int) map.getTamaño().getWidth();
+        columnas = (int) map.getTamaño().getHeight();
+        tablero = new galaxia[filas][columnas];
+        opciones();
+        inicializarTablero();
+        iniciarCombo();
+        setTabla();
+        mouseListener bt = new mouseListener();
+        tabla_jugadores.addMouseListener(bt);
 
     }
 
@@ -176,6 +192,8 @@ public class nuevo_juego extends javax.swing.JFrame {
                     list2.get(x).setDueño(list.get(k).getJugador());
                     tablero[inti][intj].inicializarPlanetaJugador(list2.get(x));
                     tablero[inti][intj].setCoord(x);
+                    JOptionPane.showMessageDialog(map, tablero[inti][intj].getPlaneta().getDueño());
+
                     x++;
                 }
 
@@ -225,8 +243,8 @@ public class nuevo_juego extends javax.swing.JFrame {
                 if (juego.getArray_neutrales().get(i).getNombre().equals(tablero[x][y].getPlaneta().getNombre())) {
                     coord_x = x;
                     coord_y = y;
-                    
-                     for (int j = 0; j < data_planets.getItemCount(); j++) {
+
+                    for (int j = 0; j < data_planets.getItemCount(); j++) {
                         if (data_planets.getItemAt(j).equals(tablero[x][y].getPlaneta().getNombre())) {
                             data_planets.setSelectedIndex(j);
 
@@ -873,8 +891,8 @@ public class nuevo_juego extends javax.swing.JFrame {
     }//GEN-LAST:event_alturaStateChanged
 
     private void aceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptActionPerformed
-        if(this.isVs()){
-        
+        if (this.isVs()) {
+
         }
         inicio_partida.game = juego;
         inicio_partida.tablero = tablero;
@@ -883,7 +901,7 @@ public class nuevo_juego extends javax.swing.JFrame {
         inicio_partida.iniciarTablero();
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
-        inicio_partida.count_player=0;
+        inicio_partida.count_player = 0;
         inicio_partida.msj_jugador.setText("Jugador " + juego.getArray_jugadores().get(0).getJugador() + ": seleccione el planeta origen");
 
         inicio_partida.iniciarContadorPlayer();

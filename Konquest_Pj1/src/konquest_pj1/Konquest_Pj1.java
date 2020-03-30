@@ -14,6 +14,7 @@ import static gramaticaReplay.parser_replay.ataques;
 import static gramaticaReplay.parser_replay.turnos_;
 import gramaticaTurnosCliente_Servidor.lexico_cliente_servidor;
 import gramaticaTurnosCliente_Servidor.parser_cliente_servidor;
+import gramatica_guardar.LeerArchivoSave;
 import gramatica_guardar.lexico_save;
 import gramatica_guardar.parser_save;
 import gramatica_juego.LeerArchivoJuego;
@@ -124,33 +125,16 @@ public class Konquest_Pj1 {
     }
 
     public static void main(String[] args) {
-       //inicio_partida start = new inicio_partida();
-       // start.show();
-       String msj="HOLA MUNDO JAJA XDXDXD DDDSSAS";
-       String array[]=msj.split("XDXDXD");
-        for (String string : array) {
-           
-        } // generarCompilador();
+        inicio_partida start = new inicio_partida();
+        start.show();
+        // generarCompilador();
     }
 
     public static guardar leer2(File file) {
 
-        parser_save parser = null;
-        try {
-            String texto = leer(file);
-            lexico_save scan = new lexico_save(new BufferedReader(new StringReader(texto)));
-            parser.neutrales = new ArrayList();
-            parser.planetas = new ArrayList();
-            parser.jugadores = new ArrayList();
-
-            parser = new parser_save(scan);
-            parser.parse();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        guardar guardar = new guardar(parser.planetas, parser.neutrales, parser.jugadores);
-
+        String texto = leer(file);
+        LeerArchivoSave save=new LeerArchivoSave ();
+        guardar guardar=save.getSave(texto);
         return guardar;
     }
 
@@ -159,8 +143,8 @@ public class Konquest_Pj1 {
             String ruta = "src/gramatica_juego/"; //ruta donde tenemos los archivos con extension .jflex y .cup
             String opcFlex[] = {ruta + "lexico.jflex", "-d", ruta};
             jflex.Main.generate(opcFlex);
-           // String opcCUP[] = {"-destdir", ruta, "-parser", "parser", ruta + "parser.cup"};
-          //  java_cup.Main.main(opcCUP);
+            // String opcCUP[] = {"-destdir", ruta, "-parser", "parser", ruta + "parser.cup"};
+            //  java_cup.Main.main(opcCUP);
         } catch (Exception e) {
             e.printStackTrace();
         }

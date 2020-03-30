@@ -28,6 +28,7 @@ public class servidor extends Thread {
                 DataInputStream flujo = new DataInputStream(socket.getInputStream());
                 String msj = flujo.readUTF();
                 if (!msj.isEmpty()) {
+                    System.out.println(msj);
                     try {
                         Socket socket2 = new Socket(inicio_partida.cliente.getIp(), 9090);
                         DataOutputStream flujo2 = new DataOutputStream(socket2.getOutputStream());

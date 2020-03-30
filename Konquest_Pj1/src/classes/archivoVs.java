@@ -6,6 +6,7 @@
 package classes;
 
 import static interfaz.inicio_partida.game;
+import interfaz.nuevo_juego;
 import java.util.ArrayList;
 import planetas.galaxia;
 
@@ -48,6 +49,30 @@ public class archivoVs {
                             game.getPlanetas().get(k).setX_(x);
                             game.getPlanetas().get(k).setY_(y);
                             game.getPlanetas().get(k).setColor(save.getPlanetas().get(l).getColorPlaneta());
+
+                            break;
+                        }
+                    }
+    }
+        public void ArreglarNeutrales2(guardar save,int k){
+     for (int l = 0; l < save.getNeutrales().size(); l++) {
+                        if (save.getNeutrales().get(l).getNombre().equals(nuevo_juego.juego.getArray_neutrales().get(k).getNombre())) {
+                            int x = save.getNeutrales().get(l).getX_();
+                            int y = save.getNeutrales().get(l).getY_();
+
+                            nuevo_juego.juego.getArray_neutrales().get(k).setX_(x);
+                            nuevo_juego.juego.getArray_neutrales().get(k).setY_(y);
+                            break;
+                        }
+                    }
+                    for (int l = 0; l < save.getPlanetas().size(); l++) {
+                        if (save.getPlanetas().get(l).getNombre().equals(nuevo_juego.juego.getPlanetas().get(k).getNombre())) {
+                            int x = save.getPlanetas().get(l).getX_();
+                            int y = save.getPlanetas().get(l).getY_();
+
+                            nuevo_juego.juego.getPlanetas().get(k).setX_(x);
+                            nuevo_juego.juego.getPlanetas().get(k).setY_(y);
+                            nuevo_juego.juego.getPlanetas().get(k).setColor(save.getPlanetas().get(l).getColorPlaneta());
 
                             break;
                         }
