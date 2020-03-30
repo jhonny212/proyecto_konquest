@@ -1429,7 +1429,8 @@ public class parser extends java_cup.runtime.lr_parser {
         listaErrores.add(new ErrorSintatico(s,"Corrija la sintaxis antes del token",false));
         System.out.println("Error R de sintaxis: "+ s.value +" Linea "+(s.left+1)+" columna "+(s.right+1) );
     }
-    public void unrecovered_syntax_error(Symbol s) throwsjava.lang.Exception{
+  @Override
+    public void unrecovered_syntax_error(Symbol s){
     System.out.println("La Cadena:" +s.value+" en la Linea:"+(s.right+1) +" ,Columna: "+s.left+"esta fuera de contexto." );
  }
 
