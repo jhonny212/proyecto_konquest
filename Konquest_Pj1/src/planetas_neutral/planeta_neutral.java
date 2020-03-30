@@ -95,7 +95,7 @@ public class planeta_neutral extends planeta {
         int navess = (int) (Math.random() * 20 + 1);
         double muertess = (Math.random());
         int produc = (int) (Math.random() * 20 + 1);
-        return new planeta_neutral(navess, muertess, "NEUTRL:_" + ix, false, false, produc);
+        return new planeta_neutral(navess, muertess, "planeta" + ix, false, false, produc);
     }
 
     @Override

@@ -230,12 +230,21 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     private static void inicializarTablero() {
         ButtonController bt = new ButtonController();
+        if (inicio_partida.isVs) {
+            filas = (int) juego.getMapa().getTamaño().getWidth();
+            columnas = (int) juego.getMapa().getTamaño().getHeight();
+        }
+
         map.setLayout(new java.awt.GridLayout(filas, columnas));
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
-                tablero[i][j].setBackground(tablero[i][j].getColor());
-                map.add(tablero[i][j]);
-                tablero[i][j].addActionListener(bt);
+                try {
+                    tablero[i][j].setBackground(tablero[i][j].getColor());
+                    map.add(tablero[i][j]);
+                    tablero[i][j].addActionListener(bt);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                }
+
             }
         }
     }
@@ -1282,6 +1291,7 @@ public class nuevo_juego extends javax.swing.JFrame {
             String msjEnvio = save.config();
             msjEnvio += " ENDLESS " + save.planetas();
             inicio_partida.cliente.enviarMensaje(msjEnvio);
+            System.out.println(msjEnvio);
         }
     }
 

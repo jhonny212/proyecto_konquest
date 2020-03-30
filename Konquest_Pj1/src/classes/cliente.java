@@ -90,19 +90,22 @@ public class cliente extends Thread {
                             String array[] = msj.split("ENDLESS");
                             LeerArchivoJuego read = new LeerArchivoJuego();
                             juego game = read.getGame(array[0]);
+                            
                             LeerArchivoSave sav = new LeerArchivoSave();
                             guardar save = sav.getSave(array[1]);
                             archivoVs vs = new archivoVs(null);
                             nuevo_juego.juego = game;
                             for (int i = 0; i < game.getArray_neutrales().size(); i++) {
                                 vs.ArreglarNeutrales2(save, i);
+                                System.out.println(nuevo_juego.juego.getArray_neutrales().get(i).getNombre());
                             }
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
                         } else if (msj.contains("CHANGETABLE")) {
-                            String array[] = msj.split("ENDLESS");
+                            String array[] = msj.split("CHANGETABLE");
                             LeerArchivoJuego read = new LeerArchivoJuego();
+                            
                             juego game = read.getGame(array[0]);
                             LeerArchivoSave sav = new LeerArchivoSave();
                             guardar save = sav.getSave(array[1]);
