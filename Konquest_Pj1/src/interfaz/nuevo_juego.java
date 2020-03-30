@@ -6,6 +6,7 @@
 package interfaz;
 
 import classes.ButtonController;
+import classes.guardar;
 import classes.mouseListener;
 import static interfaz.inicio_partida.cliente;
 import java.awt.Color;
@@ -137,13 +138,16 @@ public class nuevo_juego extends javax.swing.JFrame {
         content_map.setBorder(javax.swing.BorderFactory.createTitledBorder(map.getNombre()));
         filas = (int) map.getTamaño().getWidth();
         columnas = (int) map.getTamaño().getHeight();
-        tablero = new galaxia[filas][columnas];
+
+    }
+
+    public void setSize3() {
         opciones();
-        inicializarTablero();
         iniciarCombo();
         setTabla();
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
+        inicializarTablero();
 
     }
 
@@ -192,7 +196,8 @@ public class nuevo_juego extends javax.swing.JFrame {
                     list2.get(x).setDueño(list.get(k).getJugador());
                     tablero[inti][intj].inicializarPlanetaJugador(list2.get(x));
                     tablero[inti][intj].setCoord(x);
-                    JOptionPane.showMessageDialog(map, tablero[inti][intj].getPlaneta().getDueño());
+                    tablero[inti][intj].setCoordx_(inti);
+                    tablero[inti][intj].setCoordy_(intj);
 
                     x++;
                 }
@@ -215,6 +220,8 @@ public class nuevo_juego extends javax.swing.JFrame {
             if (tablero[inti][intj].isEmpty()) {
                 tablero[inti][intj].inicializarPlanetaNeutral(list.get(x));
                 tablero[inti][intj].setCoord(x);
+                tablero[inti][intj].setCoordx_(inti);
+                tablero[inti][intj].setCoordy_(intj);
                 x++;
             }
         }
@@ -256,7 +263,6 @@ public class nuevo_juego extends javax.swing.JFrame {
         } else {
             for (int i = 0; i < juego.getPlanetas().size(); i++) {
                 if (juego.getPlanetas().get(i).getNombre().equals(tablero[x][y].getPlaneta().getNombre())) {
-                    System.out.println(tablero[x][y].getPlaneta().getNombre() + " hola" + i);
                     porcentaje_muertes.setText(String.valueOf(tablero[x][y].getPlaneta().getMuertes()));
                     produccion.setText(String.valueOf(tablero[x][y].getPlaneta().getProduccion()));
                     coord_x = x;
@@ -967,7 +973,7 @@ public class nuevo_juego extends javax.swing.JFrame {
             if (!tablero[coord_x][coord_y].isEmpty()) {
                 double _deaths = Double.parseDouble(porcentaje_muertes.getText());
                 tablero[coord_x][coord_y].getPlaneta().setMuertes(_deaths);
-
+                
             }
         }
     }//GEN-LAST:event_porcentaje_muertesKeyPressed
@@ -1255,6 +1261,22 @@ public class nuevo_juego extends javax.swing.JFrame {
         iniciar();
         inicializarNeutrales();
         inicializarPlanetas();
+        inicializarTablero();
+        scroll_map.repaint();
+        scroll_map.validate();
+        scroll_map.revalidate();
+        if (inicio_partida.isVs) {
+            guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+            String msjEnvio = save.config();
+            msjEnvio += " ENDLESS " + save.planetas();
+            inicio_partida.estadoDeVs = 2;
+            inicio_partida.cliente.enviarMensaje(msjEnvio);
+        }
+    }
+
+    public static void reiniciarTablero2() {
+        map.removeAll();
+        map.repaint();
         inicializarTablero();
         scroll_map.repaint();
         scroll_map.validate();

@@ -127,6 +127,7 @@ public class Konquest_Pj1 {
     public static void main(String[] args) {
         inicio_partida start = new inicio_partida();
         start.show();
+       
         // generarCompilador();
     }
 

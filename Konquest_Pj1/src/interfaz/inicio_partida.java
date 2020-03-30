@@ -877,7 +877,7 @@ public class inicio_partida extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, game.getMsj());
             }
-        
+       
 
         /* JOptionPane.showMessageDialog(this,"Usted sera el jugador 1");
         estadoDeVs=1;
