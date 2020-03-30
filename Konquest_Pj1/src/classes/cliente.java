@@ -101,6 +101,10 @@ public class cliente extends Thread {
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
+                            nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
+                            nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
+                            nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
+                                  
                         } else if (msj.contains("CHANGETABLE")) {
                             String array[] = msj.split("CHANGETABLE");
                             LeerArchivoJuego read = new LeerArchivoJuego();
@@ -137,8 +141,6 @@ public class cliente extends Thread {
                                 nuevo_juego.juego.getMapa().getNeutral().setMostrarNaves(v);
                                 nuevo_juego.naves.setSelected(v);
                             }
-                            System.out.println(v + "------------------>");
-                            //   nuevo_juego.opciones();
                         } else if (msj.contains("AUMENTPRODUC")) {
                             String array[] = msj.split("AUMENTPRODUC");
 

@@ -1267,7 +1267,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     public static void aumentarProduc(int x) {
         juego.getMapa().getNeutral().setProduccion(x);
          if (inicio_partida.isVs) {
-                String msjEnvio = x+" AUMENTPRODUC ";
+                String msjEnvio = x+"AUMENTPRODUC";
                 
                 inicio_partida.cliente.enviarMensaje(msjEnvio);
             }
@@ -1396,12 +1396,12 @@ public class nuevo_juego extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton acept;
-    private javax.swing.JSpinner altura;
-    private javax.swing.JSpinner ancho;
+    public static javax.swing.JSpinner altura;
+    public static javax.swing.JSpinner ancho;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.JSpinner cant_planetaNeutrales;
+    public static javax.swing.JSpinner cant_planetaNeutrales;
     private static javax.swing.JPanel content_map;
     public static javax.swing.JComboBox<String> data_planets;
     private javax.swing.JButton delete;
