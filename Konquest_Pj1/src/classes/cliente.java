@@ -81,23 +81,19 @@ public class cliente extends Thread {
 
                         break;
                     case 2:
-                        /*guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-                        String msjEnvio = save.config();
-                        msjEnvio += " ENDLESS " + save.planetas();
-                        inicio_partida.estadoDeVs = 2;
-                        enviarMensaje(msjEnvio);*/
+
                         if (msj.contains("ENDLESS")) {
                             String array[] = msj.split("ENDLESS");
                             LeerArchivoJuego read = new LeerArchivoJuego();
                             juego game = read.getGame(array[0]);
-                            
                             LeerArchivoSave sav = new LeerArchivoSave();
                             guardar save = sav.getSave(array[1]);
                             archivoVs vs = new archivoVs(null);
                             nuevo_juego.juego = game;
+                            nuevo_juego.data_planets.removeAllItems();
                             for (int i = 0; i < game.getArray_neutrales().size(); i++) {
                                 vs.ArreglarNeutrales2(save, i);
-                                System.out.println(nuevo_juego.juego.getArray_neutrales().get(i).getNombre());
+                                nuevo_juego.data_planets.addItem(game.getArray_neutrales().get(i).getNombre());
                             }
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
@@ -105,7 +101,6 @@ public class cliente extends Thread {
                         } else if (msj.contains("CHANGETABLE")) {
                             String array[] = msj.split("CHANGETABLE");
                             LeerArchivoJuego read = new LeerArchivoJuego();
-                            
                             juego game = read.getGame(array[0]);
                             LeerArchivoSave sav = new LeerArchivoSave();
                             guardar save = sav.getSave(array[1]);
@@ -116,6 +111,13 @@ public class cliente extends Thread {
                             }
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
+                        } else if (msj.contains("DATABOOLEANS")) {
+                            String array[] = msj.split("DATABOOLEANS");
+                            LeerArchivoJuego read = new LeerArchivoJuego();
+                            juego game = read.getGame(array[0]);
+                            nuevo_juego.juego=game;
+                            nuevo_juego.opciones();
+
                         }
 
                         break;

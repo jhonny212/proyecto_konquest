@@ -111,7 +111,7 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     }
 
-    private void opciones() {
+    public static void opciones() {
         mapa map = juego.getMapa();
         if (map.isMapaciego()) {
             mapa_ciego.setSelected(true);
@@ -151,7 +151,7 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     }
 
-    private void iniciarCombo() {
+    public  void iniciarCombo() {
         this.data_planets.removeAllItems();
         for (int i = 0; i < juego.getArray_neutrales().size(); i++) {
             this.data_planets.addItem(juego.getArray_neutrales().get(i).getNombre());
@@ -491,12 +491,12 @@ public class nuevo_juego extends javax.swing.JFrame {
             }
         ));
         tabla_jugadores.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 tabla_jugadoresAncestorAdded(evt);
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
         });
         tabla_jugadores.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -608,12 +608,12 @@ public class nuevo_juego extends javax.swing.JFrame {
         jPanel2.add(cant_planetaNeutrales, new org.netbeans.lib.awtextra.AbsoluteConstraints(206, 52, 81, -1));
 
         ancho.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 anchoAncestorAdded(evt);
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
         });
         ancho.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -847,6 +847,10 @@ public class nuevo_juego extends javax.swing.JFrame {
             juego.getMapa().getNeutral().setMostrarNaves(false);
 
         }
+          guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+        String msjEnvio = save.config();
+        msjEnvio += " DATABOOLEANS " ;
+        inicio_partida.cliente.enviarMensaje(msjEnvio);
     }//GEN-LAST:event_navesActionPerformed
 
     private void playersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playersMouseClicked
@@ -1212,13 +1216,14 @@ public class nuevo_juego extends javax.swing.JFrame {
     private void mapa_ciegoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mapa_ciegoActionPerformed
         // TODO add your handling code here:
         if (mapa_ciego.isSelected()) {
-            System.out.println("1");
             juego.getMapa().setMapaciego(true);
         } else {
-            System.out.println("2");
             juego.getMapa().setMapaciego(false);
-
         }
+        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+        String msjEnvio = save.config();
+        msjEnvio += " DATABOOLEANS ";
+        inicio_partida.cliente.enviarMensaje(msjEnvio);
     }//GEN-LAST:event_mapa_ciegoActionPerformed
 
     private void produccion_acumulativaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_produccion_acumulativaActionPerformed
@@ -1229,6 +1234,10 @@ public class nuevo_juego extends javax.swing.JFrame {
             juego.getMapa().setAcumular(false);
 
         }
+        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+        String msjEnvio = save.config();
+        msjEnvio += " DATABOOLEANS ";
+        inicio_partida.cliente.enviarMensaje(msjEnvio);
     }//GEN-LAST:event_produccion_acumulativaActionPerformed
 
     private void estadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estadisticasActionPerformed
@@ -1239,6 +1248,10 @@ public class nuevo_juego extends javax.swing.JFrame {
             juego.getMapa().getNeutral().setMostrarEstadisticas(false);
 
         }
+        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+        String msjEnvio = save.config();
+        msjEnvio += " DATABOOLEANS ";
+        inicio_partida.cliente.enviarMensaje(msjEnvio);
     }//GEN-LAST:event_estadisticasActionPerformed
     int countp = 0;
     private void productionStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_productionStateChanged
@@ -1291,7 +1304,7 @@ public class nuevo_juego extends javax.swing.JFrame {
             String msjEnvio = save.config();
             msjEnvio += " ENDLESS " + save.planetas();
             inicio_partida.cliente.enviarMensaje(msjEnvio);
-            System.out.println(msjEnvio);
+
         }
     }
 
@@ -1378,9 +1391,9 @@ public class nuevo_juego extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.JSpinner cant_planetaNeutrales;
     private static javax.swing.JPanel content_map;
-    private static javax.swing.JComboBox<String> data_planets;
+    public static javax.swing.JComboBox<String> data_planets;
     private javax.swing.JButton delete;
-    private javax.swing.JCheckBox estadisticas;
+    public static javax.swing.JCheckBox estadisticas;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -1399,13 +1412,13 @@ public class nuevo_juego extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton jToggleButton2;
     public static javax.swing.JPanel map;
-    private javax.swing.JCheckBox mapa_ciego;
-    private javax.swing.JCheckBox naves;
+    public static javax.swing.JCheckBox mapa_ciego;
+    public static javax.swing.JCheckBox naves;
     private javax.swing.JComboBox<String> players;
     private static javax.swing.JTextField porcentaje_muertes;
     private static javax.swing.JTextField produccion;
-    private javax.swing.JCheckBox produccion_acumulativa;
-    private javax.swing.JSpinner production;
+    public static javax.swing.JCheckBox produccion_acumulativa;
+    public static javax.swing.JSpinner production;
     private static javax.swing.JScrollPane scroll_map;
     public static javax.swing.JTable tabla_jugadores;
     // End of variables declaration//GEN-END:variables
