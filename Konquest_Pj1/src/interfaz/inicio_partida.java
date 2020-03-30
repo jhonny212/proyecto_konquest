@@ -21,12 +21,15 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.border.Border;
+import jugadores.jugador;
 import konquest_pj1.Konquest_Pj1;
 import mapa.juego;
 import planetas.galaxia;
@@ -44,7 +47,7 @@ public class inicio_partida extends javax.swing.JFrame {
      */
     public static juego game;
     public static galaxia tablero[][];
-    public static int filas, columnas, contadorDeTurnos;
+    public static int filas, columnas, contadorDeTurnos, estadoDeVs;
     public static Replay replay;
     public static boolean isVs;
     public static cliente cliente;
@@ -80,6 +83,7 @@ public class inicio_partida extends javax.swing.JFrame {
     public static String mensajeServidor;
 
     public inicio_partida() {
+        estadoDeVs = 0;
         contadorDeTurnos = 0;
         mensajeServidor = "";
         turnos = new ArrayList();
@@ -116,16 +120,19 @@ public class inicio_partida extends javax.swing.JFrame {
     static int count2 = 0;
 
     public static void iniciarContadorPlayer() {
-       
-            try {
-                msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
-            } catch (IndexOutOfBoundsException e) {
-
-                //ejecutarTurnos();
-
-                count_player = 0;
+        try {
+            jugador jugador = game.getArray_jugadores().get(count_player);
+            String nameClass = jugador.getClass().getSimpleName();
+            if (!nameClass.equals("humano")) {
+                Turno trn = game.getArray_jugadores().get(count_player).getTurno(tablero, filas, columnas, contadorDeTurnos, jugador);
+                turnos.add(trn);
+                count_player++;
             }
-      
+            msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
+        } catch (IndexOutOfBoundsException e) {
+            ejecutarTurnos();
+            count_player = 0;
+        }
         msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
         cant_envios.disable();
         if (isVs && count2 > 0) {
@@ -144,9 +151,19 @@ public class inicio_partida extends javax.swing.JFrame {
             }
 
         }
-        if(count_player!=cliente.getNumJugador()){
-        end_turno.setVisible(false);
+        try {
+            if (count_player != cliente.getNumJugador()) {
+                end_turno.setVisible(false);
+            }
+        } catch (NullPointerException e) {
+
         }
+        jugador jugador = game.getArray_jugadores().get(count_player);
+        String nameClass = jugador.getClass().getSimpleName();
+        if (!nameClass.equals("humano")) {
+            iniciarContadorPlayer();
+        }
+
         count2++;
     }
 
@@ -234,6 +251,7 @@ public class inicio_partida extends javax.swing.JFrame {
         open = new javax.swing.JMenuItem();
         save = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
         opciones = new javax.swing.JMenu();
         show = new javax.swing.JCheckBoxMenuItem();
 
@@ -448,6 +466,14 @@ public class inicio_partida extends javax.swing.JFrame {
         });
         juego.add(jMenuItem2);
 
+        jMenuItem3.setText("Iniciar coneccion de jugador");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        juego.add(jMenuItem3);
+
         menu_juego.add(juego);
 
         opciones.setText("Opciones");
@@ -511,14 +537,22 @@ public class inicio_partida extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea jugar vs otra maquina?", "Message", 1);
+        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desean jugar en la misma maquina?", "Message", 1);
         archivoEntrada archivo = new archivoEntrada();
-
         switch (seleccion) {
 
             case 0:
-
                 game = Konquest_Pj1.probar1(archivo.generateFile());
+                if (!game.getListaDeErroresSintaticos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
+                    tableErrors.show();
+                }
+                if (!game.getListaDeErroresLexicos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorLexico(game.getListaDeErroresLexicos());
+                    tableErrors.show();
+                }
                 game.voidValidarTodos();
                 isVs = false;
                 if (game.isValidarJuego()) {
@@ -528,37 +562,52 @@ public class inicio_partida extends javax.swing.JFrame {
                     nuevo_cargado.iniciarJuego(game);
                     nuevo_cargado.setSize();
                 } else {
-
                     JOptionPane.showMessageDialog(this, game.getMsj());
                 }
                 break;
             case 1:
-                game = Konquest_Pj1.probar2(archivo.generateFile());
-                game.voidValidarTodos();
-                isVs = true;
-                if (game.isValidarJuego() && game.getArray_jugadores().size() == 2) {
-                    nuevo_juego nuevo_cargado = new nuevo_juego();
-                    nuevo_cargado.setVs(true);
-                    //  String ip = JOptionPane.showInputDialog(this, "Escriba la ip del jugador contrincante", "Ejemplo 192.168.0.10", 0);
-                    // String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese el numero de jugador que desea ser", 0);
+                int seleccion2 = JOptionPane.showConfirmDialog(this, "¿Desdea ser el jugador 1?", "Message", 1);
+                int num = 0;
+                switch (seleccion2) {
+                    case 0:
+                        num = 0;
+                        break;
+                    case 1:
+                        num = 1;
+                        break;
+                }
+                if (seleccion2 != 2) {
+                    isVs = true;
+                    mensajes_txt.setText("");
+                    game = null;
+                    tablero = null;
+                    server = new servidor();
+                    server.start();
+                    String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
                     try {
-                        //  ip.isEmpty();
-                        server = new servidor();
-                        server.start();
-                        cliente = new cliente("192.168.1.9", Integer.parseInt("0"));
+                        seleccion2 = Integer.parseInt(numeroJugador);
+                        cliente = new cliente(numeroJugador, num);
                         cliente.start();
-                        nuevo_cargado.show();
-                        mensajes_txt.setText("");
-                        nuevo_cargado.iniciarJuego(game);
-                        nuevo_cargado.setSize();
-                    } catch (NullPointerException e) {
-                        JOptionPane.showMessageDialog(this, "Vuelva pronto...");
-                    } catch (NumberFormatException ex) {
+                        Konquest_Pj1 p = new Konquest_Pj1();
+                        archivoEntrada archivo2 = new archivoEntrada();
+                        JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
+                        game = p.probar1(archivo2.generateFile());
+                        JOptionPane.showMessageDialog(this, "Seleccione un archivo prediseñado y guardado de de guardado");
+                        guardar save = p.leer2(archivo2.generateFile());
+                        archivoVs vs = new archivoVs(null);
+                        for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+                            vs.ArreglarNeutrales(save, i);
+                        }
+                        cargarTablero(save, false);
+                        iniciarTablero();
+                        inicio_partida.options.setVisible(true);
+                        inicio_partida.more_options.enable();
+                        inicio_partida.iniciarContadorPlayer();
+                    } catch (NumberFormatException e) {
                     }
 
-                } else {
-                    JOptionPane.showMessageDialog(this, game.getMsj());
                 }
+
                 break;
             case 2:
                 break;
@@ -658,11 +707,11 @@ public class inicio_partida extends javax.swing.JFrame {
     private void end_turnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_end_turnoActionPerformed
         options.enable();
         origenMov = false;
-        
+
         Turno trn = new Turno(ataques, game.getArray_jugadores().get(count_player));
-       if(isVs){
-        trn.getJugador().color=_o.getColor();
-       }
+        if (isVs) {
+            trn.getJugador().color = _o.getColor();
+        }
         if (isVs) {
             mensajeServidor += trn.msj(turnos.size());
 
@@ -672,7 +721,6 @@ public class inicio_partida extends javax.swing.JFrame {
         ataques = new ArrayList();
         count_player++;
         cant_envios.disable();
-        
         end_turno.disable();
         iniciarContadorPlayer();
 
@@ -793,35 +841,138 @@ public class inicio_partida extends javax.swing.JFrame {
     }//GEN-LAST:event_vista_generalActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        JOptionPane.showMessageDialog(this, "Usted sera el jugador 1");
+        estadoDeVs = 1;
+        int seleccion = 0;
         isVs = true;
         mensajes_txt.setText("");
         game = null;
         tablero = null;
         server = new servidor();
         server.start();
-        cliente = new cliente("192.168.1.9", Integer.parseInt("0"));
-        cliente.start();
-        Konquest_Pj1 p = new Konquest_Pj1();
-        archivoEntrada archivo = new archivoEntrada();
-        JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
-        game = p.probar1(archivo.generateFile());
-        JOptionPane.showMessageDialog(this, "Seleccione un archivo prediseñado y guardado de de guardado");
-        guardar save = p.leer2(archivo.generateFile());
-        archivoVs vs = new archivoVs(null);
-        for (int i = 0; i < game.getArray_neutrales().size(); i++) {
-            vs.ArreglarNeutrales(save, i);
+        String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
+        try {
+            seleccion = Integer.parseInt(numeroJugador);
+            cliente = new cliente(numeroJugador, 0);
+            cliente.start();
+            archivoEntrada archivo = new archivoEntrada();
+            game = Konquest_Pj1.probar1(archivo.generateFile());
+            if (!game.getListaDeErroresSintaticos().isEmpty()) {
+                tabla_de_errores tableErrors = new tabla_de_errores();
+                tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
+                tableErrors.show();
+            }
+            if (!game.getListaDeErroresLexicos().isEmpty()) {
+                tabla_de_errores tableErrors = new tabla_de_errores();
+                tableErrors.errorLexico(game.getListaDeErroresLexicos());
+                tableErrors.show();
+            }
+            game.voidValidarTodos();
+            isVs = true;
+            if (game.isValidarJuego()) {
+                nuevo_juego nuevo_cargado = new nuevo_juego();
+                nuevo_cargado.show();
+                mensajes_txt.setText("");
+                nuevo_cargado.iniciarJuego(game);
+                nuevo_cargado.setSize();
+            } else {
+                JOptionPane.showMessageDialog(this, game.getMsj());
+            }
+        } catch (NumberFormatException e) {
         }
-        cargarTablero(save, false);
-        iniciarTablero();
-        inicio_partida.options.setVisible(true);
-        inicio_partida.more_options.enable();
-        
-        inicio_partida.iniciarContadorPlayer();
+
+        /* JOptionPane.showMessageDialog(this,"Usted sera el jugador 1");
+        estadoDeVs=1;
+        int seleccion=0;
+            isVs = true;
+            mensajes_txt.setText("");
+            game = null;
+            tablero = null;
+            server = new servidor();
+            server.start();
+            String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
+            try {
+                seleccion = Integer.parseInt(numeroJugador);
+                cliente = new cliente(numeroJugador, 0);
+                cliente.start();
+                Konquest_Pj1 p = new Konquest_Pj1();
+                archivoEntrada archivo = new archivoEntrada();
+                JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
+                game = p.probar1(archivo.generateFile());
+                JOptionPane.showMessageDialog(this, "Seleccione un archivo prediseñado y guardado de de guardado");
+                guardar save = p.leer2(archivo.generateFile());
+                archivoVs vs = new archivoVs(null);
+                for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+                    vs.ArreglarNeutrales(save, i);
+                }
+                cargarTablero(save, false);
+                iniciarTablero();
+                inicio_partida.options.setVisible(true);
+                inicio_partida.more_options.enable();
+                inicio_partida.iniciarContadorPlayer();
+            } catch (NumberFormatException e) {
+            }
+         */
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void cant_enviosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cant_enviosActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cant_enviosActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Usted sera el jugador 2");
+        estadoDeVs = 1;
+        int seleccion = 0;
+        isVs = true;
+        mensajes_txt.setText("");
+        game = null;
+        tablero = null;
+        server = new servidor();
+        server.start();
+        mensajes_txt.setText("");
+        String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
+        try {
+            seleccion = Integer.parseInt(numeroJugador);
+            cliente = new cliente(numeroJugador, 1);
+            cliente.start();
+            try {
+                Socket socket = new Socket("127.0.0.1", 9009);
+                DataOutputStream flujo = new DataOutputStream(socket.getOutputStream());
+                flujo.writeUTF("esperando...");
+                flujo.close();
+                socket.close();
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage() + "ESTE");
+            }
+            /*
+            Konquest_Pj1 p = new Konquest_Pj1();
+            archivoEntrada archivo = new archivoEntrada();
+            game = p.probar1(archivo.generateFile());
+            if (!game.getListaDeErroresSintaticos().isEmpty()) {
+                tabla_de_errores tableErrors = new tabla_de_errores();
+                tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
+                tableErrors.show();
+            }
+            if (!game.getListaDeErroresLexicos().isEmpty()) {
+                tabla_de_errores tableErrors = new tabla_de_errores();
+                tableErrors.errorLexico(game.getListaDeErroresLexicos());
+                tableErrors.show();
+            }
+            game.voidValidarTodos();
+            isVs = false;
+            if (game.isValidarJuego()) {
+                nuevo_juego nuevo_cargado = new nuevo_juego();
+                nuevo_cargado.show();
+                mensajes_txt.setText("");
+                nuevo_cargado.iniciarJuego(game);
+                nuevo_cargado.setSize();
+            } else {
+                JOptionPane.showMessageDialog(this, game.getMsj());
+            }*/
+        } catch (NumberFormatException e) {
+        }
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
     private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
         archivoVs vs = new archivoVs(turn);
         for (int i = 0; i < turn.size(); i++) {
@@ -912,7 +1063,6 @@ public class inicio_partida extends javax.swing.JFrame {
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].inicializarPlanetaJugador(game.getPlanetas().get(i));
             tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].setBackground(tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].getColor());
         }
-        
     }
 
     public static void reiniciar(int i, int j) {
@@ -1019,6 +1169,7 @@ public class inicio_partida extends javax.swing.JFrame {
     private javax.swing.JButton fin_turno;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JMenu juego;

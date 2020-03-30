@@ -29,21 +29,18 @@ public class servidor extends Thread {
                 String msj = flujo.readUTF();
                 if (!msj.isEmpty()) {
                     try {
-                        System.out.println("entra en el servidor");
                         Socket socket2 = new Socket(inicio_partida.cliente.getIp(), 9090);
                         DataOutputStream flujo2 = new DataOutputStream(socket2.getOutputStream());
                         flujo2.writeUTF(msj);
                         flujo2.close();
                         socket2.close();
                     } catch (IOException ex) {
-                        System.out.println(ex.getMessage() + "------------>");
+                       
                     }
                 }
                 flujo.close();
                 socket.close();
-
             }
-
         } catch (IOException ex) {
             System.out.println(ex.getMessage() + "aca");
         }

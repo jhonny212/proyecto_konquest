@@ -21,9 +21,13 @@ parser code {:
     public static String neutralesNombre_;
     public static int neutralesNaves_,neutralesProduc_;
     public static double neutralesMuertes; 
-   
+    public static ArrayList<ErrorSintatico> listaErrores;
+    public static String mensaje_error;
+    public static int arrayCod[];
   //  public static boolean validaciones1_,boolean validaciones2_;
     public void syntax_error(Symbol s){
+        System.out.println(mensaje_error);
+        listaErrores.add(new ErrorSintatico(s,"Corrija la sintaxis antes del token",false));
         System.out.println("Error R de sintaxis: "+ s.value +" Linea "+(s.left+1)+" columna "+(s.right+1) );
     }
     public void unrecovered_syntax_error(Symbol s) throwsjava.lang.Exception{
@@ -35,11 +39,11 @@ parser code {:
 terminal 
 abreParentesis, cierraParentesis, dosPuntos, map, abreComilla,cierraComilla,comilla,coma,tamaño,columns,rows,
 azar,bool,planetasNeu,mapaCiego,acum,Neu,mostrarNaves,mostrarEstadisticas,produc,end,planets,name,ships,deaths,planetas_Neu,
-players,earths,abreCor,cierraCor,type,human,hard,easy,decimal,id, space, enter, num,Comilla,name_mapa,ERROR;
+players,earths,abreCor,cierraCor,type,human,hard,easy,decimal,id, num,Comilla,name_mapa,ERROR;
 
-non-terminal INICIO, MAPA,PLANETAS,PLANETAS_NEUTRALES,JUGADORES, OPTIONS, ENTERSPACE, 
+non-terminal INICIO, MAPA,PLANETAS,PLANETAS_NEUTRALES,JUGADORES, OPTIONS, 
 OPTIONS1, OPTIONS2, OPTIONS3, OPTIONS4, OPTIONS5, OPTIONS6, OPTIONS7, OPTIONS8, OPTIONS9, OPTIONS10, OPTIONS11, OPTIONS12,
-OPTIONS13, OPTIONS14, OPTIONS15, OPTIONS16,OPCIONES_MAPA, OPM1,OPM2,OPM3,OPM4,
+OPTIONS13, OPTIONS14, OPTIONS15, OPTIONS16,OPCIONES_MAPA, OPM1,OPM3,OPM4,
 OPM5,OPM6,OPM7,OPM8,NOMBRE_MAPA,DIMENSIONES_MAPA,AZAR_MAPA,PLANETA_NEUTRALES,MAPA_CIEGO,
 ACUMULAR,NEUTRALES,FINALIZACION,
 OPP1,OPP2,OPP3,OPP4,OPP5,OPP0,OPP01,
@@ -48,90 +52,252 @@ OPPAUX1,OPPAUX2,OPPAUX3,OPPAUX4,OPPAUX5,OPPAUX6,OPPAUX7,OPPAUX8,OPPAUX9,OPPAUX10
 OPPN1,OPPN2,OPPN3,OPPN4,OPPN5,OPPN0,OPPN01,
 OPP21,OPP31,OPP41,OPP51,
 OPPNAUX1,OPPNAUX2,OPPNAUX3,OPPNAUX4,OPPNAUX5,OPPNAUX6,OPPNAUX7,OPPNAUX8,OPPNAUX9,OPPNAUX10,OPPNAUX11,OPPNAUX12,OPPNAUX13,
-PLAYERS1,PLAYERS2,PLAYERS3,PLAYERS4,PLAYERS5,PLAYERS6,PLAYERS7,PLAYERS8,PLAYERS9,PLAYERSAUX1,PLAYERSAUX2,PLAYERSAUX3;
+PLAYERS1,PLAYERS2,PLAYERS3,PLAYERS4,PLAYERS5,PLAYERS6,PLAYERS7,PLAYERS8,PLAYERS9,PLAYERSAUX1,PLAYERSAUX2,PLAYERSAUX3
+,JSON,JSON1,JSON2,JSON3,JSON4,JSON5,JSON6,JSON7,JSONDATOS,SHOWNAVES, SHOWESTADISTICAS, SHOWPRODUCCION 
+,ERRORES;
 
 start with INICIO;
-INICIO  ::= ENTERSPACE abreParentesis OPTIONS ;
+INICIO  ::=  abreParentesis OPTIONS 
+|error abreParentesis:e OPTIONS
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de configuracion del juego";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error OPTIONS
+;
 
 
-ENTERSPACE ::= space ENTERSPACE
-           |   enter ENTERSPACE
-           |                   ;
 /*
 *declaracion de los componentes del juego
 */ 
-MAPA                  ::= ENTERSPACE map ENTERSPACE dosPuntos ENTERSPACE abreParentesis OPM1;
-PLANETAS              ::= ENTERSPACE planets ENTERSPACE dosPuntos ENTERSPACE abreCor ENTERSPACE abreParentesis OPP0  ;
-PLANETAS_NEUTRALES    ::= ENTERSPACE planetas_Neu ENTERSPACE dosPuntos ENTERSPACE abreCor ENTERSPACE abreParentesis ENTERSPACE OPPN0  ;
-JUGADORES             ::= ENTERSPACE players ENTERSPACE dosPuntos ENTERSPACE abreCor ENTERSPACE abreParentesis ENTERSPACE PLAYERS1 ;
+MAPA::=  map  dosPuntos  abreParentesis OPM1
+|error map:e dosPuntos  abreParentesis OPM1
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de MAPA";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error dosPuntos:e  abreParentesis OPM1
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de MAPA";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
+//----------------------------------------------------------------------------->
+PLANETAS::=  planets  dosPuntos  abreCor  abreParentesis OPP0
+|error planets:e  dosPuntos  abreCor  abreParentesis OPP0
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de PLANETAS";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error  abreParentesis:e OPP0
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de PLANETAS";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
+
+
+PLANETAS_NEUTRALES::=  planetas_Neu  dosPuntos  abreCor  abreParentesis  OPPN0
+|error planetas_Neu:e  dosPuntos  abreCor  abreParentesis  OPPN0
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de PLANETAS NEUTRALES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error dosPuntos:e  abreCor  abreParentesis  OPPN0
+{:
+String msj="Error de sintaxis antes de iniciar la declaracion de PLANETAS NEUTRALES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
+ERRORES::= OPPN0 | OPP0;
+//----------------------------------------------------------------------------->
+JUGADORES ::=  players  dosPuntos  abreCor  abreParentesis  PLAYERS1 
+| error  players:e  dosPuntos  abreCor  abreParentesis  PLAYERS1
+{:
+String msj="Error de sintaxis de la declaracion de JUGADORES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:} 
+| error  abreCor:e  abreParentesis  PLAYERS1 
+{:
+String msj="Error de sintaxis de la declaracion de JUGADORES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+| error  PLAYERS1:e 
+{:
+String msj="Error de sintaxis de la declaracion de JUGADORES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
+//----------------------------------------------------------------------------->
+
 /*
 *opciones
 */ 
-OPTIONS ::= MAPA ENTERSPACE coma OPTIONS1
-        | PLANETAS ENTERSPACE coma OPTIONS2
-        | PLANETAS_NEUTRALES ENTERSPACE coma OPTIONS3 ENTERSPACE cierraParentesis ENTERSPACE
-        | JUGADORES ENTERSPACE coma OPTIONS4;
+OPTIONS ::= 
+ MAPA  coma OPTIONS1
+|PLANETAS  coma OPTIONS2
+|PLANETAS_NEUTRALES  coma OPTIONS3  cierraParentesis 
+|coma OPTIONS4
+|error coma:e OPTIONS1
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error coma:e OPTIONS2
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error coma:e OPTIONS3 cierraParentesis
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error coma:e OPTIONS4
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error cierraParentesis:e
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
 /*
 *inicio de mapa
 */ 
-OPTIONS1 ::= PLANETAS ENTERSPACE coma OPTIONS5
-            |PLANETAS_NEUTRALES ENTERSPACE coma OPTIONS6 ENTERSPACE cierraParentesis ENTERSPACE
-            |JUGADORES ENTERSPACE coma OPTIONS7;
+OPTIONS1 ::= 
+ PLANETAS  coma OPTIONS5
+|PLANETAS_NEUTRALES  coma OPTIONS6  cierraParentesis 
+|JUGADORES  coma OPTIONS7
+|error coma:e OPTIONS5
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error coma:e OPTIONS6 cierraParentesis
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error coma:e OPTIONS7
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error cierraParentesis:e
+{:
+String msj="Error de sintaxis de la declaracion de MAS OPCIONES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
 /*
 *inicio de mapa
 */ 
-OPTIONS5 ::= PLANETAS_NEUTRALES ENTERSPACE coma JUGADORES ENTERSPACE cierraParentesis ENTERSPACE
-             |JUGADORES ENTERSPACE OPTIONS0;
+OPTIONS5 ::= 
+ PLANETAS_NEUTRALES  coma JUGADORES  cierraParentesis 
+|JUGADORES  OPTIONS0
+|error coma:e JUGADORES cierraParentesis
+{:
+String msj="Error de sintaxis antes de la declaracion de JUGADORES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error cierraParentesis:e
+{:
+String msj="Error de sintaxis despues de la declaracion de JUGADORES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
 
-OPTIONS0::= coma PLANETAS_NEUTRALES ENTERSPACE cierraParentesis ENTERSPACE |  cierraParentesis ENTERSPACE;
+OPTIONS0::= coma PLANETAS_NEUTRALES  cierraParentesis  
+|  cierraParentesis 
+|error coma:e PLANETAS_NEUTRALES  cierraParentesis
+{:
+String msj="Error de sintaxis antes de la declaracion de PLANETAS NEUTRALES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error PLANETAS_NEUTRALES:e  cierraParentesis
+{:
+String msj="Error de sintaxis en la declaracion de PLANETAS NEUTRALES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error cierraParentesis:e
+{:
+String msj="Error de sintaxis despues de la declaracion de PLANETAS NEUTRALES";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
 
-OPTIONS6 ::= JUGADORES ENTERSPACE coma PLANETAS
-             |PLANETAS ENTERSPACE coma JUGADORES;
+OPTIONS6 ::= 
+ JUGADORES  coma: PLANETAS
+|PLANETAS  coma JUGADORES
+|error coma PLANETAS
+;
 
-OPTIONS7 ::= PLANETAS_NEUTRALES ENTERSPACE coma PLANETAS ENTERSPACE cierraParentesis ENTERSPACE
-             |PLANETAS ENTERSPACE OPTIONS0;
+OPTIONS7 ::= PLANETAS_NEUTRALES  coma PLANETAS  cierraParentesis 
+             |PLANETAS  OPTIONS0;
 /*
 *planetas
 */ 
-OPTIONS2 ::= MAPA ENTERSPACE coma OPTIONS8
-            | PLANETAS_NEUTRALES ENTERSPACE coma OPTIONS9 ENTERSPACE cierraParentesis ENTERSPACE
-            | JUGADORES ENTERSPACE coma OPTIONS10;
+OPTIONS2 ::= 
+  MAPA  coma OPTIONS8
+| PLANETAS_NEUTRALES  coma OPTIONS9  cierraParentesis 
+| JUGADORES  coma OPTIONS10
+| error coma OPTIONS9  cierraParentesis 
+| error coma OPTIONS10
+;
 //------------------->
-OPTIONS8 ::= PLANETAS_NEUTRALES ENTERSPACE coma JUGADORES ENTERSPACE cierraParentesis ENTERSPACE
-             |JUGADORES ENTERSPACE OPTIONS0;
-OPTIONS9 ::= JUGADORES ENTERSPACE coma MAPA
-             |MAPA ENTERSPACE coma JUGADORES;
-OPTIONS10 ::= PLANETAS_NEUTRALES ENTERSPACE coma MAPA ENTERSPACE cierraParentesis ENTERSPACE
-             |MAPA ENTERSPACE OPTIONS0;
+OPTIONS8 ::= 
+ PLANETAS_NEUTRALES  coma JUGADORES  cierraParentesis 
+|JUGADORES  OPTIONS0
+|error coma JUGADORES  cierraParentesis
+|error OPTIONS0
+;
+//--------------------------------------------------------------------------------->
+OPTIONS9 ::= JUGADORES  coma MAPA
+|MAPA  coma JUGADORES
+|error coma MAPA;
+//--------------------------------------------------------------------------------->
+ OPTIONS10 ::= PLANETAS_NEUTRALES  coma MAPA  cierraParentesis 
+|MAPA  OPTIONS0
+;
 //------------------->
 /*
 *planetas neutrales
 */ 
-OPTIONS3 ::= PLANETAS ENTERSPACE coma OPTIONS11
-            |MAPA ENTERSPACE coma OPTIONS12
-            |JUGADORES ENTERSPACE coma OPTIONS13;
+OPTIONS3 ::= 
+ PLANETAS  coma OPTIONS11
+ |MAPA  coma OPTIONS12
+ |JUGADORES  coma OPTIONS13
+ |error coma OPTIONS13;
 //------------------->
-OPTIONS11 ::= MAPA ENTERSPACE coma JUGADORES 
-             |JUGADORES ENTERSPACE coma MAPA;
-OPTIONS12 ::= JUGADORES ENTERSPACE coma PLANETAS
-             |PLANETAS ENTERSPACE coma JUGADORES;
-OPTIONS13 ::= PLANETAS ENTERSPACE coma MAPA
-             |MAPA ENTERSPACE coma PLANETAS;
+OPTIONS11 ::= MAPA  coma JUGADORES 
+|JUGADORES  coma MAPA
+|error coma MAPA;
+//-------------------------------------------------------------------------->
+OPTIONS12 ::= JUGADORES  coma PLANETAS
+|PLANETAS  coma JUGADORES
+|error coma PLANETAS;
+//-------------------------------------------------------------------------->
+OPTIONS13 ::= PLANETAS  coma MAPA
+|MAPA  coma PLANETAS
+;
 /*
 *inicio jugadores
 */ 
-OPTIONS4 ::= PLANETAS ENTERSPACE coma OPTIONS14
-            | MAPA ENTERSPACE coma OPTIONS15 
-            | PLANETAS_NEUTRALES ENTERSPACE coma OPTIONS16 ENTERSPACE cierraParentesis ENTERSPACE;
+OPTIONS4 ::= PLANETAS  coma OPTIONS14
+| MAPA  coma OPTIONS15 
+| PLANETAS_NEUTRALES  coma OPTIONS16  cierraParentesis;
 //------------------->
-OPTIONS14 ::= MAPA ENTERSPACE OPTIONS0
-             |PLANETAS_NEUTRALES ENTERSPACE coma MAPA ENTERSPACE cierraParentesis ENTERSPACE;
-
-OPTIONS15 ::= PLANETAS_NEUTRALES ENTERSPACE coma PLANETAS ENTERSPACE cierraParentesis ENTERSPACE
-             |PLANETAS ENTERSPACE OPTIONS0;
-
-OPTIONS16 ::= PLANETAS ENTERSPACE coma MAPA
-             |MAPA ENTERSPACE coma PLANETAS;
+OPTIONS14 ::= MAPA  OPTIONS0
+|PLANETAS_NEUTRALES  coma MAPA  cierraParentesis;
+//--------------------------------------------------------------------------->
+OPTIONS15 ::= PLANETAS_NEUTRALES  coma PLANETAS  cierraParentesis 
+|PLANETAS  OPTIONS0;
+//--------------------------------------------------------------------------->
+OPTIONS16 ::= PLANETAS  coma MAPA
+|MAPA  coma PLANETAS;
 //------------------->
 
 /*
@@ -139,124 +305,515 @@ OPTIONS16 ::= PLANETAS ENTERSPACE coma MAPA
 */
 
 //---------------------------->
-/*
-OPM1 ::= space OPM1
-       | enter OPM1
-       | cierraParentesis
-       | OPM3 OPM1 
-       | coma OPM2;
-
-OPM2 ::= space OPM2
-       | enter OPM2
-       | OPM3 OPM1;
-*/   
-
-OPM1 ::= OPM2 OPM1 | cierraParentesis | OPM3 OPM1 | coma ENTERSPACE OPM3 OPM1;
-OPM2 ::= space | enter;
-     
-
-OPM3 ::=NOMBRE_MAPA 
-       |DIMENSIONES_MAPA  
-       |AZAR_MAPA 
-       |PLANETA_NEUTRALES  
-       |MAPA_CIEGO  
-       |ACUMULAR  
-       |NEUTRALES  
-       |FINALIZACION;
+  
 
 
-OPM4 ::= rows:x ENTERSPACE dosPuntos ENTERSPACE num:e1 coma ENTERSPACE columns ENTERSPACE dosPuntos ENTERSPACE num:e2 
-        {:
+OPM1  ::= JSONDATOS coma JSON1:e 
+{:
+System.out.println(xx);
+:}| cierraParentesis:e {:s:} ; 
+
+JSON1 ::=      JSONDATOS:e  JSON2:e2    
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+JSON2 ::= coma JSONDATOS:e  JSON3:e2    
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+JSON3 ::= coma JSONDATOS:e  JSON4:e2    
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+JSON4 ::= coma JSONDATOS:e  JSON5:e2    
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+JSON5 ::= coma JSONDATOS:e  JSON6:e2    
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+JSON6 ::= coma JSONDATOS:e  JSON7:e2  
+{:
+int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+RESULT=(xx+yy);
+:}
+| cierraParentesis {:RESULT=0;:}; 
+
+
+JSON7 ::= coma JSONDATOS:e cierraParentesis  {:RESULT= e;:}  | cierraParentesis {:RESULT=0;:}; 
+
+
+JSONDATOS::= NOMBRE_MAPA {:RESULT=1;:}  
+| AZAR_MAPA {:RESULT=0;:}  
+| MAPA_CIEGO {:RESULT=0;:}  
+| FINALIZACION {:RESULT=0;:}  
+| ACUMULAR {:RESULT=0;:}  
+| DIMENSIONES_MAPA {:RESULT=2;:}  
+| PLANETA_NEUTRALES {:RESULT=3;:}  | NEUTRALES {:RESULT=4;:} ;
+
+
+OPM4 ::= rows:x  dosPuntos  num:e1 coma  columns  dosPuntos  num:e2 
+{:
 int filas=Integer.parseInt((String) e1);
 int columnas=Integer.parseInt((String) e2);
 parser.dimension=new Dimension(filas,columnas);
 :}
-        |columns:x ENTERSPACE dosPuntos ENTERSPACE num:e2 coma ENTERSPACE rows ENTERSPACE dosPuntos ENTERSPACE num:e1
-              {:
+|columns:x  dosPuntos  num:e2 coma  rows  dosPuntos  num:e1
+{:
 int filas=Integer.parseInt((String) e1);
 int columnas=Integer.parseInt((String) e2);
 parser.dimension=new Dimension(filas,columnas);
-:}; 
-       
-OPM5 ::= mostrarNaves ENTERSPACE dosPuntos ENTERSPACE bool:e ENTERSPACE OPM6 {:parser.pbj[0]=Boolean.parseBoolean((String)e);:}
-        |mostrarEstadisticas ENTERSPACE dosPuntos ENTERSPACE bool:e ENTERSPACE OPM7 {:parser.pbj[1]=Boolean.parseBoolean((String)e);:}
-        |produc ENTERSPACE dosPuntos ENTERSPACE num:e OPM8 {:parser.pbj[2]=Integer.parseInt((String)e);:}; 
+:}
+|error rows:x  dosPuntos  num:e1 coma  columns  dosPuntos  num:e2 
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones, antes de \"filas: "+x+", columnas:"+e2+"\"";
+listaErrores.add(new ErrorSintatico((String)x,xleft,xright,msj,true));
 
-OPM6 ::= coma ENTERSPACE mostrarEstadisticas ENTERSPACE dosPuntos ENTERSPACE 
-        bool:e ENTERSPACE coma ENTERSPACE produc ENTERSPACE dosPuntos ENTERSPACE num:e2 {:
-        parser.pbj[1]=Boolean.parseBoolean((String)e);
-        parser.pbj[2]=Integer.parseInt((String)e2);
- :}; 
-         
-OPM7 ::= coma ENTERSPACE mostrarNaves ENTERSPACE dosPuntos ENTERSPACE bool:e ENTERSPACE coma ENTERSPACE
-         produc ENTERSPACE dosPuntos ENTERSPACE num:e2 {:
-        parser.pbj[0]=Boolean.parseBoolean((String)e);
-        parser.pbj[2]=Integer.parseInt((String)e2);
+:}
+|error   dosPuntos:e  num:e1 coma  columns  dosPuntos  num:e2 
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones, antes de \":"+e1+",columnas:"+e2+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+
+:}
+|error   num:e1 coma  columns  dosPuntos  num:e2 
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones, antes de \":"+e1+",columnas:"+e2+"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
+:}
+ |error  coma:e  columns  dosPuntos  num:e2 
+{:
+int filas=10;
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones(filas,columnas) antes de \",columnas:"+e2+" \" corrija el error";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+ |error    columns:e  dosPuntos  num:e2 
+{:
+int filas=10;
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones (filas,columnas) antes de \"columnas:"+e2+", corrija el error";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+
+| error columns:x  dosPuntos  num:e2 coma  rows  dosPuntos  num:e1
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones, antes de Columnas: \" columnas:+"+e2+",filas:"+e1+" \"";
+listaErrores.add(new ErrorSintatico((String)x,xleft,xright,msj,true));
+
+:}
+| error   dosPuntos:e  num:e2 coma  rows  dosPuntos  num:e1
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones, antes de  \":"+e2+",filas:"+e1+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+:}
+| error  num:e2 coma  rows  dosPuntos  num:e1
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=Integer.parseInt((String) e2);
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones(filas,columnas), antes de \""+e2+",filas:"+e1+"\"";
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
+:}
+| error   coma:e  rows  dosPuntos  num:e1
+{:
+int filas=Integer.parseInt((String) e1);
+int columnas=10;
+parser.dimension=new Dimension(filas,columnas);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones(filas,columnas), antes de  \",filas:"+e1+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+
+:}
+| error    rows:e  dosPuntos  num:x
+{:
+int filas=Integer.parseInt((String) e);
+String msj="Error de sintaxis en la declaracion de \n las dimensiones(filas,columnas), antes de  \"filas:"+x+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+| error      dosPuntos:e  num:x
+{:
+String msj="Error de sintaxis en la declaracion de \n las dimensiones (filas,columnas), antes de  \":"+x+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+| error     num:e
+{:
+String msj="Error de sintaxis en la declaracion de \n las dimensiones (filas,columnas), antes de  \""+e+"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+; 
+       
+OPM5 ::= SHOWNAVES coma OPM6 
+        |SHOWESTADISTICAS coma OPM7 
+        |SHOWPRODUCCION coma OPM8
+        | error coma OPM6
+        | error coma OPM7
+        | error coma OPM8
         
- :}; 
+        ; 
 
-OPM8 ::= coma ENTERSPACE mostrarNaves ENTERSPACE dosPuntos ENTERSPACE bool:e ENTERSPACE coma ENTERSPACE
-         mostrarEstadisticas ENTERSPACE dosPuntos ENTERSPACE bool:e2 {:
-        parser.pbj[0]=Boolean.parseBoolean((String)e);
-        parser.pbj[1]=Boolean.parseBoolean((String)e2);
-       
- :};
+OPM6 ::=  SHOWESTADISTICAS  coma SHOWPRODUCCION 
+| SHOWPRODUCCION coma SHOWESTADISTICAS
+| error coma SHOWPRODUCCION
+
+; 
+         
+OPM7 ::=  SHOWNAVES  coma SHOWPRODUCCION 
+|  SHOWPRODUCCION coma SHOWNAVES
+| error coma SHOWNAVES
+; 
+
+OPM8 ::=  SHOWNAVES  coma SHOWESTADISTICAS 
+| SHOWESTADISTICAS coma SHOWNAVES
+| error coma SHOWESTADISTICAS
+
+;
+
+SHOWNAVES::= mostrarNaves  dosPuntos  bool:e {:parser.pbj[0]=Boolean.parseBoolean((String)e);:}
+|error mostrarNaves:e1  dosPuntos  bool:e 
+{:
+parser.pbj[0]=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en la declaracion mostrar naves de NEUTRALES \n";
+msj+= " , antes de \" "+e1+":"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error   bool:e 
+;
+
+SHOWESTADISTICAS::=mostrarEstadisticas  dosPuntos  bool:e {:parser.pbj[1]=Boolean.parseBoolean((String)e);:}
+|error mostrarEstadisticas:e1  dosPuntos  bool:e 
+{:
+parser.pbj[1]=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en la declaracion mostrar estadisticas de NEUTRALES \n";
+msj+= " , antes de \" "+e1+":"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+
+;
+
+SHOWPRODUCCION::=produc  dosPuntos  num:e  {:parser.pbj[2]=Integer.parseInt((String)e);:}
+|error produc:e1  dosPuntos  num:e  
+{:
+parser.pbj[2]=Integer.parseInt((String)e);
+String msj="Error de sintaxis en la declaracion cantidad de produccion de NEUTRALES \n";
+msj+= " , antes de \" "+e1+":"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+
+;
 
 
-NOMBRE_MAPA ::=name_mapa ENTERSPACE dosPuntos ENTERSPACE abreComilla ENTERSPACE id:e  
-        ENTERSPACE cierraComilla  {:parser.nombre_mapa=(String)e;:} ; 
+NOMBRE_MAPA ::=name_mapa:e1  dosPuntos  abreComilla  id:e cierraComilla  {:parser.nombre_mapa=(String)e;:} 
+|error name_mapa:e1  dosPuntos  abreComilla  id:e cierraComilla  
+{:parser.nombre_mapa=(String)e;
+String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \"id:"+e+"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error dosPuntos:e1  abreComilla  id:e cierraComilla  
+{:parser.nombre_mapa=(String)e;
+String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \":"+e+"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error abreComilla:e1  id:e cierraComilla  
+{:parser.nombre_mapa=(String)e;
+String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \""+e+"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error id:e cierraComilla  
+{:parser.nombre_mapa=(String)e;
+String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de cierre de comilla ";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error cierraComilla:e  
+{:
+parser.nombre_mapa="MAPA";
+String msj="Error de sintaxis en la declaracion del \n nombre del mapa en la linea de declaracion";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+; 
 
-DIMENSIONES_MAPA::= tamaño ENTERSPACE dosPuntos ENTERSPACE abreParentesis ENTERSPACE OPM4 ENTERSPACE cierraParentesis;  
-AZAR_MAPA ::= azar ENTERSPACE dosPuntos ENTERSPACE bool:e {:parser.azar_=Boolean.parseBoolean((String)e);:};
-PLANETA_NEUTRALES ::= planetasNeu ENTERSPACE dosPuntos ENTERSPACE num:e {:parser.planetasNeutrales_=Integer.parseInt((String)e);:};
-MAPA_CIEGO ::= mapaCiego ENTERSPACE dosPuntos ENTERSPACE bool:e {:parser.mapaciego_=Boolean.parseBoolean((String)e);:};
-ACUMULAR ::= acum ENTERSPACE dosPuntos ENTERSPACE bool:e {:parser.acumular_=Boolean.parseBoolean((String)e);:};
-NEUTRALES ::= Neu ENTERSPACE dosPuntos ENTERSPACE abreParentesis ENTERSPACE OPM5 ENTERSPACE cierraParentesis;
-FINALIZACION ::= end ENTERSPACE dosPuntos ENTERSPACE num:e {:parser.finalizacion_=Integer.parseInt((String)e);:};
+DIMENSIONES_MAPA::= tamaño  dosPuntos  abreParentesis  OPM4  cierraParentesis
+|error tamaño:e  dosPuntos  abreParentesis  OPM4  cierraParentesis
+{:
+String msj="Error de sintaxis en dimensiones del \n mapa antes de \"tamaño\" ->tamaño:{ }";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error dosPuntos:e  abreParentesis  OPM4  cierraParentesis
+{:
+String msj="Error de sintaxis en dimensiones del \n mapa antes de dos puntos tamaño->:{ }";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error abreParentesis:e  OPM4  cierraParentesis
+{:
+String msj="Error de sintaxis en dimensiones del mapa antes de \n abrir parentesis tamaño:->{ }";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error OPM4  cierraParentesis:e
+{:
+String msj="Error antes de cierraParentesis en los datos de las dimensiones";
+listaErrores.add(new ErrorSintatico((String)e,eleft-1,eright-1,msj,true));
+:}
+|error cierraParentesis:e
+{:
+String msj="Error de sintaxis en dimensiones del mapa antes de cerrar parentesis tamaño:{ aqui->}";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,false));
+:}
+;  
+//-------------------------------------------------------------------------------->
+AZAR_MAPA ::= azar  dosPuntos  bool:e {:parser.azar_=Boolean.parseBoolean((String)e);:}
+|error azar:e1  dosPuntos  bool:e 
+{:
+parser.azar_=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en declaracion de AZAR. \" "+e1+":"+e+" \"\n ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+
+|error   bool:e1 
+{:
+parser.azar_=Boolean.parseBoolean((String)e1);
+String msj="Error de sintaxis en declaracion de AZAR \" valor de azar tomado"+e1+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+;
+//----------------------------------------------------------------------------------->
+PLANETA_NEUTRALES ::= planetasNeu  dosPuntos  num:e {:parser.planetasNeutrales_=Integer.parseInt((String)e);:}
+|error planetasNeu:e1  dosPuntos  num:e 
+{:
+parser.planetasNeutrales_=Integer.parseInt((String)e);
+String msj="Error de sintaxis en declaracion de CANTIDAD DE PLANETAS NEUTRALES \n";
+msj+= "\" "+e1+":"+e+" \" ";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error   dosPuntos:e1  num:e 
+{:
+parser.planetasNeutrales_=Integer.parseInt((String)e);
+String msj="Error de sintaxis en declaracion de CANTIDAD DE PLANETAS NEUTRALES \n";
+msj+= "\" :"+e+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error     num:e1 
+{:
+parser.planetasNeutrales_=Integer.parseInt((String)e1);
+String msj="Error de sintaxis en declaracion de CANTIDAD DE PLANETAS NEUTRALES\n ";
+msj+= "\" cantidad de planetas neutrales tomado "+e1+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+;
+//------------------------------------------------------------------------>
+MAPA_CIEGO ::= mapaCiego  dosPuntos  bool:e {:parser.mapaciego_=Boolean.parseBoolean((String)e);:}
+|error mapaCiego:e1  dosPuntos  bool:e 
+{:
+parser.mapaciego_=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en declaracion de MAPA CIEGO \n";
+msj+= "\" "+e1+":"+e+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+;
+//------------------------------------------------------------------------->
+ACUMULAR ::= acum  dosPuntos  bool:e {:parser.acumular_=Boolean.parseBoolean((String)e);:}
+|error acum:e1  dosPuntos  bool:e 
+{:
+parser.acumular_=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en declaracion de ACUMULAR \n";
+msj+= "\""+e1+": "+e+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error   dosPuntos:e1  bool:e 
+{:
+parser.acumular_=Boolean.parseBoolean((String)e);
+String msj="Error de sintaxis en declaracion de ACUMULAR \n";
+msj+= "\""+e1+" "+e+" \" ,corrija la linea o elimine la declaracion";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+
+;
+
+//------------------------------------------------------------------>
+NEUTRALES ::= Neu  dosPuntos  abreParentesis  OPM5  cierraParentesis
+| error Neu:e1  dosPuntos:e2  abreParentesis:e3  OPM5  cierraParentesis:e4
+{:
+String msj="Error de sintaxis en declaracion  PROPIEDADES DE NEUTRALES \n";
+msj+= " antes de \""+e1+":{ (mas datos) }\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+| error   dosPuntos:e1  abreParentesis:e3  OPM5  cierraParentesis:e4
+{:
+String msj="Error de sintaxis en declaracion  PROPIEDADES DE NEUTRALES \n";
+msj+= " antes de \":{ (mas datos) }\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+| error    abreParentesis:e1  OPM5  cierraParentesis:e4
+{:
+String msj="Error de sintaxis en declaracion  PROPIEDADES DE NEUTRALES\n";
+msj+= " antes de \"{ (mas datos) }\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+| error     OPM5  cierraParentesis:e4
+
+
+;
+//-------------------------------------------------------------------------->
+FINALIZACION ::= end  dosPuntos  num:e {:parser.finalizacion_=Integer.parseInt((String)e);:}
+| error end:e1  dosPuntos  num:e 
+{:
+String msj="Error de sintaxis en declaracion  FINALIZACION\n";
+msj+= "antes de  \" finalizacion:"+e1+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.finalizacion_=Integer.parseInt((String)e);:}
+;
+
 
 /*
 *opciones de planetas
 */
 
-OPP0 ::= OPP1 ENTERSPACE cierraParentesis ENTERSPACE OPP01 ;
-OPP01::=  cierraCor | coma ENTERSPACE abreParentesis OPP0;
+OPP0 ::= OPP1  cierraParentesis  OPP01 ;
+OPP01::=  cierraCor | coma  abreParentesis OPP0;
 
 
-OPP2 ::= ENTERSPACE name ENTERSPACE dosPuntos ENTERSPACE abreComilla ENTERSPACE id:e ENTERSPACE cierraComilla {:
-parser.neutralesNombre_=(String)e;
-:};
-OPP3 ::= ENTERSPACE ships ENTERSPACE dosPuntos ENTERSPACE num:e {: parser.neutralesNaves_=Integer.parseInt((String)e);:};
-OPP4 ::= ENTERSPACE produc ENTERSPACE dosPuntos ENTERSPACE num:e {: parser.neutralesProduc_=Integer.parseInt((String)e);:};
-OPP5 ::= ENTERSPACE deaths ENTERSPACE dosPuntos ENTERSPACE decimal:e {: parser.neutralesMuertes_=Double.parseDouble((String)e);:};
+OPP2 ::=  name  dosPuntos  abreComilla  id:e  cierraComilla 
+{:parser.neutralesNombre_=(String)e;:}
+|error name:e1  dosPuntos  abreComilla  id:e  cierraComilla 
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
+msj+= " antes de \" nombre:\""+e+"\"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNombre_=(String)e;:}
 
-OPP1 ::= OPP2 ENTERSPACE coma OPPAUX1 {: parser.array_planetas_.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes_,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
-        |OPP3 ENTERSPACE coma OPPAUX2 {: parser.array_planetas_.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes_,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
-        |OPP4 ENTERSPACE coma OPPAUX3 {: parser.array_planetas_.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes_,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
-        |OPP5 ENTERSPACE coma OPPAUX4 {: parser.array_planetas_.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes_,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :};
+
+|error abreComilla:e1  id:e  cierraComilla 
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
+msj+= " antes de \" \""+e+"\"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNombre_=(String)e;:}
+
+
+|error id:e  cierraComilla 
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
+msj+= " antes de \" "+e+"\"\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+parser.neutralesNombre_=(String)e;:}
+
+
+|error cierraComilla:e1 {:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta \n no se agrego correctamente \n";
+msj+= " antes  de comilla";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+;
+
+
+OPP3 ::=  ships  dosPuntos  num:e 
+{:parser.neutralesNaves_=Integer.parseInt((String)e);:}
+
+
+|error ships:e1  dosPuntos  num:e {: 
+String msj="Error de sintaxis en declaracion  de naves de un planeta \n";
+msj+= " antes  de \" naves:"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNaves_=Integer.parseInt((String)e);:}
+
+
+|error dosPuntos:e1  num:e {:
+String msj="Error de sintaxis en declaracion  de naves de un planeta \n";
+msj+= " antes de \" :"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e,e1left,eright,msj,true));
+ parser.neutralesNaves_=Integer.parseInt((String)e);:}
+;
+
+
+OPP4 ::=  produc  dosPuntos  num:e {: parser.neutralesProduc_=Integer.parseInt((String)e);:}
+|error produc:e1  dosPuntos  num:e {:
+String msj="Error de sintaxis en declaracion  de produccion de un planeta \n";
+msj+= " antes  de \" produccion:"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesProduc_=Integer.parseInt((String)e);:}
+
+
+|error num:e {: 
+String msj="Error de sintaxis en declaracion  de produccion de un planeta \n";
+msj+= " antes  de la declaracion de la  \" cantidad "+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesProduc_=Integer.parseInt((String)e);:}
+;
+
+OPP5 ::=  deaths  dosPuntos  decimal:e {: parser.neutralesMuertes=Double.parseDouble((String)e);:}
+|error deaths:e1  dosPuntos  decimal:e {:
+String msj="Error de sintaxis en declaracion  de muertes de un planeta \n";
+msj+= " antes  de la declaracion de la  \" procentajeMuertes: "+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ parser.neutralesMuertes=Double.parseDouble((String)e);:}
+
+
+|error dosPuntos:e1  decimal:e {:
+String msj="Error de sintaxis en declaracion  de muertes de un planeta \n";
+msj+= " antes  de la declaracion de la \" :"+e+" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ parser.neutralesMuertes=Double.parseDouble((String)e);:}
+|error decimal:e {: parser.neutralesMuertes=Double.parseDouble((String)e);:}
+;
+
+OPP1 ::= OPP2  coma OPPAUX1 {: parser.array_planetas_.add(new planeta_jugador(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
+        |OPP3  coma OPPAUX2 {: parser.array_planetas_.add(new planeta_jugador(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
+        |OPP4  coma OPPAUX3 {: parser.array_planetas_.add(new planeta_jugador(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :}
+        |OPP5  coma OPPAUX4 {: parser.array_planetas_.add(new planeta_jugador(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); :};
 
 //------------------------->
-OPPAUX1 ::= OPP3 ENTERSPACE coma OPPAUX5
-           |OPP4 ENTERSPACE coma OPPAUX6
-           |OPP5 ENTERSPACE coma OPPAUX7;
-OPPAUX5 ::= OPP4 ENTERSPACE coma OPP5 | OPP5 ENTERSPACE coma OPP4;
-OPPAUX6 ::= OPP3 ENTERSPACE coma OPP5 | OPP5 ENTERSPACE coma OPP3;
-OPPAUX7 ::= OPP4 ENTERSPACE coma OPP3 | OPP3 ENTERSPACE coma OPP4;
+OPPAUX1 ::= OPP3  coma OPPAUX5
+           |OPP4  coma OPPAUX6
+           |OPP5  coma OPPAUX7;
+OPPAUX5 ::= OPP4  coma OPP5 | OPP5  coma OPP4;
+OPPAUX6 ::= OPP3  coma OPP5 | OPP5  coma OPP3;
+OPPAUX7 ::= OPP4  coma OPP3 | OPP3  coma OPP4;
 //------------------------->
 
-OPPAUX2 ::= OPP2 ENTERSPACE coma OPPAUX5
-           |OPP4 ENTERSPACE coma OPPAUX8
-           |OPP5 ENTERSPACE coma OPPAUX9;
-OPPAUX8 ::= OPP2 ENTERSPACE coma OPP5 | OPP5 ENTERSPACE coma OPP2;
-OPPAUX9 ::= OPP4 ENTERSPACE coma OPP2 | OPP2 ENTERSPACE coma OPP4;
+OPPAUX2 ::= OPP2  coma OPPAUX5
+           |OPP4  coma OPPAUX8
+           |OPP5  coma OPPAUX9;
+OPPAUX8 ::= OPP2  coma OPP5 | OPP5  coma OPP2;
+OPPAUX9 ::= OPP4  coma OPP2 | OPP2  coma OPP4;
 //-------------------------->
-OPPAUX3 ::= OPP2 ENTERSPACE coma OPPAUX6
-           |OPP3 ENTERSPACE coma OPPAUX8
-           |OPP5 ENTERSPACE coma OPPAUX10;
-OPPAUX10 ::= OPP2 ENTERSPACE coma OPP3 | OPP3 ENTERSPACE coma OPP2;
+OPPAUX3 ::= OPP2  coma OPPAUX6
+           |OPP3  coma OPPAUX8
+           |OPP5  coma OPPAUX10;
+OPPAUX10 ::= OPP2  coma OPP3 | OPP3  coma OPP2;
 //-------------------------->
-OPPAUX4 ::= OPP2 ENTERSPACE coma OPPAUX7
-           |OPP3 ENTERSPACE coma OPPAUX9
-           |OPP4 ENTERSPACE coma OPPAUX10;
+OPPAUX4 ::= OPP2  coma OPPAUX7
+           |OPP3  coma OPPAUX9
+           |OPP4  coma OPPAUX10;
 
 
 
@@ -265,83 +822,230 @@ OPPAUX4 ::= OPP2 ENTERSPACE coma OPPAUX7
 */
 
 OPPN0::= OPPN1 OPPN01;
-OPPN01::= ENTERSPACE  cierraCor | ENTERSPACE coma ENTERSPACE abreParentesis ENTERSPACE OPPN0;
+OPPN01::=   cierraCor |  coma  abreParentesis  OPPN0;
 
-OPP21 ::= name ENTERSPACE dosPuntos ENTERSPACE abreComilla ENTERSPACE id:e {:parser.neutralesNombre_=(String)e;:} ENTERSPACE cierraComilla;
-OPP31 ::= ships ENTERSPACE dosPuntos ENTERSPACE num:e {:parser.neutralesNaves_=Integer.parseInt((String)e);:};
-OPP41 ::= produc ENTERSPACE dosPuntos ENTERSPACE num:e {:parser.neutralesProduc_=Integer.parseInt((String)e);:};
-OPP51 ::= deaths ENTERSPACE dosPuntos ENTERSPACE decimal:e {:parser.neutralesMuertes=Double.parseDouble((String)e);:};
+OPP21 ::= name  dosPuntos  abreComilla  id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
+|error name:e1  dosPuntos  abreComilla  id:e 
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
+msj+= " antes  de la declaracion de la \" nombre: \" "+e+" \" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNombre_=(String)e;:}  cierraComilla
 
-OPPN1 ::=OPP21:e ENTERSPACE coma ENTERSPACE OPPNAUX1{:
+|error abreComilla:e1  id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
+msj+= " antes  de la declaracion del id \" \" "+e+" \" \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
+{:
+String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
+msj+= " antes  de la declaracion del id,error en las comillas \"  "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+;
+OPP31 ::= ships  dosPuntos  num:e {:parser.neutralesNaves_=Integer.parseInt((String)e);:}
+|error ships:e1  dosPuntos  num:e {:
+String msj="Error de sintaxis en declaracion  de naves de un planeta neutral \n";
+msj+= " antes  de la declaracion de \" naves: "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNaves_=Integer.parseInt((String)e);:}
+
+|error dosPuntos:e1  num:e {:
+String msj="Error de sintaxis en declaracion  de naves de un planeta neutral \n";
+msj+= " antes  de la declaracion de \" : "+e+"  \", falta el token naves";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesNaves_=Integer.parseInt((String)e);:}
+;
+
+
+OPP41 ::= produc  dosPuntos  num:e {:parser.neutralesProduc_=Integer.parseInt((String)e);:}
+
+|error produc:e1  dosPuntos  num:e {:
+String msj="Error de sintaxis en declaracion  de produccion de un planeta neutral \n";
+msj+= " antes  de la declaracion de \"produccion : "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesProduc_=Integer.parseInt((String)e);:}
+
+
+|error num:e {:
+String msj="Error de sintaxis en declaracion  de produccion de un planeta neutral \n";
+msj+= " antes  de la declaracion de \" la cantidad de "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+parser.neutralesProduc_=Integer.parseInt((String)e);:}
+;
+
+
+OPP51 ::= deaths  dosPuntos  decimal:e {:parser.neutralesMuertes=Double.parseDouble((String)e);:}
+|error deaths:e1  dosPuntos  decimal:e {:
+String msj="Error de sintaxis en declaracion  de porcentajeMuertes de un planeta neutral \n";
+msj+= " antes  de la declaracion de \"procentajeMuertes : "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesMuertes=Double.parseDouble((String)e);:}
+
+
+|error dosPuntos:e1  decimal:e {:
+String msj="Error de sintaxis en declaracion  de porcentajeMuertes de un planeta neutral \n";
+msj+= " antes  de la declaracion de \" : "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesMuertes=Double.parseDouble((String)e);:}
+
+
+|error decimal:e {:
+String msj="Error de sintaxis en declaracion  de porcentajeMuertes de un planeta neutral \n";
+msj+= " antes  de la declaracion de \"cantidad de "+e+"  \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+parser.neutralesMuertes=Double.parseDouble((String)e);:}
+;
+
+OPPN1 ::=OPP21:e  coma  OPPNAUX1{:
 parser.array_neutrales.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); 
 parser.neutralesProduc_=0;
-
 :}
-        |OPP31:e ENTERSPACE coma ENTERSPACE OPPNAUX2{:
+|OPP31:e  coma  OPPNAUX2{:
 parser.array_neutrales.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); 
 parser.neutralesProduc_=0;
-
 :}
-        |OPP41:e ENTERSPACE coma ENTERSPACE OPPNAUX3{: 
+|OPP41:e  coma  OPPNAUX3{: 
 parser.array_neutrales.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_)); 
 parser.neutralesProduc_=0;
-
 :}
-        |OPP51:e ENTERSPACE coma ENTERSPACE OPPNAUX4{:
+|OPP51:e  coma  OPPNAUX4{:
 parser.array_neutrales.add(new planeta_neutral(parser.neutralesNaves_,parser.neutralesMuertes,parser.neutralesNombre_,false,false,parser.neutralesProduc_));
 parser.neutralesProduc_=0;
-
- :};
+:};
 
 //------------------------->
 
-OPPNAUX1 ::=OPP31 ENTERSPACE coma ENTERSPACE OPPNAUX5
+OPPNAUX1 ::=OPP31  coma  OPPNAUX5
            |OPPN2 
-           |OPP51 ENTERSPACE coma ENTERSPACE OPPNAUX8;
+           |OPP51  coma  OPPNAUX8
+           |error coma OPPNAUX5
+           |error coma OPPNAUX8
+;
 
-OPPN2 ::= OPP41 ENTERSPACE coma ENTERSPACE OPPNAUX6 |  OPPNAUX7;
+OPPN2 ::= OPP41  coma  OPPNAUX6 
+|  OPPNAUX7
+|error coma OPPNAUX6
+;
 
-OPPNAUX6 ::= OPP31 ENTERSPACE coma ENTERSPACE OPP51 ENTERSPACE cierraParentesis | OPP51 ENTERSPACE coma ENTERSPACE OPP31 ENTERSPACE cierraParentesis;
-OPPNAUX5 ::= OPP41 ENTERSPACE coma ENTERSPACE OPP51 ENTERSPACE cierraParentesis | OPP51 ENTERSPACE OPPN3;
+OPPNAUX6 ::= OPP31  coma  OPP51  cierraParentesis 
+| OPP51  coma  OPP31  cierraParentesis
+|error coma  OPP51  cierraParentesis
+|error cierraParentesis
+|error coma  OPP31  cierraParentesis
+;
+//-------------------------------------------------------------------------->
+OPPNAUX5 ::= OPP41  coma  OPP51  cierraParentesis 
+| OPP51  OPPN3;
+//-------------------------------------------------------------------------->
 
-OPPNAUX8 ::= OPP41 ENTERSPACE coma ENTERSPACE OPP31 ENTERSPACE cierraParentesis | OPP31 ENTERSPACE OPPN3;
-OPPNAUX 7 ::= OPP31 ENTERSPACE coma ENTERSPACE OPP51 ENTERSPACE cierraParentesis |OPP51 ENTERSPACE coma ENTERSPACE OPP31 ENTERSPACE cierraParentesis;
-OPPN3 ::= coma OPP4 ENTERSPACE cierraParentesis | cierraParentesis;
+OPPNAUX8 ::= OPP41  coma  OPP31  cierraParentesis 
+| OPP31  OPPN3
+;
+//-------------------------------------------------------------------------->
+
+OPPNAUX 7 ::= OPP31  coma  OPP51  cierraParentesis 
+|OPP51  coma  OPP31  cierraParentesis
+|error coma  OPP51  cierraParentesis 
+|error OPP51 cierraParentesis
+|error cierraParentesis;
+//-------------------------------------------------------------------------->
+
+OPPN3 ::= coma OPP4  cierraParentesis 
+| cierraParentesis
+|error coma OPP4  cierraParentesis 
+|error OPP4  cierraParentesis
+|error cierraParentesis
+ ;
 //------------------------->
 
 
-OPPNAUX2 ::=OPP21 ENTERSPACE coma ENTERSPACE OPPNAUX5
-           |OPPN4
-           |OPP51 ENTERSPACE coma ENTERSPACE OPPNAUX9;
+OPPNAUX2 ::=OPP21  coma  OPPNAUX5
+|OPPN4
+|OPP51  coma  OPPNAUX9
+|error coma  OPPNAUX5
+|error coma OPPNAUX9
+;
+//-------------------------------------------------------------------------->
 
-OPPN4 ::=    OPP41 ENTERSPACE coma ENTERSPACE OPPNAUX10 |  OPPNAUX11;
-OPPNAUX9 ::= OPP41 ENTERSPACE coma ENTERSPACE OPP21 ENTERSPACE cierraParentesis | OPP21 ENTERSPACE OPPN3;
-OPPNAUX10 ::= OPP21 ENTERSPACE coma ENTERSPACE OPP51 ENTERSPACE cierraParentesis |OPP51 ENTERSPACE coma OPP21 ENTERSPACE cierraParentesis;
-OPPNAUX 11 ::= OPP21 ENTERSPACE coma ENTERSPACE OPP51 ENTERSPACE cierraParentesis |OPP51 ENTERSPACE coma OPP21 ENTERSPACE cierraParentesis;
+OPPN4 ::=    OPP41  coma  OPPNAUX10 
+|  OPPNAUX11
+|error coma OPPNAUX10;
+//-------------------------------------------------------------------------->
+
+OPPNAUX9 ::= OPP41  coma  OPP21  cierraParentesis 
+| OPP21  OPPN3
+|error coma OPP21 cierraParentesis
+|error cierraParentesis
+;
+//-------------------------------------------------------------------------->
+
+OPPNAUX10 ::= OPP21  coma  OPP51  cierraParentesis 
+|OPP51  coma OPP21  cierraParentesis
+|error coma  OPP51  cierraParentesis
+ ;
+//-------------------------------------------------------------------------->
+
+OPPNAUX 11 ::= OPP21  coma  OPP51  cierraParentesis 
+|OPP51  coma OPP21  cierraParentesis
+|error coma OPP21  cierraParentesis
+|error coma OPP51  cierraParentesis
+|error cierraParentesis
+;
 
 //-------------------------->
-OPPNAUX3 ::=OPP21 ENTERSPACE coma ENTERSPACE OPPNAUX6
-           |OPP31 ENTERSPACE coma ENTERSPACE OPPNAUX10
-           |OPP51 ENTERSPACE coma ENTERSPACE OPPNAUX12;
+OPPNAUX3 ::=OPP21  coma  OPPNAUX6
+|OPP31  coma  OPPNAUX10
+|OPP51  coma  OPPNAUX12
+|error coma OPPNAUX6;
 
-OPPNAUX12 ::= OPP21 ENTERSPACE coma ENTERSPACE OPP31 ENTERSPACE cierraParentesis |OPP31 ENTERSPACE coma ENTERSPACE OPP21 ENTERSPACE cierraParentesis;
+OPPNAUX12 ::= OPP21  coma  OPP31  cierraParentesis 
+|OPP31 coma  OPP21  cierraParentesis
+|error coma  OPP31  cierraParentesis
+|error coma  OPP21  cierraParentesis
+|error cierraParentesis;
 
 //-------------------------->
 
-OPPNAUX4 ::=OPP21 ENTERSPACE coma ENTERSPACE OPPNAUX8
-           |OPP31 ENTERSPACE coma ENTERSPACE OPPNAUX9
-           |OPPN5;
+OPPNAUX4 ::=OPP21  coma  OPPNAUX8
+|OPP31  coma  OPPNAUX9
+|OPPN5
+|error coma  OPPNAUX8
+|error coma  OPPNAUX9
+;
 
-OPPN5 ::= OPP41 ENTERSPACE coma ENTERSPACE OPPNAUX12 | OPPNAUX13;
-OPPNAUX 13 ::= OPP21 ENTERSPACE coma ENTERSPACE OPP31 ENTERSPACE cierraParentesis |OPP31 ENTERSPACE coma ENTERSPACE OPP21 ENTERSPACE cierraParentesis;
+OPPN5 ::= OPP41  coma  OPPNAUX12 
+| OPPNAUX13
+|error OPPNAUX13;
+//---------------------------->
+OPPNAUX 13 ::= OPP21  coma  OPP31  cierraParentesis 
+|OPP31  coma  OPP21  cierraParentesis
+|error coma  OPP31  cierraParentesis 
+|error coma  OPP21  cierraParentesis 
+|error cierraParentesis
+;
 
 /*
 *jugadores
 */
 
-PLAYERS1::= PLAYERS2 ENTERSPACE cierraParentesis ENTERSPACE PLAYERS9 ;
-PLAYERS9::= cierraCor | coma ENTERSPACE abreParentesis ENTERSPACE PLAYERS1;
-PLAYERS2::= PLAYERS3 ENTERSPACE coma ENTERSPACE  PLAYERSAUX1 {:
+//----------------------------------------->
+PLAYERS1::= PLAYERS2  cierraParentesis  PLAYERS9
+|error  cierraParentesis  PLAYERS9
+|error PLAYERS9;
+
+PLAYERS9::= cierraCor 
+| coma  abreParentesis  PLAYERS1
+| error coma  abreParentesis  PLAYERS1
+| error abreParentesis  PLAYERS1
+| error PLAYERS1
+| error cierraCor
+;
+
+//------------------------------------------>
+PLAYERS2::= PLAYERS3  coma   PLAYERSAUX1 {:
 switch(tipo_player){
 case "HUMANO":
 parser.array_jugadores.add(new humano(nombre_player,array_planetas));
@@ -354,7 +1058,7 @@ parser.array_jugadores.add(new facil(nombre_player,array_planetas));
 break;
 }
 parser.array_jugadores=new ArrayList();;:}
-           | PLAYERS4 ENTERSPACE coma ENTERSPACE PLAYERSAUX2 {:
+| PLAYERS4  coma  PLAYERSAUX2 {:
 switch(tipo_player){
 case "HUMANO":
 parser.array_jugadores.add(new humano(nombre_player,array_planetas));
@@ -367,7 +1071,7 @@ parser.array_jugadores.add(new facil(nombre_player,array_planetas));
 break;
 }
 array_jugadores=new ArrayList();;:}
-           | PLAYERS7 ENTERSPACE coma ENTERSPACE PLAYERSAUX3 {:
+| PLAYERS7  coma  PLAYERSAUX3 {:
 switch(tipo_player){
 case "HUMANO":
 parser.array_jugadores.add(new humano(nombre_player,array_planetas));
@@ -379,21 +1083,107 @@ case "FACIL":
 parser.array_jugadores.add(new facil(nombre_player,array_planetas));
 break;
 }
-parser.array_jugadores=new ArrayList();;:};
-PLAYERSAUX1::= PLAYERS4 ENTERSPACE coma ENTERSPACE PLAYERS7 | PLAYERS7 ENTERSPACE coma ENTERSPACE PLAYERS4; 
-PLAYERSAUX2::= PLAYERS3 ENTERSPACE coma ENTERSPACE PLAYERS7 | PLAYERS7 ENTERSPACE coma ENTERSPACE PLAYERS3;
-PLAYERSAUX3::= PLAYERS4 ENTERSPACE coma ENTERSPACE PLAYERS3 | PLAYERS3 ENTERSPACE coma ENTERSPACE PLAYERS4;  
+parser.array_jugadores=new ArrayList();;:}
+|error coma  PLAYERSAUX1
+|error coma  PLAYERSAUX2
+;
 
-PLAYERS3::= name ENTERSPACE dosPuntos ENTERSPACE abreComilla ENTERSPACE id:e ENTERSPACE cierraComilla
-{:  parser.nombre_player=(String )e; :};
+//-------------------------------------------->
+PLAYERSAUX1::= PLAYERS4  coma  PLAYERS7 
+| PLAYERS7  coma  PLAYERS4
+| error  coma  PLAYERS4
+| error  PLAYERS4
+; 
+PLAYERSAUX2::= PLAYERS3  coma  PLAYERS7 
+| PLAYERS7  coma  PLAYERS3
+| error coma  PLAYERS3
+| error PLAYERS3
+;
+PLAYERSAUX3::= PLAYERS4  coma  PLAYERS3 
+| PLAYERS3  coma  PLAYERS4
+| error coma  PLAYERS4
+| error   PLAYERS4
 
-PLAYERS4::= earths ENTERSPACE dosPuntos ENTERSPACE abreCor ENTERSPACE PLAYERS5;
+;  
 
-PLAYERS5::= abreComilla ENTERSPACE id:e ENTERSPACE cierraComilla ENTERSPACE PLAYERS6
-{:parser.array_planetas.add(new planeta_jugador((String)e));:};
 
-PLAYERS6::= cierraCor | coma ENTERSPACE PLAYERS5;
+//--------------------------------------------->
+PLAYERS3::= name:e1  dosPuntos  abreComilla  id:e  cierraComilla
+{:  parser.nombre_player=(String )e; :}
+|error name:e1  dosPuntos  abreComilla  id:e  cierraComilla
+{:parser.nombre_player=(String )e;
+String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
+msj+= " antes de \""+e1+":\""+e+"\"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ :}
+|error   dosPuntos:e1  abreComilla  id:e  cierraComilla
+{:parser.nombre_player=(String )e;
+String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
+msj+= " antes de \""+e1+" \" "+e+" \"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ :}
 
-PLAYERS7::= type ENTERSPACE dosPuntos ENTERSPACE PLAYERS8;
+
+
+|error     abreComilla:e1  id:e  cierraComilla
+{:parser.nombre_player=(String )e;
+String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
+msj+= " antes de \""+e1+""+e+"\"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ :}
+
+|error       id:e1  cierraComilla
+{:parser.nombre_player=(String )e1;
+String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
+msj+= " antes de \""+e1+"\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+ :}
+| error cierraComilla
+;
+
+//------------------------------->
+PLAYERS4::= earths  dosPuntos  abreCor  PLAYERS5
+|error earths:e1  dosPuntos  abreCor  PLAYERS5
+{:parser.nombre_player=(String )e1;
+String msj="Error de sintaxis en declaracion  nombre de planetas de jugador \n";
+msj+= " antes de \"planetas: [\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error   dosPuntos:e1  abreCor  PLAYERS5
+{:parser.nombre_player=(String )e1;
+String msj="Error de sintaxis en declaracion  nombre de planetas de jugador \n";
+msj+= " antes de  \": [ \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+
+|error   abreCor:e1  PLAYERS5
+{:parser.nombre_player=(String )e1;
+String msj="Error de sintaxis en declaracion  nombre de planetas de jugador \n";
+msj+= " antes de  \" [ \"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+;
+
+
+//------------------------------------------>aqui jugadores
+PLAYERS5::= abreComilla  id:e  cierraComilla  PLAYERS6
+{:parser.array_planetas.add(new planeta_jugador((String)e));:}
+|error abreComilla  id:e  cierraComilla  PLAYERS6
+{:parser.array_planetas.add(new planeta_jugador((String)e));:}
+|error   id:e  cierraComilla  PLAYERS6
+{:parser.array_planetas.add(new planeta_jugador((String)e));:}
+|error  cierraComilla  PLAYERS6
+|error  PLAYERS6
+;
+
+PLAYERS6::= cierraCor 
+| coma  PLAYERS5 
+| error PLAYERS5
+| error cierraCor;
+
+PLAYERS7::= type  dosPuntos  PLAYERS8 
+| error type  dosPuntos  PLAYERS8 
+| error dosPuntos  PLAYERS8 
+| error PLAYERS8 ;
 
 PLAYERS8::= hard:e {: parser.tipo_player=(String )e ;:} | easy:e {: parser.tipo_player=(String )e ;:} | human:e {: parser.tipo_player=(String )e ;:}; 

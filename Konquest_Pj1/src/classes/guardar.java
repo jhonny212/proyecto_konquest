@@ -48,6 +48,14 @@ public class guardar {
         return jugadores;
     }
 
+    public guardar(juego juego, galaxia[][] tablero) {
+        this.juego = juego;
+        this.tablero = tablero;
+        System.out.println(config());
+    }
+
+   
+   
     public guardar(juego juego, galaxia[][] tablero, ArrayList<Turno> list) {
         this.juego = juego;
         this.tablero = tablero;
@@ -62,7 +70,6 @@ public class guardar {
 
     private void imprimir() {
         String txt = "";
-
         txt += planetas() + "\n";
         txt += turnos();
         System.out.println(txt);
@@ -71,7 +78,7 @@ public class guardar {
         
     }
 
-    private String config() {
+    public String config() {
         String txt = "";
         String planetas = "";
         String neutrales = "";
@@ -79,7 +86,6 @@ public class guardar {
         int count2 = 0;
         int fil = (int) juego.getMapa().getTamaño().getHeight();
         int col = (int) juego.getMapa().getTamaño().getWidth();
-
         for (int i = 0; i < col; i++) {
             for (int j = 0; j < fil; j++) {
                 if (!tablero[i][j].isEmpty()) {

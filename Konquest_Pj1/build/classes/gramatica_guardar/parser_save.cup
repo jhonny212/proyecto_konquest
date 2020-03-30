@@ -17,6 +17,9 @@ parser code {:
     public void unrecovered_syntax_error(Symbol s) throwsjava.lang.Exception{
     System.out.println("La Cadena:" +s.value+" en la Linea:"+(s.right+1) +" ,Columna: "+s.left+"esta fuera de contexto." );
  }
+    public static void IMPRIMIR(String ms){
+    System.out.println(ms);
+    }
 :}
 
 terminal neutrales,planetas,jugador,abreCor,cierraCor,abreLlaves,cierraLlaves,abreParen,cierraParen,
@@ -32,23 +35,52 @@ POS11, ATRIBUTOS,ATRI1,NAVES,NAVES1,PRODUCCION,PRODUCCION1,DUEÑO,DUEÑO1,EXPRES
 start with GAME;
 //para mapas
 
-GAME::= abreLlaves GAME1  cierraLlaves    ;
+GAME::= abreLlaves GAME1  cierraLlaves   
+| error abreLlaves GAME1  cierraLlaves 
+| error  GAME1  cierraLlaves 
+| error  cierraLlaves 
+;
 
-PLAYERS::=jugador dosPuntos abreCor PLAYERS1;
-PLAYERS1::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:};
+PLAYERS::=jugador dosPuntos abreCor PLAYERS1 
+| error jugador dosPuntos abreCor PLAYERS1
+| error dosPuntos abreCor PLAYERS1
+| error  abreCor PLAYERS1
+
+;
+PLAYERS1::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:}
+| error nombre dosPuntos COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:}
+| error  dosPuntos COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:}
+| error  COMILLAS1 id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:}
+| error  id:e COMILLAS2 PLAYERS2 {: jugadores.add((String)e);:}
+
+;
 PLAYERS2::= coma PLAYERS1 | cierraCor ;
 
 GAME1::=  PLANETAS coma  GAME2
         | NEUTRALES coma  GAME3
-        | PLAYERS  coma GAME4;
+        | PLAYERS  coma GAME4
+        | error coma GAME2
+        | error coma GAME3
+        | error coma GAME4
 
-GAME2::= NEUTRALES coma PLAYERS  | PLAYERS coma NEUTRALES;
-GAME3::= PLANETAS coma PLAYERS   | PLAYERS coma  PLANETAS;
-GAME4::= PLANETAS coma NEUTRALES | NEUTRALES coma  PLANETAS;
+;
+
+GAME2::= NEUTRALES coma PLAYERS  | PLAYERS coma NEUTRALES ;
+GAME3::= PLANETAS coma PLAYERS   | PLAYERS coma  PLANETAS ;
+GAME4::= PLANETAS coma NEUTRALES | NEUTRALES coma  PLANETAS ;
 
 
-PLANETAS::= planetas  dosPuntos  abreCor EXPRESION1 EXP2 cierraCor ;
-NEUTRALES::= neutrales dosPuntos  abreCor  EXPRESION EXP cierraCor ;
+PLANETAS::= planetas  dosPuntos  abreCor EXPRESION1 EXP2 cierraCor
+|error planetas  dosPuntos  abreCor EXPRESION1 EXP2 cierraCor 
+|error dosPuntos  abreCor EXPRESION1 EXP2 cierraCor 
+|error abreCor EXPRESION1 EXP2 cierraCor 
+|error EXPRESION1 EXP2 cierraCor 
+;
+NEUTRALES::= neutrales dosPuntos  abreCor  EXPRESION EXP cierraCor 
+| error neutrales dosPuntos  abreCor  EXPRESION EXP cierraCor
+|error  EXP cierraCor 
+
+;
 
 // datos que van en el archivo
 EXPRESION1::= abreLlaves DATOS cierraLlaves 
@@ -59,12 +91,13 @@ t.setX_(coordx_);
 t.setY_(coordy_);
 t.setDueño(dueño_);
 planetas.add(t);
-
 :}
+| error abreLlaves DATOS cierraLlaves
 ;
-EXP2 ::= coma EXPRESION1 EXP2
-
+EXP2 ::= coma EXPRESION1 EXP2 
  |
+ | error coma EXPRESION1 EXP2
+ | error  EXPRESION1 EXP2
 
  ;
 
@@ -78,17 +111,20 @@ t.setDueño(dueño_);
 neutrales.add(t);
 :}
 ;
-EXP ::= coma EXPRESION EXP | ;
-
-DATOS::= NAME | COLORS | POS | ATRIBUTES 
+EXP ::= coma EXPRESION EXP | 
+| error coma EXPRESION EXP
 
 ;
 
-NAME::=  NOMBRE coma NAME1;
+DATOS::= NAME | COLORS | POS | ATRIBUTES  | error cierraLlaves  {:System.out.println("EXP2"):}
+
+;
+
+NAME::=  NOMBRE coma NAME1 ;
 NAME1::= COLORES coma NAME2      |POSICION coma NAME3 | ATRIBUTOS coma NAME4;
 NAME2::= POSICION coma ATRIBUTOS | ATRIBUTOS coma POSICION;
 NAME3::= COLORES coma ATRIBUTOS  | ATRIBUTOS coma COLORES; 
-NAME4::= COLORES coma POSICION   | POSICION coma COLORES;
+NAME4::= COLORES coma POSICION   | POSICION coma COLORES ;
 
 COLORS ::= COLORES COLORS1;
 COLORS1::= NOMBRE COLORS2      |POSICION COLORS3 | ATRIBUTOS COLORS4;
@@ -115,11 +151,35 @@ ATRIBUTES4::= NOMBRE  COLORES    | COLORES NOMBRE;
 
 
 //atributos 
-NOMBRE::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 {: nombre_=(String)e;:} ;
+NOMBRE::= nombre dosPuntos COMILLAS1 id:e COMILLAS2 {: nombre_=(String)e;:} 
+| error nombre dosPuntos COMILLAS1 id:e COMILLAS2 
+{:
+ nombre_=(String)e;
+System.out.println("en nombre"+e);:}
+| error  dosPuntos COMILLAS1 id:e COMILLAS2 
+{:
+ nombre_=(String)e;
+System.out.println("en nombre"+e);:}
+
+| error COMILLAS1 id:e COMILLAS2 {:System.out.println("en nombre"+e);
+ nombre_=(String)e;:}
+;
 //colores
-COLORES::= color dosPuntos abreLlaves COLORES1 cierraLlaves;
-COLORES1::= RED | BLUE | GREEN;
-RED::= rojo dosPuntos num:e coma RED1 {: rojo_= Integer.parseInt((String)e); :};
+COLORES::= color dosPuntos abreLlaves COLORES1 cierraLlaves
+| error color dosPuntos abreLlaves COLORES1 cierraLlaves
+| error  dosPuntos abreLlaves COLORES1 cierraLlaves
+| error abreLlaves COLORES1 cierraLlaves
+| error  COLORES1 cierraLlaves
+
+;
+COLORES1::= RED | BLUE | GREEN ;
+RED::= rojo dosPuntos num:e coma RED1 {: rojo_= Integer.parseInt((String)e);:}
+| error rojo dosPuntos num:e coma RED1 {: rojo_= Integer.parseInt((String)e);:}
+| error  dosPuntos num:e coma RED1 {: rojo_= Integer.parseInt((String)e); :}
+| error  num:e coma RED1  {:System.out.println("Color "+e+"recuperado");:}
+;
+
+
 RED1::= azul dosPuntos num:e coma verde dosPuntos num:e1 
 {:
  azul_= Integer.parseInt((String)e); 
@@ -130,11 +190,80 @@ RED1::= azul dosPuntos num:e coma verde dosPuntos num:e1
  azul_= Integer.parseInt((String)e3); 
  verde_= Integer.parseInt((String)e2); 
 :} 
+|error verde dosPuntos num:e2 coma azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:}
+|error  dosPuntos num:e2 coma azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:}
+|error  num:e2 coma azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:}
+|error  coma azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+:}
+
+|error  azul dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e3); 
+:}
+
+|error azul dosPuntos num:e coma verde dosPuntos num:e1 
+{:
+ azul_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:}
+|error  dosPuntos num:e coma verde dosPuntos num:e1 
+{:
+ azul_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:}
+|error  num:e coma verde dosPuntos num:e1 
+{:
+ azul_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:}
+
+|error  coma verde dosPuntos num:e1 
+{:
+ verde_= Integer.parseInt((String)e1); 
+:}
+
+|error   verde dosPuntos num:e1 
+{:
+ verde_= Integer.parseInt((String)e1); 
+:}
+
 ;
+
+
 BLUE::= azul dosPuntos num:e coma BLUE1
 {:
  azul_= Integer.parseInt((String)e); 
-:} ;
+:}
+| error  azul dosPuntos num:e coma BLUE1
+{:
+ azul_= Integer.parseInt((String)e); 
+:}
+| error   dosPuntos num:e coma BLUE1
+{:
+ azul_= Integer.parseInt((String)e); 
+:}
+| error  num:e coma BLUE1
+{:
+ azul_= Integer.parseInt((String)e); 
+:}
+| error  coma BLUE1
+
+;
+
 BLUE1::= rojo dosPuntos num:e coma verde dosPuntos num:e1
 {:
  rojo_= Integer.parseInt((String)e); 
@@ -145,12 +274,33 @@ BLUE1::= rojo dosPuntos num:e coma verde dosPuntos num:e1
  rojo_= Integer.parseInt((String)e3); 
  verde_= Integer.parseInt((String)e2); 
 :} 
+| error rojo dosPuntos num:e coma verde dosPuntos num:e1
+{:
+ rojo_= Integer.parseInt((String)e); 
+ verde_= Integer.parseInt((String)e1); 
+:} 
+| error verde dosPuntos num:e2 coma rojo dosPuntos num:e3
+{:
+ rojo_= Integer.parseInt((String)e3); 
+ verde_= Integer.parseInt((String)e2); 
+:} 
+| error   {:System.out.println("Colores verde y rojo no agregados");:}
+
 ;
 GREEN::= verde dosPuntos num:e coma GREEN1
 {:
  verde_= Integer.parseInt((String)e); 
+:}
+| error verde dosPuntos num:e coma GREEN1
+{:
+ verde_= Integer.parseInt((String)e); 
+:}
+| error  dosPuntos num:e coma GREEN1
+{:
+ verde_= Integer.parseInt((String)e); 
 :} 
-;
+| error  num:e coma GREEN1 {:System.out.println("En la declaracion de color verde esta mal, verde="+e);:};
+
 GREEN1::= rojo dosPuntos num:e coma azul dosPuntos num:e1 
 {:
  rojo_= Integer.parseInt((String)e); 
@@ -160,12 +310,48 @@ GREEN1::= rojo dosPuntos num:e coma azul dosPuntos num:e1
 {:
  azul_= Integer.parseInt((String)e2); 
  rojo_= Integer.parseInt((String)e3); 
-:} 
+:}
+| error  azul dosPuntos num:e2 coma rojo dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e2); 
+ rojo_= Integer.parseInt((String)e3); 
+:}
+| error   dosPuntos num:e2 coma rojo dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e2); 
+ rojo_= Integer.parseInt((String)e3); 
+:}
+| error   num:e2 coma rojo dosPuntos num:e3
+{:
+ azul_= Integer.parseInt((String)e2); 
+ rojo_= Integer.parseInt((String)e3); 
+:}
+| error   coma rojo dosPuntos num:e3
+{:
+ rojo_= Integer.parseInt((String)e3); 
+:}
+| error    rojo dosPuntos num:e3
+{:
+ rojo_= Integer.parseInt((String)e3); 
+:}
+
+| error rojo dosPuntos num:e coma azul dosPuntos num:e1 
+{:
+ rojo_= Integer.parseInt((String)e); 
+ azul_= Integer.parseInt((String)e1); 
+:}
+
+
+
+
+
+
+| error coma num {:System.out.println("");:}
 ;
 //----------------------------------------------->
 
 //posicion
-POSICION::= pos dosPuntos abreLlaves POS11 cierraLlaves;
+POSICION::= pos dosPuntos abreLlaves POS11 cierraLlaves ;
 POS11::=  x dosPuntos num:e coma y dosPuntos num:e1
 {:
 coordx_=Integer.parseInt((String)e);
@@ -176,12 +362,75 @@ coordy_=Integer.parseInt((String)e1);
 coordx_=Integer.parseInt((String)e1);
 coordy_=Integer.parseInt((String)e);
 :}
+| error x dosPuntos num:e coma y dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e);
+coordy_=Integer.parseInt((String)e1);
+:}
+| error  dosPuntos num:e coma y dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e);
+coordy_=Integer.parseInt((String)e1);
+:}
+| error   num:e coma y dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e);
+coordy_=Integer.parseInt((String)e1);
+:}
+| error   coma y dosPuntos num:e1
+{:
+coordy_=Integer.parseInt((String)e1);
+:}
+| error    y dosPuntos num:e1
+{:
+coordy_=Integer.parseInt((String)e1);
+:}
+| error  y dosPuntos num:e coma x dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e1);
+coordy_=Integer.parseInt((String)e);
+:}
+| error   dosPuntos num:e coma x dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e1);
+coordy_=Integer.parseInt((String)e);
+:}
+| error    num:e coma x dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e1);
+coordy_=Integer.parseInt((String)e);
+:}
+| error    coma x dosPuntos num:e1
+{:
+coordx_=Integer.parseInt((String)e1);
+:}
+| error dosPuntos num:e 
+{:
+System.out.println("y: Error antes de la posicion "+e);:}
 ;
 //------------------->
  // atributos
-ATRIBUTOS::= datos dosPuntos abreLlaves ATRI1 cierraLlaves;
+ATRIBUTOS::= datos dosPuntos abreLlaves ATRI1 cierraLlaves 
+| error datos dosPuntos abreLlaves ATRI1 cierraLlaves {:System.out.println("d");:}
+| error dosPuntos abreLlaves ATRI1 cierraLlaves {:System.out.println("existe error antes de los dos puntos");:}
+| error abreLlaves ATRI1 cierraLlaves {:System.out.println("existe un error antes de abrir llaves");:}
+| error ATRI1 cierraLlaves {:System.out.println("existe un error antes de abrir llaves");:}
+| error  cierraLlaves {:System.out.println("existe un error antes de abrir llaves");:}
+;
 ATRI1::= NAVES | PRODUCCION | DUEÑO ;
-NAVES::= naves dosPuntos num:e coma NAVES1 {: naves_=Integer.parseInt((String)e);:};
+NAVES::= naves dosPuntos num:e coma NAVES1 {: naves_=Integer.parseInt((String)e);:}
+| error naves dosPuntos num:e coma NAVES1 
+{:
+naves_=Integer.parseInt((String)e);
+System.out.println("error en declaracion de las naves");
+:}
+| error  dosPuntos num:e coma NAVES1 
+{:
+naves_=Integer.parseInt((String)e);
+System.out.println("error en declaracion de las naves");
+:}
+|error num:e coma NAVES1{:System.out.println("naves"+e):};
+
 NAVES1::= produccion dosPuntos num:e coma dueño dosPuntos COMILLAS1 id:e1 COMILLAS2 
 {: 
 produccion_=Integer.parseInt((String)e);
@@ -192,9 +441,59 @@ dueño_=(String)e1;
 produccion_=Integer.parseInt((String)e);
 dueño_=(String)e1;
 :}
+
+| error produccion dosPuntos num:e coma dueño dosPuntos COMILLAS1 id:e1 COMILLAS2 
+{:
+produccion_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+System.out.println("error en produccion"+e+" "+e1);
+:}
+| error COMILLAS2 coma produccion dosPuntos num:e 
+{:
+produccion_=Integer.parseInt((String)e);
+System.out.println("tira error 4 "+e);
+:}
+| error COMILLAS1 id:e1 COMILLAS2  coma  produccion dosPuntos num:e 
+{:
+produccion_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+
+System.out.println("tira error 3"+e1+" "+e);:}
+| error num:e coma dueño dosPuntos COMILLAS1 id:e1 COMILLAS2 
+{:
+produccion_=Integer.parseInt((String)e);
+dueño_=(String)e1;
+
+System.out.println("tira error 2"+e1+" "+e);:}
+
+| error dosPuntos COMILLAS1 id:e COMILLAS2  
+{:
+dueño_=(String)e;
+System.out.println("tira error"+e);:}
+| error dueño dosPuntos COMILLAS1 id:e COMILLAS2 
+{:
+dueño_=(String)e;
+System.out.println(e);
+:}
 ;
 
-PRODUCCION::= produccion dosPuntos num:e coma PRODUCCION1 {: produccion_=Integer.parseInt((String)e);:};
+PRODUCCION::= produccion dosPuntos num:e coma PRODUCCION1 {: produccion_=Integer.parseInt((String)e);:}
+| error produccion dosPuntos num:e coma PRODUCCION1
+{:
+produccion_=Integer.parseInt((String)e);
+:}
+| error  dosPuntos num:e coma PRODUCCION1
+{:
+produccion_=Integer.parseInt((String)e);
+:}
+| error  num:e coma PRODUCCION1
+{:
+produccion_=Integer.parseInt((String)e);
+:}
+| error  coma PRODUCCION1
+
+;
+
 PRODUCCION1::= naves dosPuntos num:e1 coma dueño dosPuntos COMILLAS1 id:e2 COMILLAS2 
 {:
 naves_=Integer.parseInt((String)e1);
@@ -202,12 +501,58 @@ dueño_=(String)e2;
 :}
 | dueño dosPuntos COMILLAS1 id:e1 COMILLAS2  coma  naves dosPuntos num:e2
 {:
-naves_=Integer.parseInt((String)e);
+naves_=Integer.parseInt((String)e2);
 dueño_=(String)e1;
+:}
+| error naves dosPuntos num:e1 coma dueño dosPuntos COMILLAS1 id:e2 COMILLAS2 
+{:
+naves_=Integer.parseInt((String)e1);
+dueño_=(String)e2;
+IMPRIMIR("Error en declaracion de naves"+e1+" "+e2);
+:}
+| error  dosPuntos num:e1 coma dueño dosPuntos COMILLAS1 id:e2 COMILLAS2 
+{:
+naves_=Integer.parseInt((String)e1);
+dueño_=(String)e2;
+IMPRIMIR("Error en declaracion de naves"+e1+" "+e2);
+:}
+| error id:e COMILLAS2
+{:
+dueño_=(String)e;
+IMPRIMIR("Error de dueño"+e);
+:}
+| error dosPuntos COMILLAS1 id:e2 COMILLAS2  coma dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e1);
+dueño_=(String)e2;
+IMPRIMIR("error--------------->");
+:}
+| error  COMILLAS1 id:e2 COMILLAS2  coma dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e1);
+dueño_=(String)e2;
+IMPRIMIR("error--------------->");
+
+:}
+| error dosPuntos num:e  
+{:
+naves_=Integer.parseInt((String)e);
+IMPRIMIR("error--------------XD->");
+:}
+| error num:e  
+{:
+naves_=Integer.parseInt((String)e);
+IMPRIMIR("error--------------XD->");
 :}
 ;
 
-DUEÑO::=dueño dosPuntos COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:};
+DUEÑO::=dueño dosPuntos COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:}
+|error dueño dosPuntos COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:}
+|error dosPuntos COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:}
+|error  COMILLAS1 id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:}
+|error  id:e COMILLAS2 coma DUEÑO1 {: dueño_=(String)e;:}
+|error  coma DUEÑO1 
+;
 DUEÑO1::= naves dosPuntos num:e coma produccion dosPuntos num:e1
 {:
 naves_=Integer.parseInt((String)e);
@@ -217,13 +562,55 @@ produccion_=Integer.parseInt((String)e1);
 {:
 naves_=Integer.parseInt((String)e);
 produccion_=Integer.parseInt((String)e1);
+:}
+| error naves dosPuntos num:e coma produccion dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
 :} 
+| error  dosPuntos num:e coma produccion dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:} 
+ 
+| error  num:e coma produccion dosPuntos num:e1
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:} 
+|error  produccion dosPuntos num:e1  coma  naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:}
+|error   dosPuntos num:e1  coma  naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:}
+|error   num:e1  coma  naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+produccion_=Integer.parseInt((String)e1);
+:}
+|error    coma  naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+:}
+
+|error      naves dosPuntos num:e
+{:
+naves_=Integer.parseInt((String)e);
+:}
+
+
 ;
 
 //--------------->
 
 //abre comillas
-COMILLAS1::= comilla | abreComilla;
-COMILLAS2::= comilla | cierraComilla;
+COMILLAS1::= comilla | abreComilla  ;
+COMILLAS2::= comilla | cierraComilla ;
 
 

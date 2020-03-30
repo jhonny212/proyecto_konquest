@@ -19,6 +19,7 @@ comilla=[\"]
 
 
 %{
+    public ArrayList<ErrorLexico> ErrorLexico;
     private Symbol symbol(int type, Object value) {
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
@@ -67,10 +68,11 @@ comilla=[\"]
     (({numero}|{cero})({numero}|{cero})*)                       {return symbol(sym.num,new String(yytext()));}    
     ({cero}+(".")({cero}|{numero})*)                            {return symbol(sym.decimal,new String(yytext()));}    
     ({letra}|{symbols})({letra}|{symbols}|{numero}|{cero})*     {return symbol(sym.id,new String(yytext()));}
-    ("\n")|("\t")                                               {return symbol(sym.enter,new String(yytext()));}
+    ("\n")|("\t")                                               {/*return symbol(sym.enter,new String(yytext()));*/ }
     
-    (" ")                                                      {return symbol(sym.space,new String(yytext()));}
+    (" ")                                                      {/*return symbol(sym.space,new String(yytext()));*/}
     .                                                          {
-    System.out.println(yytext());
+
+ErrorLexico.add(new ErrorLexico(yytext(),yyline(),yycolumn())) ;   
 return symbol(sym.ERROR,new String(yytext()));}         
 }

@@ -5,8 +5,10 @@
  */
 package jugadores;
 
+import classes.Turno;
 import java.awt.Color;
 import java.util.ArrayList;
+import planetas.galaxia;
 import planetas.planeta_jugador;
 
 /**
@@ -15,7 +17,7 @@ import planetas.planeta_jugador;
  */
 abstract public class jugador {
 
-    private String jugador;
+    protected String jugador;
     private ArrayList<planeta_jugador> planetas;
     protected String tipo;
     private boolean validarJuego;
@@ -37,6 +39,11 @@ abstract public class jugador {
     
     public jugador(String jugador, ArrayList<planeta_jugador> planetas) {
         this.jugador = jugador;
+        System.out.println(jugador+":");
+        for (int i = 0; i < +planetas.size(); i++) {
+            System.out.println("        "+planetas.get(i).getNombre());
+            
+        }
         this.planetas = planetas;
         color=Color.green;
         iniciarColores();
@@ -90,5 +97,11 @@ abstract public class jugador {
             }
         }
     }
+    
+    abstract galaxia getGalaxiaAtacante(galaxia o[][],int x,int y);
+    abstract galaxia getGalaxiaOponente(galaxia d[][],int x,int y,galaxia origen);
+    public abstract Turno getTurno(galaxia d[][],int x,int y,int turno, jugador jugador);
+    
+    
   
 }

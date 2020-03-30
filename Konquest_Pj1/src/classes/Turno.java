@@ -67,7 +67,9 @@ public class Turno {
         this.validar_ = true;
         this.numTurn = numTurn;
     }
-
+    public Turno(){
+    validar_=true;
+    }
     public boolean isValidar_() {
         return validar_;
     }

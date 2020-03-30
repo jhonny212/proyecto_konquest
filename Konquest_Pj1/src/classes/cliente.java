@@ -5,18 +5,17 @@
  */
 package classes;
 
+import gramatica_juego.LeerArchivoJuego;
 import interfaz.inicio_partida;
-import java.awt.Color;
+import interfaz.nuevo_juego;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import javax.swing.JOptionPane;
 import jugadores.humano;
-import jugadores.jugador;
 import konquest_pj1.Konquest_Pj1;
+import mapa.juego;
 
 /**
  *
@@ -48,31 +47,48 @@ public class cliente extends Thread {
                 Socket socket = cliente.accept();
                 DataInputStream flujo = new DataInputStream(socket.getInputStream());
                 String msj = flujo.readUTF();
-                Konquest_Pj1 p = new Konquest_Pj1();
-                Turno turno = p.leer4(msj);
-                turno.config();
-                inicio_partida.end_turno.setVisible(true);
-                turno.setJugador(jugador(turno.getJugador_()));
-                inicio_partida.turnos.add(turno);
-                inicio_partida.count_player = inicio_partida.cliente.numJugador;
-                if (inicio_partida.count_player == 0) {
-                    inicio_partida.ejecutarTurnos();
-                    inicio_partida.cant_envios.disable();
-                }
-                /* if (inicio_partida.count_player == 1) {
-                    inicio_partida.count_player = 0;
-                  //  inicio_partida.ejecutarTurnos();
-                    inicio_partida.cant_envios.disable();
-                    inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(0).getJugador());
-                } else {
-                    inicio_partida.count_player = 1;
-               
-                }*/
-                inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
-                inicio_partida.validarMov = true;
+                switch (inicio_partida.estadoDeVs) {
+                    case 1:
+                        if (msj.equals("esperando...")) {
+                            guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+                            String msjEnvio = save.config();
+                            inicio_partida.estadoDeVs = 2;
+                            enviarMensaje(msjEnvio);
+                        } else {
+                            LeerArchivoJuego p = new LeerArchivoJuego();
+                            juego game = p.getGame(msj);
+                            nuevo_juego nuevo_cargado = new nuevo_juego();
+                            nuevo_cargado.show();
+                            nuevo_cargado.iniciarJuego(game);
+                            nuevo_cargado.setSize();
+                            inicio_partida.estadoDeVs = 2;
+                        }
 
+                        break;
+                    case 2:
+                        
+                        break;
+                    case 3:
+                        Konquest_Pj1 p = new Konquest_Pj1();
+                        Turno turno = p.leer4(msj);
+                        turno.config();
+                        inicio_partida.end_turno.setVisible(true);
+                        turno.setJugador(jugador(turno.getJugador_()));
+                        inicio_partida.turnos.add(turno);
+                        inicio_partida.count_player = inicio_partida.cliente.numJugador;
+                        if (inicio_partida.count_player == 0) {
+                            inicio_partida.ejecutarTurnos();
+                            inicio_partida.cant_envios.disable();
+                        }
+                        inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
+                        inicio_partida.validarMov = true;
+                        break;
+                    default:
+                        break;
+                }
                 flujo.close();
                 socket.close();
+
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage() + "aca");
@@ -95,20 +111,18 @@ public class cliente extends Thread {
         humano humano = null;
         for (int i = 0; i < inicio_partida.game.getMapa().getTamaño().getWidth(); i++) {
             for (int j = 0; j < inicio_partida.game.getMapa().getTamaño().getHeight(); j++) {
-                if(!inicio_partida.tablero[i][j].isEmpty())
-                {
-                   if (name.equals(inicio_partida.tablero[i][j].getPlaneta().getDueño())) {
-                    humano = new humano(name);
-                    humano.color=inicio_partida.tablero[i][j].getColor();
-                    break;
+                if (!inicio_partida.tablero[i][j].isEmpty()) {
+                    if (name.equals(inicio_partida.tablero[i][j].getPlaneta().getDueño())) {
+                        humano = new humano(name);
+                        humano.color = inicio_partida.tablero[i][j].getColor();
+                        break;
+                    }
                 }
-                }
-             
+
             }
         }
 
         return humano;
     }
-    
-  
+
 }

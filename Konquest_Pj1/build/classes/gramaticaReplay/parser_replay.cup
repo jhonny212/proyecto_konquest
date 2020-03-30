@@ -3,6 +3,21 @@ import java_cup.runtime.Symbol;
 
 
 parser code {:
+/*
+import classes.Ataque;
+import classes.Turno;
+import static gramaticaReplay.parser_replay.ataques;
+import static gramaticaReplay.parser_replay.complete_;
+import static gramaticaReplay.parser_replay.destino_;
+import static gramaticaReplay.parser_replay.jugador_;
+import static gramaticaReplay.parser_replay.naves_;
+import static gramaticaReplay.parser_replay.numeroTurno;
+import static gramaticaReplay.parser_replay.origen_;
+import static gramaticaReplay.parser_replay.turno_;
+import static gramaticaReplay.parser_replay.turnos_;
+import java.util.ArrayList;
+import java_cup.runtime.Symbol;
+*/
     public static ArrayList<Turno> turnos_;
     public static ArrayList<Ataque> ataques;
     public static String jugador_,origen_,destino_;
@@ -24,25 +39,44 @@ ATAQ,ATAQ1,ATAQ2,ATAQ3,ATAQ4,GALAXY,GALAXY1,O,O1,D,D1,T,T1,DATOS,DATA,ATAQ22;
 
 start with TURNO;
 //para mapas
-TURNO::= abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves ;
+TURNO::= abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
+| error abreCor TURNOS {:System.out.println("-F");:}
+| error ATAQ4 {:System.out.println("-FF");:};
+
+
+
 TURNOS::= abreLlaves TURNO1 cierraLlaves 
 {:
 turnos_.add(new Turno(ataques,jugador_,numeroTurno));
 :}
- ;
-TURNO1::= NAME | ATAQUE | NUM  ;
-NAME::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma NAME1 {:nombre_=(String)e1;:};
+| error abreLlaves TURNO1 {:System.out.println("-DFF");:} ;
+TURNO1::= NAME | ATAQUE | NUM  
+| error NAME {:System.out.println("se recupera en name1");:}
+| error ATAQUE {:System.out.println("se recupera en name2");:}
+| error error NUM {:System.out.println("se recupera en name3");:};
+
+NAME::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma NAME1 {:jugador_=(String)e1;:}
+| error  dosPuntos:e COMILLAS1  
+{:System.out.println("se recupera en id"+e);
+ jugador_=(String)e;:}
+| error id COMILLAS2 {:System.out.println("se recupera en comillas");:}
+| error  coma NAME1  {:System.out.println("se recupera en name1");:};
+
+
 NAME1::= numeroTurno dosPuntos num:e coma ATAQ 
 {:numeroTurno=Integer.parseInt((String)e);:}
 | ATAQ coma numeroTurno dosPuntos num:e 
-{:numeroTurno=Integer.parseInt((String)e);:} ;
+{:numeroTurno=Integer.parseInt((String)e);:}
+| error  num:e coma ATAQ {:System.out.println("se recupero numero de turno"+e);:}
+| error coma ATAQ {:System.out.println("triple f");:}
+
+;
 
 ATAQUE::= ATAQ  coma ATAQUE1;
 ATAQUE1::= numeroTurno dosPuntos num:e coma nombre dosPuntos COMILLAS1 id:e1 COMILLAS2  
 {:numeroTurno=Integer.parseInt((String)e);
 jugador_=(String)e1;
 :}
-
 | nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma numeroTurno dosPuntos num:e 
 {:numeroTurno=Integer.parseInt((String)e);
 jugador_=(String)e1;
@@ -62,9 +96,9 @@ jugador_=(String)e;
 :}
 ;
 
-ATAQ::= ataque dosPuntos abreLlaves ATAQ22 cierraLlaves  ;
+ATAQ::= ataque dosPuntos abreLlaves ATAQ22 cierraLlaves   ;
 ATAQ22::= ATAQ1 | ;
-ATAQ1::= abreLlaves ATAQ2  cierraLlaves  ATAQ3;
+ATAQ1::= abreLlaves ATAQ2  cierraLlaves  ATAQ3 | error cierraLlaves ATAQ3 {:System.out.println("hola me recupero aca");:};
 
 ATAQ2::= GALAXY coma DATOS 
 {: 
@@ -78,16 +112,25 @@ Ataque ataque=new Ataque(origen_,destino_,turno_,naves_,complete_);
 
 ataques.add(ataque);
 :}
+
+| error   {:System.out.println("hola aca me recupero");:}
 ;
-ATAQ3::= coma ATAQ1 |  ;
-ATAQ4::= coma TURNOS ATAQ4 |  ;
+ATAQ3::= coma ATAQ1 |  | error {:System.out.println("aun sigue");:};
+ATAQ4::= coma TURNOS ATAQ4 |  | error coma TURNOS {:System.out.println("errores...>");:};
 
 
 
-GALAXY::= espacio dosPuntos abreLlaves GALAXY1 cierraLlaves;
-GALAXY1::= O | D | T;
+GALAXY::= espacio dosPuntos abreLlaves GALAXY1 cierraLlaves 
+| error  abreLlaves  origen  {:System.out.println("entro aca en galaxia");:}
+;
+
+GALAXY1::= O | D | T 
+| error origen {:System.out.println("por aca------->");:};
+
 O::= origen dosPuntos COMILLAS1 id:e COMILLAS2 coma O1
 {:origen_=(String)e;:}
+| error dosPuntos COMILLAS1 {:System.out.println("por aca------XD>");:}
+| error  coma O1 {:System.out.println("-DDFF");:}
 ;
 O1::= destino dosPuntos COMILLAS1 id:e COMILLAS2 coma turno dosPuntos  num:e1
 {:destino_=(String)e;
@@ -97,9 +140,11 @@ turno_=Integer.parseInt((String)e1);
 {:destino_=(String)e;
 turno_=Integer.parseInt((String)e1);
 :} 
- ;
+| error dosPuntos num:e {:System.out.println("f en el CHAAT"+e);:} ;
 
-D::= destino dosPuntos COMILLAS1 id:e COMILLAS2 coma D1 {:destino_=(String)e:};
+D::= destino dosPuntos COMILLAS1 id:e COMILLAS2 coma D1 {:destino_=(String)e;:}
+| error  COMILLAS1 id {:System.out.println("Destino");:}
+| error coma D1 {:System.out.println("Destino2");:};
 D1::= origen dosPuntos COMILLAS1 id:e COMILLAS2 coma turno dosPuntos  num:e1
 {:origen_=(String)e;
 turno_=Integer.parseInt((String)e1);
@@ -107,7 +152,9 @@ turno_=Integer.parseInt((String)e1);
 | turno dosPuntos  num:e1 coma origen dosPuntos COMILLAS1 id:e COMILLAS2 
 {:origen_=(String)e;
 turno_=Integer.parseInt((String)e1);
-:} 
+:}
+| error {:System.out.println("doble f");:}
+|error dosPuntos id:d   {:System.out.println("<----------->"+d);:}
 ;
 
 T::= turno dosPuntos num:e coma T1 {:turno_=Integer.parseInt((String)e);:};
@@ -123,7 +170,7 @@ destino_=(String)e;
 :}
  ;
 
-DATOS::= datos dosPuntos abreLlaves DATA cierraLlaves;
+DATOS::= datos dosPuntos abreLlaves DATA cierraLlaves | error abreLlaves cierraLlaves {:System.out.println("lst");:} ;
 DATA::= naves dosPuntos num:e coma complete dosPuntos bool:e1 
 {:
 naves_=Integer.parseInt((String)e);
@@ -134,6 +181,10 @@ complete_= Boolean.parseBoolean((String)e1);
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
 :}
+| error  {:System.out.println("entre");:}
+| error dosPuntos num:e {: naves_=Integer.parseInt((String)e); System.out.println("f jeje"+e);:}
+| error dosPuntos bool:e {: complete_= Boolean.parseBoolean((String)e1); System.out.println("f jesje"+e);:}
+
 ;
 
 
@@ -141,7 +192,7 @@ complete_= Boolean.parseBoolean((String)e1);
 
 
 //abre comillas
-COMILLAS1::= comilla | abreComilla;
-COMILLAS2::= comilla | cierraComilla;
+COMILLAS1::= comilla | abreComilla | error id:e {:System.out.println("entra"+e); jugador_=(String)e;:};
+COMILLAS2::= comilla | cierraComilla | error id:e {:System.out.println("entra"+e); jugador_=(String)e;:};
 
 

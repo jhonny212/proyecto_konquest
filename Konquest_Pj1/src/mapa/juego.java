@@ -5,6 +5,8 @@
  */
 package mapa;
 
+import classes.ErrorLexico;
+import classes.ErrorSintatico;
 import java.util.ArrayList;
 import jugadores.jugador;
 import planetas.planeta_jugador;
@@ -16,10 +18,22 @@ import planetas_neutral.planeta_neutral;
  */
 public class juego {
 
+    public ArrayList<ErrorLexico> getListaDeErroresLexicos() {
+        return listaDeErroresLexicos;
+    }
+
+    public void setListaDeErroresLexicos(ArrayList<ErrorLexico> listaDeErroresLexicos) {
+        this.listaDeErroresLexicos = listaDeErroresLexicos;
+    }
+
     private mapa mapa;
     private ArrayList<jugador> array_jugadores;
     private ArrayList<planeta_neutral> array_neutrales;
     private ArrayList<planeta_jugador> planetas;
+    private ArrayList<ErrorSintatico> listaDeErroresSintaticos;
+    private ArrayList<ErrorLexico> listaDeErroresLexicos;
+    
+
     private boolean validarJuego;
     private String msj;
 
@@ -29,25 +43,36 @@ public class juego {
         this.array_neutrales = array_neutrales;
         this.planetas = planetas;
         validarJuego = true;
+        listaDeErroresSintaticos=new ArrayList();
 
     }
 
     public ArrayList<planeta_jugador> getPlanetas() {
         return planetas;
     }
-    public void setiniciales(){
-        for (int i = 0; i < array_neutrales.size(); i++) {
-            array_neutrales.get(i).setInicial(array_neutrales.get(i).getNaves());
-            
-        }
-        
-        for (int i = 0; i < planetas.size(); i++) {
-            planetas.get(i).setInicial(planetas.get(i).getNaves());
-            
-        }
-    
+
+    public ArrayList<ErrorSintatico> getListaDeErroresSintaticos() {
+        return listaDeErroresSintaticos;
+    }
+
+    public void setListaDeErroresSintaticos(ArrayList<ErrorSintatico> listaDeErroresSintaticos) {
+        this.listaDeErroresSintaticos = listaDeErroresSintaticos;
     }
     
+
+    public void setiniciales() {
+        for (int i = 0; i < array_neutrales.size(); i++) {
+            array_neutrales.get(i).setInicial(array_neutrales.get(i).getNaves());
+
+        }
+
+        for (int i = 0; i < planetas.size(); i++) {
+            planetas.get(i).setInicial(planetas.get(i).getNaves());
+
+        }
+
+    }
+
     public void setPlanetas(ArrayList<planeta_jugador> planetas) {
         this.planetas = planetas;
     }
@@ -87,7 +112,10 @@ public class juego {
     }
 
     public void validarDimensiones() {
-        int total = (int) (mapa.getTamaño().getHeight() * mapa.getTamaño().getWidth());
+        int total = 0;
+        try{
+             total=(int) (mapa.getTamaño().getHeight() * mapa.getTamaño().getWidth());
+        }catch( NullPointerException e){};
         validarJuego = true;
         if (total <= mapa.getPlanetasNeutrales() + planetas.size()) {
             msj = "La cantidad de planetas neutrales es demasiado \n"
@@ -95,11 +123,13 @@ public class juego {
                     + "cantidad de planetas (Jugadores):" + planetas.size();
             validarJuego = false;
         } else {
-
             String names = "";
             ArrayList<String> list = new ArrayList();
             ArrayList<String> list2 = new ArrayList();
+            System.out.println(array_jugadores.size() + " --------------->");
+
             for (int i = 0; i < array_jugadores.size(); i++) {
+
                 ArrayList<planeta_jugador> planetas_ = array_jugadores.get(i).getPlanetas();
                 for (int j = 0; j < planetas_.size(); j++) {
                     list2.add(planetas_.get(j).getNombre());
@@ -155,6 +185,7 @@ public class juego {
             if (validarJuego) {
                 int count = 0;
                 if (list.size() == list2.size()) {
+                    System.out.println("entra");
                     for (int i = 0; i < list.size(); i++) {
                         for (int j = 0; j < list2.size(); j++) {
                             if (list.get(i).equals(list2.get(j))) {
@@ -171,6 +202,7 @@ public class juego {
                         validarJuego = false;
                     }
                 } else {
+                    System.out.println(count + " " + list.size() + " " + list2.size());
                     msj = "Verifique la declaracion de planetas con cada asignacion de planetas \n destinados a los jugadores. \n "
                             + "la cantidad no es la misma ";
                     validarJuego = false;

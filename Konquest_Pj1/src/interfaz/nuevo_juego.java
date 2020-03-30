@@ -107,6 +107,10 @@ public class nuevo_juego extends javax.swing.JFrame {
         setTabla();
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
+        if(inicio_partida.isVs){
+        jScrollPane1.setEnabled(false);
+        tabla_jugadores.setEnabled(false);
+        }
     }
 
     private void opciones() {
@@ -879,8 +883,10 @@ public class nuevo_juego extends javax.swing.JFrame {
         inicio_partida.iniciarTablero();
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
+        inicio_partida.count_player=0;
+        inicio_partida.msj_jugador.setText("Jugador " + juego.getArray_jugadores().get(0).getJugador() + ": seleccione el planeta origen");
+
         inicio_partida.iniciarContadorPlayer();
-    
         dispose();
 
     }//GEN-LAST:event_aceptActionPerformed
