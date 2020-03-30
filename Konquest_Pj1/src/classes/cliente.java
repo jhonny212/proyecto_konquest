@@ -86,20 +86,35 @@ public class cliente extends Thread {
                         msjEnvio += " ENDLESS " + save.planetas();
                         inicio_partida.estadoDeVs = 2;
                         enviarMensaje(msjEnvio);*/
-
-                        String array[] = msj.split("ENDLESS");
-                        LeerArchivoJuego read = new LeerArchivoJuego();
-                        juego game = read.getGame(array[0]);
-                        LeerArchivoSave sav = new LeerArchivoSave();
-                        guardar save = sav.getSave(array[1]);
-                        archivoVs vs = new archivoVs(null);
-                        nuevo_juego.juego=game;
-                        for (int i = 0; i < game.getArray_neutrales().size(); i++) {
-                            vs.ArreglarNeutrales2(save, i);
+                        if (msj.contains("ENDLESS")) {
+                            String array[] = msj.split("ENDLESS");
+                            LeerArchivoJuego read = new LeerArchivoJuego();
+                            juego game = read.getGame(array[0]);
+                            LeerArchivoSave sav = new LeerArchivoSave();
+                            guardar save = sav.getSave(array[1]);
+                            archivoVs vs = new archivoVs(null);
+                            nuevo_juego.juego = game;
+                            for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+                                vs.ArreglarNeutrales2(save, i);
+                            }
+                            configurarTableroCliente t = new configurarTableroCliente();
+                            t.cargarTablero(save, false);
+                            nuevo_juego.reiniciarTablero2();
+                        } else if (msj.contains("CHANGETABLE")) {
+                            String array[] = msj.split("ENDLESS");
+                            LeerArchivoJuego read = new LeerArchivoJuego();
+                            juego game = read.getGame(array[0]);
+                            LeerArchivoSave sav = new LeerArchivoSave();
+                            guardar save = sav.getSave(array[1]);
+                            archivoVs vs = new archivoVs(null);
+                            nuevo_juego.juego = game;
+                            for (int i = 0; i < game.getArray_neutrales().size(); i++) {
+                                vs.ArreglarNeutrales2(save, i);
+                            }
+                            configurarTableroCliente t = new configurarTableroCliente();
+                            t.cargarTablero(save, false);
                         }
-                        configurarTableroCliente t = new configurarTableroCliente();
-                        t.cargarTablero(save, false);
-                        nuevo_juego.reiniciarTablero2();
+
                         break;
                     case 3:
                         Konquest_Pj1 p = new Konquest_Pj1();

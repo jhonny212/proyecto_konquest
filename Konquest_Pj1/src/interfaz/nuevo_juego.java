@@ -973,7 +973,13 @@ public class nuevo_juego extends javax.swing.JFrame {
             if (!tablero[coord_x][coord_y].isEmpty()) {
                 double _deaths = Double.parseDouble(porcentaje_muertes.getText());
                 tablero[coord_x][coord_y].getPlaneta().setMuertes(_deaths);
-                
+                if (inicio_partida.isVs) {
+                    guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+                    String msjEnvio = save.config();
+                    msjEnvio += " CHANGETABLE " + save.planetas();
+                    inicio_partida.cliente.enviarMensaje(msjEnvio);
+                }
+
             }
         }
     }//GEN-LAST:event_porcentaje_muertesKeyPressed
@@ -985,6 +991,12 @@ public class nuevo_juego extends javax.swing.JFrame {
 
                 int _produc = Integer.parseInt(produccion.getText());
                 tablero[coord_x][coord_y].getPlaneta().setProduccion(_produc);
+                if (inicio_partida.isVs) {
+                    guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+                    String msjEnvio = save.config();
+                    msjEnvio += " CHANGETABLE " + save.planetas();
+                    inicio_partida.cliente.enviarMensaje(msjEnvio);
+                }
             }
         }
     }//GEN-LAST:event_produccionKeyPressed
@@ -1269,7 +1281,6 @@ public class nuevo_juego extends javax.swing.JFrame {
             guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
             String msjEnvio = save.config();
             msjEnvio += " ENDLESS " + save.planetas();
-            inicio_partida.estadoDeVs = 2;
             inicio_partida.cliente.enviarMensaje(msjEnvio);
         }
     }
