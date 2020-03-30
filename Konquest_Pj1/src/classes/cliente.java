@@ -117,29 +117,35 @@ public class cliente extends Thread {
                         } else if (msj.contains("DATABOOLEANS")) {
                             String array[] = msj.split("DATABOOLEANS");
                             String ar[] = array[0].split(":");
-                            boolean v=Boolean.parseBoolean(ar[1]);
-                            if(ar[0].contains("mapaciego")){
-                            nuevo_juego.juego.getMapa().setMapaciego(v);
-                                    nuevo_juego.mapa_ciego.setSelected(v);
+                            boolean v = false;
+
+                            if (ar[1].contains("true")) {
+                                v = true;
+                            } else if (ar[1].contains("false")) {
+                                v = false;
                             }
-                            else if(ar[0].contains("acumular")){
-                            nuevo_juego.juego.getMapa().setAcumular(v);
-                                    nuevo_juego.produccion_acumulativa.setSelected(v);
+                            if (ar[0].contains("mapaciego")) {
+                                nuevo_juego.juego.getMapa().setMapaciego(v);
+                                nuevo_juego.mapa_ciego.setSelected(v);
+                            } else if (ar[0].contains("acumular")) {
+                                nuevo_juego.juego.getMapa().setAcumular(v);
+                                nuevo_juego.produccion_acumulativa.setSelected(v);
+                            } else if (ar[0].contains("estadisticas")) {
+                                nuevo_juego.juego.getMapa().getNeutral().setMostrarEstadisticas(v);
+                                nuevo_juego.estadisticas.setSelected(v);
+                            } else if (ar[0].contains("shownaves")) {
+                                nuevo_juego.juego.getMapa().getNeutral().setMostrarNaves(v);
+                                nuevo_juego.naves.setSelected(v);
                             }
-                            else if(ar[0].contains("estadisticas")){
-                            nuevo_juego.juego.getMapa().getNeutral().setMostrarEstadisticas(v);
-                                    nuevo_juego.estadisticas.setSelected(v);
-                            }
-                            else if(ar[0].contains("shownaves")){
-                            nuevo_juego.juego.getMapa().getNeutral().setMostrarNaves(v);
-                                    nuevo_juego.naves.setSelected(v);
-                            }
-                            nuevo_juego.opciones();
-                        }else if(msj.contains("AUMENTPRODUC")){
-                        String array[]=msj.split("AUMENTPRODUC");
-                        int x=Integer.parseInt(array[0]);
-                        nuevo_juego.production.setValue(x);
-                        nuevo_juego.aumentarProduc(x);
+                            System.out.println(v + "------------------>");
+                            //   nuevo_juego.opciones();
+                        } else if (msj.contains("AUMENTPRODUC")) {
+                            String array[] = msj.split("AUMENTPRODUC");
+
+                            int x = Integer.parseInt(array[0]);
+                            System.out.println(x);
+                            nuevo_juego.production.setValue(x);
+                            nuevo_juego.aumentarProduc(x);
                         }
 
                         break;
