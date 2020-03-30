@@ -1260,33 +1260,42 @@ public class nuevo_juego extends javax.swing.JFrame {
     private void productionStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_productionStateChanged
         if (countp > 0) {
             int x = Integer.parseInt(production.getValue().toString());
-            juego.getMapa().getNeutral().setProduccion(x);
-            for (int i = 0; i < juego.getArray_neutrales().size(); i++) {
-                if (juego.getArray_neutrales().get(i).isProduc()) {
-                    juego.getArray_neutrales().get(i).setProduccion(x);
-                    boolean v = true;
-                    for (int j = 0; j < filas; j++) {
-                        v = true;
-                        if (!v) {
-                            break;
-                        }
-                        for (int k = 0; k < columnas; k++) {
-                            if (!tablero[j][k].isEmpty()) {
-                                if (tablero[j][k].getPlaneta().getNombre().equals(juego.getArray_neutrales().get(i).getNombre())) {
-                                    tablero[j][k].getPlaneta().setProduccion(x);
-                                    v = false;
-                                    break;
-                                }
-                            }
-
-                        }
-
-                    }
-                }
-            }
+            aumentarProduc(x);
         }
         countp++;
     }//GEN-LAST:event_productionStateChanged
+    public static void aumentarProduc(int x) {
+        juego.getMapa().getNeutral().setProduccion(x);
+         if (inicio_partida.isVs) {
+                String msjEnvio = x+" AUMENTPRODUC ";
+                
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
+        for (int i = 0; i < juego.getArray_neutrales().size(); i++) {
+            if (juego.getArray_neutrales().get(i).isProduc()) {
+                juego.getArray_neutrales().get(i).setProduccion(x);
+                boolean v = true;
+                for (int j = 0; j < filas; j++) {
+                    v = true;
+                    if (!v) {
+                        break;
+                    }
+                    for (int k = 0; k < columnas; k++) {
+                        if (!tablero[j][k].isEmpty()) {
+                            if (tablero[j][k].getPlaneta().getNombre().equals(juego.getArray_neutrales().get(i).getNombre())) {
+                                tablero[j][k].getPlaneta().setProduccion(x);
+                                v = false;
+                                break;
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+    }
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
         // TODO add your handling code here:

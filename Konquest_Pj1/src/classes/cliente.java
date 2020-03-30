@@ -134,6 +134,12 @@ public class cliente extends Thread {
                             nuevo_juego.juego.getMapa().getNeutral().setMostrarNaves(v);
                                     nuevo_juego.naves.setSelected(v);
                             }
+                            nuevo_juego.opciones();
+                        }else if(msj.contains("AUMENTPRODUC")){
+                        String array[]=msj.split("AUMENTPRODUC");
+                        int x=Integer.parseInt(array[0]);
+                        nuevo_juego.production.setValue(x);
+                        nuevo_juego.aumentarProduc(x);
                         }
 
                         break;
