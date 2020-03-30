@@ -104,7 +104,7 @@ public class cliente extends Thread {
                             nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
                             nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
                             nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
-                                  
+
                         } else if (msj.contains("CHANGETABLE")) {
                             String array[] = msj.split("CHANGETABLE");
                             LeerArchivoJuego read = new LeerArchivoJuego();
@@ -148,6 +148,18 @@ public class cliente extends Thread {
                             System.out.println(x);
                             nuevo_juego.production.setValue(x);
                             nuevo_juego.aumentarProduc(x);
+                        } else if (msj.contains("INICIARJUEGO")) {
+                            inicio_partida.game = nuevo_juego.juego;
+                            inicio_partida.tablero = nuevo_juego.tablero;
+                            inicio_partida.filas = nuevo_juego.filas;
+                            inicio_partida.columnas = nuevo_juego.columnas;
+                            inicio_partida.iniciarTablero();
+                            inicio_partida.options.setVisible(true);
+                            inicio_partida.more_options.enable();
+                            inicio_partida.count_player = 0;
+                            inicio_partida.estadoDeVs = 3;
+                            inicio_partida.msj_jugador.setText("Jugador " + nuevo_juego.juego.getArray_jugadores().get(0).getJugador() + ": seleccione el planeta origen");
+                            int a = nuevo_juego.DISPOSE_ON_CLOSE;
                         }
 
                         break;
