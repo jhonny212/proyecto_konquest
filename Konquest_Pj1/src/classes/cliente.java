@@ -95,6 +95,9 @@ public class cliente extends Thread {
                                 vs.ArreglarNeutrales2(save, i);
                                 nuevo_juego.data_planets.addItem(game.getArray_neutrales().get(i).getNombre());
                             }
+                            for (int i = 0; i < game.getPlanetas().size(); i++) {
+                                nuevo_juego.data_planets.addItem(game.getPlanetas().get(i).getNombre());
+                            }
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
@@ -113,11 +116,24 @@ public class cliente extends Thread {
                             t.cargarTablero(save, false);
                         } else if (msj.contains("DATABOOLEANS")) {
                             String array[] = msj.split("DATABOOLEANS");
-                            LeerArchivoJuego read = new LeerArchivoJuego();
-                            juego game = read.getGame(array[0]);
-                            nuevo_juego.juego=game;
-                            nuevo_juego.opciones();
-
+                            String ar[] = array[0].split(":");
+                            boolean v=Boolean.parseBoolean(ar[1]);
+                            if(ar[0].contains("mapaciego")){
+                            nuevo_juego.juego.getMapa().setMapaciego(v);
+                                    nuevo_juego.mapa_ciego.setSelected(v);
+                            }
+                            else if(ar[0].contains("acumular")){
+                            nuevo_juego.juego.getMapa().setAcumular(v);
+                                    nuevo_juego.produccion_acumulativa.setSelected(v);
+                            }
+                            else if(ar[0].contains("estadisticas")){
+                            nuevo_juego.juego.getMapa().getNeutral().setMostrarEstadisticas(v);
+                                    nuevo_juego.estadisticas.setSelected(v);
+                            }
+                            else if(ar[0].contains("shownaves")){
+                            nuevo_juego.juego.getMapa().getNeutral().setMostrarNaves(v);
+                                    nuevo_juego.naves.setSelected(v);
+                            }
                         }
 
                         break;

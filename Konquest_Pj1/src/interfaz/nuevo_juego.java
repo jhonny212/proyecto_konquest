@@ -151,7 +151,7 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     }
 
-    public  void iniciarCombo() {
+    public void iniciarCombo() {
         this.data_planets.removeAllItems();
         for (int i = 0; i < juego.getArray_neutrales().size(); i++) {
             this.data_planets.addItem(juego.getArray_neutrales().get(i).getNombre());
@@ -392,31 +392,6 @@ public class nuevo_juego extends javax.swing.JFrame {
                  * además preguntar por el contenido del botón o el nombre de la
                  * columna
          */
- /*   if (tabla_jugadores.getModel().getColumnClass(columna).equals(JButton.class) && validarTabla) {
-                   System.out.println("entra------------------>");
-                   Color getcolor=JColorChooser.showDialog(tabla_jugadores, "seleccione", Color.yellow);
-                   juego.getArray_jugadores().get(columna).setColor(getcolor);
-                   validarTabla=false;
-                   setTabla();
-                   validarTabla=true;
-                   // tabla_jugadores.getModel().getColumnClass(columna).
-                //    tabla_jugadores.getModel().getColumnClass(columna);
-                    
-                    /**
-                     * Aquí pueden poner lo que quieran, para efectos de este
-                     * ejemplo, voy a mostrar en un cuadro de dialogo todos los
-                     * campos de la fila que no sean un botón.
-         */
- /*StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < tabla_jugadores.getModel().getColumnCount(); i++) {
-                        if (!tabla_jugadores.getModel().getColumnClass(i).equals(JButton.class)) {
-                            sb.append("\n").append(tabla_jugadores.getModel().getColumnName(i)).append(": ").append(tabla_jugadores.getModel().getValueAt(fila, i));
-                        }
-                    }
-
-                }
-            }
-        });*/
     }
 
     public static void setNewColorPlayer() {
@@ -843,14 +818,21 @@ public class nuevo_juego extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (naves.isSelected()) {
             juego.getMapa().getNeutral().setMostrarNaves(true);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "shownaves:true";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
         } else {
             juego.getMapa().getNeutral().setMostrarNaves(false);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "shownaves:false";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
 
         }
-          guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-        String msjEnvio = save.config();
-        msjEnvio += " DATABOOLEANS " ;
-        inicio_partida.cliente.enviarMensaje(msjEnvio);
+
     }//GEN-LAST:event_navesActionPerformed
 
     private void playersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playersMouseClicked
@@ -1217,41 +1199,62 @@ public class nuevo_juego extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (mapa_ciego.isSelected()) {
             juego.getMapa().setMapaciego(true);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "mapaciego:true";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
         } else {
             juego.getMapa().setMapaciego(false);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "mapaciego:false";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
         }
-        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-        String msjEnvio = save.config();
-        msjEnvio += " DATABOOLEANS ";
-        inicio_partida.cliente.enviarMensaje(msjEnvio);
+
     }//GEN-LAST:event_mapa_ciegoActionPerformed
 
     private void produccion_acumulativaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_produccion_acumulativaActionPerformed
         // TODO add your handling code here:
         if (produccion_acumulativa.isSelected()) {
             juego.getMapa().setAcumular(true);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "acumular:true";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
         } else {
             juego.getMapa().setAcumular(false);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "acumular:false";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
 
         }
-        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-        String msjEnvio = save.config();
-        msjEnvio += " DATABOOLEANS ";
-        inicio_partida.cliente.enviarMensaje(msjEnvio);
+
     }//GEN-LAST:event_produccion_acumulativaActionPerformed
 
     private void estadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estadisticasActionPerformed
         // TODO add your handling code here:
         if (estadisticas.isSelected()) {
             juego.getMapa().getNeutral().setMostrarEstadisticas(true);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "estadisticas:true";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
         } else {
             juego.getMapa().getNeutral().setMostrarEstadisticas(false);
+            if (inicio_partida.isVs) {
+                String msjEnvio = "estadisticas:false";
+                msjEnvio += " DATABOOLEANS ";
+                inicio_partida.cliente.enviarMensaje(msjEnvio);
+            }
 
         }
-        guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-        String msjEnvio = save.config();
-        msjEnvio += " DATABOOLEANS ";
-        inicio_partida.cliente.enviarMensaje(msjEnvio);
+
     }//GEN-LAST:event_estadisticasActionPerformed
     int countp = 0;
     private void productionStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_productionStateChanged
