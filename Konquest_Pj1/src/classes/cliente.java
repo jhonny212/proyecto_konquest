@@ -60,7 +60,6 @@ public class cliente extends Thread {
                             inicio_partida.estadoDeVs = 2;
                             enviarMensaje(msjEnvio);
                             }catch(NullPointerException e){
-                            inicio_partida.estadoDeVs = 1;
                             inicio_partida.cliente.stop();
                             run=false;
                             }
@@ -110,9 +109,10 @@ public class cliente extends Thread {
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
-                            nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
-                            nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
-                            nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
+                            System.out.println(nuevo_juego.juego.getArray_neutrales().size());
+                           // nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
+                            //nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
+                            //nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
 
                         } else if (msj.contains("CHANGETABLE")) {
                             String array[] = msj.split("CHANGETABLE");
