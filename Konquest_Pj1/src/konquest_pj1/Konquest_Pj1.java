@@ -46,7 +46,7 @@ public class Konquest_Pj1 {
         lexico_replay scan =null;
         ataques = new ArrayList();
         turnos_ = new ArrayList();
-        parser.errores=new ArrayList();
+        parser.listaErrores=new ArrayList();
         try {
             String texto = "";
             if (isVs) {
@@ -70,7 +70,7 @@ public class Konquest_Pj1 {
         } catch (IndexOutOfBoundsException e) {
             trn = new Turno();
         }
-        erroresSin=parser.errores;
+        erroresSin=parser.listaErrores;
         erroresLex=scan.ErrorLexico;
         return trn;
     }
@@ -134,7 +134,7 @@ public class Konquest_Pj1 {
       inicio_partida start = new inicio_partida();
       start.show();
 
-    // generarCompilador();
+   //  generarCompilador();
     }
 
     public static guardar leer2(File file) {

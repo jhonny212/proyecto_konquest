@@ -89,6 +89,13 @@ public class Turno {
                 galaxia d = ataques.get(i).getD();
                 int naves = o.getPlaneta().getNaves();
                 int dd = naves + datos[0];
+                String name="";
+                
+                try{
+                name=jugador.getJugador();
+                }catch(NullPointerException e){
+                System.out.println(e.getMessage());
+                }
                 inicio_partida.tablero[o.getCoordx_()][o.getCoordy_()].getPlaneta().setNaves(naves + datos[0]);
                 if (datos[1] == 0) {
                     inicio_partida.tablero[d.getCoordx_()][d.getCoordy_()].getPlaneta().setNaves(0);

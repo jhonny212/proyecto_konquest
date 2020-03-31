@@ -40,14 +40,42 @@ PRODUC2,PRODUC3,PRODUC4,PRODUC5,PRODUC6;
 
 start with TURNO;
 //para mapas
-TURNO::= abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
-| error abreLlaves turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
-| error  turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
-| error  dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
-| error  abreCor TURNOS ATAQ4 cierraCor cierraLlaves
-| error  TURNOS ATAQ4 cierraCor cierraLlaves
-| error  ATAQ4 cierraCor cierraLlaves
-| error  cierraLlaves
+TURNO::= abreLlaves:e turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
+| error abreLlaves:e turno dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de iniciar la estructura del turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+| error  turno:e dosPuntos abreCor TURNOS ATAQ4 cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de la palabra reservada turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+| error  dosPuntos:e abreCor TURNOS ATAQ4 cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de iniciar la estructura del turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+| error  abreCor:e TURNOS ATAQ4 cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de abrir corchete para un turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+| error  TURNOS:e ATAQ4 cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de declarar un turno";
+listaErrores.add(new ErrorSintatico("antes de la estructura de turno",eleft,eright,msj,true));
+:}
+| error  ATAQ4:e cierraCor cierraLlaves
+{:
+String msj="Error de sintaxis antes de iniciar la estructura de ataque";
+listaErrores.add(new ErrorSintatico("antes de estructura de ataque",eleft,eright,msj,true));
+:}
+| error  cierraLlaves:e
+{:
+String msj="Error de sintaxis antes de cerrar la estructura del turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
 ;
 
 
@@ -56,14 +84,19 @@ TURNOS::= abreLlaves TURNO1 cierraLlaves
 {:
 turnos_.add(new Turno(ataques,jugador_,numeroTurno));
 :}
-| error abreLlaves TURNO1 cierraLlaves 
+| error abreLlaves:e TURNO1 cierraLlaves 
 {: 
 turnos_.add(new Turno(ataques,jugador_,numeroTurno));
+String msj="Error de sintaxis antes de la declaracion de un turno turno";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
  :}
-| error  TURNO1 cierraLlaves 
+| error  TURNO1:e cierraLlaves 
 {: 
 turnos_.add(new Turno(ataques,jugador_,numeroTurno));
- :}
+String msj="Error de sintaxis antes en la declaracion de un turno";
+listaErrores.add(new ErrorSintatico("en la declaracion de un turno",eleft,eright,msj,true));
+ 
+:}
  ;
 
 
@@ -71,24 +104,45 @@ TURNO1::= NAME | ATAQUE | NUM
 
 ;
 
+
 NAME::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2 coma NAME1 {:jugador_=(String)e1;:}
-| error  nombre dosPuntos COMILLAS1 id:e COMILLAS2 coma NAME1 
+| error  nombre:e1 dosPuntos COMILLAS1 id:e COMILLAS2 coma NAME1 
 {:
  jugador_=(String)e;
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
 :}
-| error  dosPuntos COMILLAS1 id:e COMILLAS2 coma NAME1 
+| error  dosPuntos:e1 COMILLAS1 id:e COMILLAS2 coma NAME1 
 {:
  jugador_=(String)e;
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+msj+="La sintaxis debe ser nombre: \"id\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
 :}
-| error   COMILLAS1 id:e COMILLAS2 coma NAME1 
+| error   COMILLAS1:e1 id:e COMILLAS2 coma NAME1 
 {:
  jugador_=(String)e;
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+msj+="La sintaxis debe ser nombre: \"id\"";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
 :}
 | error   id:e COMILLAS2 coma NAME1 
 {:
  jugador_=(String)e;
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+msj+="La sintaxis debe ser nombre: \"id\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-| error COMILLAS2 coma NAME1 
+| error COMILLAS2:e1 coma NAME1 
+{:
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno, antes de cerrar comilla del id";
+msj+="La sintaxis debe ser nombre: \"id\"";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
 | error   coma NAME1 
 ;
 
@@ -97,17 +151,52 @@ NAME1::= PRODUC1 coma ATAQ
 | ATAQ coma PRODUC1 
 ;
 
+
 PRODUC1::=  numeroTurno dosPuntos num:e {:numeroTurno=Integer.parseInt((String)e);:}
-| error numeroTurno dosPuntos num:e {:numeroTurno=Integer.parseInt((String)e);:}
-| error  dosPuntos num:e {:numeroTurno=Integer.parseInt((String)e);:}
-| error  num:e {:numeroTurno=Integer.parseInt((String)e);:}
+| error numeroTurno:e1 dosPuntos num:e 
+{:
+String msj="Error de sintaxis antes la declaracion del numero de turno de un jugador \n";
+msj+="Sintaxis: turno: NUMERO";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+numeroTurno=Integer.parseInt((String)e);:}
+
+| error  dosPuntos:e1 num:e {:
+String msj="Error de sintaxis antes la declaracion del numero de turno de un jugador \n";
+msj+="Sintaxis: turno: NUMERO";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+numeroTurno=Integer.parseInt((String)e);:}
+
+| error  num:e {:
+String msj="Error de sintaxis antes la declaracion del numero de turno de un jugador \n";
+msj+="Sintaxis: turno: NUMERO";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+numeroTurno=Integer.parseInt((String)e);:}
  ;
 
 PRODUC2::= nombre dosPuntos COMILLAS1 id:e1 COMILLAS2  {:jugador_=(String)e1;:}
-|error nombre dosPuntos COMILLAS1 id:e1 COMILLAS2  {:jugador_=(String)e1;:}
-|error  dosPuntos COMILLAS1 id:e1 COMILLAS2  {:jugador_=(String)e1;:}
-|error  COMILLAS1 id:e1 COMILLAS2  {:jugador_=(String)e1;:}
-|error  id:e1 COMILLAS2  {:jugador_=(String)e1;:}
+|error nombre:e dosPuntos COMILLAS1 id:e1 COMILLAS2  {:
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+jugador_=(String)e1;:}
+
+
+|error  dosPuntos:e COMILLAS1 id:e1 COMILLAS2  {:
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+jugador_=(String)e1;:}
+
+
+|error  COMILLAS1:e id:e1 COMILLAS2  {:
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+jugador_=(String)e1;:}
+
+
+|error  id:e1 COMILLAS2  {:
+String msj="Error de sintaxis antes la declaracion la accion del \n jugador de n turno jugador:"+e1;
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+jugador_=(String)e1;:}
 
 ;
 
@@ -122,10 +211,23 @@ NUM1::= ATAQ coma PRODUC2
 | PRODUC2 coma ATAQ 
 ;
 
+
 ATAQ::= ataque dosPuntos abreLlaves ATAQ22 cierraLlaves  
-|error  ataque dosPuntos abreLlaves ATAQ22 cierraLlaves 
-|error  dosPuntos abreLlaves ATAQ22 cierraLlaves 
-|error  ATAQ22 cierraLlaves 
+|error  ataque:e1 dosPuntos abreLlaves ATAQ22 cierraLlaves 
+{:
+String msj="Error en la declaracion de un ataque";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error  dosPuntos:e1 abreLlaves ATAQ22 cierraLlaves 
+{:
+String msj="Error en la declaracion de un ataque";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+|error  ATAQ22:e cierraLlaves 
+{:
+String msj="Error en la declaracion de un ataque";
+listaErrores.add(new ErrorSintatico("",e1left,e1right,msj,true));
+:}
 ;
 
 ATAQ22::= ATAQ1 | ;
@@ -161,9 +263,21 @@ ATAQ4::= coma TURNOS ATAQ4 |
 
 
 GALAXY::= espacio dosPuntos abreLlaves GALAXY1 cierraLlaves 
-| error  dosPuntos abreLlaves GALAXY1 cierraLlaves 
-| error   abreLlaves GALAXY1 cierraLlaves 
-| error   GALAXY1 cierraLlaves 
+| error  dosPuntos:e1 abreLlaves GALAXY1 cierraLlaves 
+{:
+String msj="error en declaracion de atributos de planeta atacante, oponente y turno de llegada";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+| error   abreLlaves:e1 GALAXY1 cierraLlaves 
+{:
+String msj="error en declaracion de atributos de planeta atacante, oponente y turno de llegada";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
+| error   GALAXY1:e1 cierraLlaves 
+{:
+String msj="error en declaracion de atributos de planeta atacante, oponente y turno de llegada";
+listaErrores.add(new ErrorSintatico("",e1left,e1right,msj,true));
+:}
 | error    cierraLlaves 
 
 ;
@@ -173,20 +287,38 @@ GALAXY1::= O | D | T;
 O::= PRODUC3 coma O1
 ;
 
+
 PRODUC3::= origen dosPuntos COMILLAS1 id:e COMILLAS2 {:origen_=(String)e;:}
 
 | error  id:e COMILLAS2 
-{:origen_=(String)e;:}
+{:origen_=(String)e;
+String msj="Error en declaracion de planeta atacante (origen)";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+:}
 | error   COMILLAS2 
 ;
 
 PRODUC4::= destino dosPuntos COMILLAS1 id:e COMILLAS2 {: destino_=(String)e;:}
-|error  dosPuntos COMILLAS1 id:e COMILLAS2 {: destino_=(String)e;:}
-|error   COMILLAS1 id:e COMILLAS2 {: destino_=(String)e;:}
+|error  dosPuntos:e1 COMILLAS1 id:e COMILLAS2 {:
+String msj="Error en declaracion de planeta oponente (destino)";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+destino_=(String)e;:}
+
+
+|error   COMILLAS1:e1 id:e COMILLAS2 {: destino_=(String)e;
+String msj="Error en declaracion de planeta atacante antes de las comillas";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
+:}
 ; 
 
 PRODUC5::=  turno dosPuntos  num:e1 {:turno_=Integer.parseInt((String)e1);:}
-|error dosPuntos  num:e1 {:turno_=Integer.parseInt((String)e1);:}
+|error dosPuntos:e  num:e1 {:
+String msj="Error en declaracion de numero de turno de llegada";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+turno_=Integer.parseInt((String)e1);:}
 |error   num:e1 {:turno_=Integer.parseInt((String)e1);:} ;
 
 
@@ -207,8 +339,18 @@ T1::= PRODUC3 coma PRODUC4
 
 
 DATOS::= datos dosPuntos abreLlaves DATA cierraLlaves 
-| error  dosPuntos abreLlaves DATA cierraLlaves
-| error abreLlaves DATA cierraLlaves
+| error  dosPuntos:e abreLlaves DATA cierraLlaves
+{:
+String msj="Error en declaracion de datos del ataque (naves,si esta completa)";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+:}
+| error abreLlaves:e DATA cierraLlaves
+{:
+String msj="Error en declaracion de datos del ataque (naves,si esta completa)";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
+:}
  ;
 
 
@@ -222,49 +364,84 @@ complete_= Boolean.parseBoolean((String)e1);
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
 :}
-| error naves dosPuntos num:e coma complete dosPuntos bool:e1 
+| error naves:e2 dosPuntos num:e coma complete dosPuntos bool:e1 
 {:
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
+
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de naves";
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
+
 :}
-| error  coma complete dosPuntos bool:e1 
+| error  coma:e complete dosPuntos bool:e1 
 {:
 complete_= Boolean.parseBoolean((String)e1);
+
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de complete";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-| error  complete dosPuntos bool:e1 
+| error  complete:e dosPuntos bool:e1 
 {:
 complete_= Boolean.parseBoolean((String)e1);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de complete";
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-| error   dosPuntos bool:e1 
+| error   dosPuntos:e bool:e1 
 {:
 complete_= Boolean.parseBoolean((String)e1);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de :"+e1;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-| error   bool:e1 
+| error   bool:e 
 {:
-complete_= Boolean.parseBoolean((String)e1);
+complete_= Boolean.parseBoolean((String)e);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de "+e;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-|error complete dosPuntos bool:e1 coma naves dosPuntos num:e 
+|error complete:e2 dosPuntos bool:e1 coma naves dosPuntos num:e 
 {:
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
+
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de complete";
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
 :}
-|error  dosPuntos bool:e1 coma naves dosPuntos num:e 
+|error  dosPuntos:e2 bool:e1 coma naves dosPuntos num:e 
 {:
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
+
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de :"+e1;
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
 :}
 |error  bool:e1 coma naves dosPuntos num:e 
 {:
 naves_=Integer.parseInt((String)e);
 complete_= Boolean.parseBoolean((String)e1);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de :"+e1;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+
 :}
-|error coma naves dosPuntos num:e 
+|error coma:e2 naves dosPuntos num:e 
 {:
 naves_=Integer.parseInt((String)e);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de ,naves:"+e;
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
 :}
-|error naves dosPuntos num:e 
+|error naves:2 dosPuntos num:e 
 {:
 naves_=Integer.parseInt((String)e);
+String msj="Error en declaracion de datos del ataque (naves,si esta completa) antes de naves:"+e;
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
 :}
 |error  dosPuntos num:e 
 {:

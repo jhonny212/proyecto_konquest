@@ -172,24 +172,38 @@ public class cliente extends Thread {
                             inicio_partida.count_player = 0;
                             inicio_partida.estadoDeVs = 3;
                             inicio_partida.iniciarContadorPlayer();
-                            this.nuevo_cargado.dispose();
+                            try {
+                                this.nuevo_cargado.dispose();
+                            } catch (NullPointerException e) {
+                                inicio_partida.nuevo_cargadoVs.dispose();
+                            }
+
                         }
 
                         break;
                     case 3:
                         Konquest_Pj1 p = new Konquest_Pj1();
                         Turno turno = p.leer4(msj);
-
+                        turno.setJugador(jugador(turno.getJugador_()));
                         turno.config();
                         inicio_partida.turnos.add(turno);
                         inicio_partida.count_player = inicio_partida.cliente.numJugador;
                         inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
                         if (inicio_partida.count_player == 0) {
                             inicio_partida.ejecutarTurnos();
-                            System.out.println("entro aca");
                             inicio_partida.cant_envios.disable();
                         }
+                        
+                        
+                         inicio_partida.end_turno.setVisible(true);
+                       
                         inicio_partida.validarMov = true;
+                        break;
+                        
+                    case 4:
+                        juegoTerminado t=new juegoTerminado(null,null);
+                        t.closeDatas();
+                        t.closeCliente();
                         break;
                     default:
                         break;
