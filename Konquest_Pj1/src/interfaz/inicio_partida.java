@@ -1065,7 +1065,7 @@ public class inicio_partida extends javax.swing.JFrame {
         mensajes_txt.setText("");
         String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
         try {
-            seleccion = Integer.parseInt(numeroJugador);
+           // seleccion = Integer.parseInt(numeroJugador);
             cliente = new cliente(numeroJugador, 1);
             cliente.start();
             try {

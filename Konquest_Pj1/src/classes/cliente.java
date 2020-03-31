@@ -109,8 +109,8 @@ public class cliente extends Thread {
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
-                            System.out.println(nuevo_juego.juego.getArray_neutrales().size());
-                           // nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
+                            
+                            //nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
                             //nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
                             //nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
 
