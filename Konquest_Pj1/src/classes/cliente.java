@@ -110,10 +110,10 @@ public class cliente extends Thread {
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
                          //   nuevo_juego.cant_planetaNeutrales.disable();
-                           nuevo_juego.numeroDeNeu=false;
+                         /*  nuevo_juego.numeroDeNeu=false;
                            nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
                            nuevo_juego.numeroDeNeu=true;
-                           
+                           */
                           // nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
                            //nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
 

@@ -1127,7 +1127,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     int count4 = 0;
     private void cant_planetaNeutralesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_cant_planetaNeutralesStateChanged
         if (count4 > 0) {
-           
+           numeroDeNeu=true;
             if(numeroDeNeu){int x = Integer.parseInt(this.cant_planetaNeutrales.getValue().toString());
             
             juego.getMapa().setPlanetasNeutrales(x);
