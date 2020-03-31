@@ -43,7 +43,7 @@ public class cliente extends Thread {
 
     @Override
     public void run() {
-        boolean run=true;
+        boolean run = true;
         try {
             ServerSocket cliente = new ServerSocket(9090);
             while (run) {
@@ -54,16 +54,16 @@ public class cliente extends Thread {
                     case 1:
                         if (msj.equals("esperando...")) {
                             guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
-                            try{
-                            String msjEnvio = save.config();
-                            msjEnvio += " ENDLESS " + save.planetas();
-                            inicio_partida.estadoDeVs = 2;
-                            enviarMensaje(msjEnvio);
-                            }catch(NullPointerException e){
-                            inicio_partida.cliente.stop();
-                            run=false;
+                            try {
+                                String msjEnvio = save.config();
+                                msjEnvio += " ENDLESS " + save.planetas();
+                                inicio_partida.estadoDeVs = 2;
+                                enviarMensaje(msjEnvio);
+                            } catch (NullPointerException e) {
+                                inicio_partida.cliente.stop();
+                                run = false;
                             }
-                            
+
                         } else {
                             String array[] = msj.split("ENDLESS");
                             LeerArchivoJuego p = new LeerArchivoJuego();
@@ -109,13 +109,11 @@ public class cliente extends Thread {
                             configurarTableroCliente t = new configurarTableroCliente();
                             t.cargarTablero(save, false);
                             nuevo_juego.reiniciarTablero2();
-                         //   nuevo_juego.cant_planetaNeutrales.disable();
-                         /*  nuevo_juego.numeroDeNeu=false;
-                           nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
-                           nuevo_juego.numeroDeNeu=true;
-                           */
-                          // nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
-                           //nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
+                            nuevo_juego.numeroDeNeu = false;
+                            nuevo_juego.cant_planetaNeutrales.setValue(game.getArray_neutrales().size());
+                            nuevo_juego.altura.setValue(game.getMapa().getTamaño().getHeight());
+                            nuevo_juego.ancho.setValue(game.getMapa().getTamaño().getWidth());
+                            nuevo_juego.numeroDeNeu = true;
 
                         } else if (msj.contains("CHANGETABLE")) {
                             String array[] = msj.split("CHANGETABLE");
@@ -157,9 +155,12 @@ public class cliente extends Thread {
                             String array[] = msj.split("AUMENTPRODUC");
 
                             int x = Integer.parseInt(array[0]);
-                            System.out.println(x);
+                            nuevo_juego.numeroDeNeu = false;
+
                             nuevo_juego.production.setValue(x);
                             nuevo_juego.aumentarProduc(x);
+                            nuevo_juego.numeroDeNeu = true;
+
                         } else if (msj.contains("INICIARJUEGO")) {
                             inicio_partida.game = nuevo_juego.juego;
                             inicio_partida.tablero = nuevo_juego.tablero;
@@ -178,8 +179,8 @@ public class cliente extends Thread {
                     case 3:
                         Konquest_Pj1 p = new Konquest_Pj1();
                         Turno turno = p.leer4(msj);
-                        
-                        turno.config(); 
+
+                        turno.config();
                         inicio_partida.turnos.add(turno);
                         inicio_partida.count_player = inicio_partida.cliente.numJugador;
                         inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());

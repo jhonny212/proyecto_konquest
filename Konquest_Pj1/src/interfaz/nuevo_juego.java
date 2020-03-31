@@ -8,7 +8,6 @@ package interfaz;
 import classes.ButtonController;
 import classes.guardar;
 import classes.mouseListener;
-import static interfaz.inicio_partida.cliente;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -22,7 +21,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
-import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -84,6 +82,8 @@ public class nuevo_juego extends javax.swing.JFrame {
         delete.setBorder(border1);
         count2 = 0;
 
+        numeroDeNeu = true;
+
     }
 
     public void iniciarJuego(juego game) {
@@ -109,9 +109,9 @@ public class nuevo_juego extends javax.swing.JFrame {
         setTabla();
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
-        if(inicio_partida.isVs){
-        players.disable();
-        delete.setVisible(false);
+        if (inicio_partida.isVs) {
+            players.disable();
+            delete.setVisible(false);
         }
 
     }
@@ -153,9 +153,9 @@ public class nuevo_juego extends javax.swing.JFrame {
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
         inicializarTablero();
-        if(inicio_partida.isVs){
-        players.disable();
-        delete.setVisible(false);
+        if (inicio_partida.isVs) {
+            players.disable();
+            delete.setVisible(false);
         }
 
     }
@@ -857,7 +857,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     int count = 0;
     private void anchoStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_anchoStateChanged
         count++;
-        if (count > 2) {
+        if (count > 2 && numeroDeNeu) {
             int tmp = filas;
             filas = (int) Double.parseDouble(ancho.getValue().toString());
             juego.getMapa().getTamaño().setSize(filas, columnas);
@@ -878,7 +878,7 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     private void alturaStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_alturaStateChanged
         count++;
-        if (count > 2) {
+        if (count > 2 && numeroDeNeu) {
             int tmp = columnas;
             columnas = (int) Double.parseDouble(altura.getValue().toString());
             juego.getMapa().getTamaño().setSize(filas, columnas);
@@ -1127,71 +1127,69 @@ public class nuevo_juego extends javax.swing.JFrame {
     int count4 = 0;
     private void cant_planetaNeutralesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_cant_planetaNeutralesStateChanged
         if (count4 > 0) {
-           numeroDeNeu=true;
-            if(numeroDeNeu){int x = Integer.parseInt(this.cant_planetaNeutrales.getValue().toString());
-            
-            juego.getMapa().setPlanetasNeutrales(x);
-            if (x > juego.getArray_neutrales().size()) {
-                juego.validarDimensiones();
-                if (juego.isValidarJuego()) {
-                    int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea que los valores sean al azar?", "Message", 1);
-                    switch (seleccion) {
+            if (numeroDeNeu) {
+                int x = Integer.parseInt(this.cant_planetaNeutrales.getValue().toString());
 
-                        case 0:
-                            planeta_neutral tmp2 = new planeta_neutral();
-                            boolean v = true;
-                            while (v) {
-                                tmp2 = tmp2.planetaAleatorio(filas * columnas);
-                                juego.getArray_neutrales().add(tmp2);
-                                juego.validarDimensiones();
-                                if (juego.isValidarJuego()) {
+                juego.getMapa().setPlanetasNeutrales(x);
+                if (x > juego.getArray_neutrales().size()) {
+                    juego.validarDimensiones();
+                    if (juego.isValidarJuego()) {
+                        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea que los valores sean al azar?", "Message", 1);
+                        switch (seleccion) {
 
-                                    v = false;
-                                } else {
-                                    juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
+                            case 0:
+                                planeta_neutral tmp2 = new planeta_neutral();
+                                boolean v = true;
+                                while (v) {
+                                    tmp2 = tmp2.planetaAleatorio(filas * columnas);
+                                    juego.getArray_neutrales().add(tmp2);
+                                    juego.validarDimensiones();
+                                    if (juego.isValidarJuego()) {
+
+                                        v = false;
+                                    } else {
+                                        juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
+                                    }
                                 }
-                            }
 
-                            data_planets.addItem(tmp2.getNombre());
-                            reiniciarTablero();
-
-                            break;
-                        case 1:
-                            planeta_neutral tmp = new planeta_neutral();
-                            tmp = tmp.generarPlaneta(this);
-                            juego.getArray_neutrales().add(tmp);
-                            juego.validarDimensiones();
-                            if (!juego.isValidarJuego()) {
-                                juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
-                                JOptionPane.showMessageDialog(this, "El nombre del planeta ya existe. \n no fue posible agregarlo");
-                            } else {
-                                data_planets.addItem(tmp.getNombre());
+                                data_planets.addItem(tmp2.getNombre());
                                 reiniciarTablero();
-                            }
-                            break;
-                        case 2:
-                            this.cant_planetaNeutrales.setValue(x - 1);
-                            break;
+
+                                break;
+                            case 1:
+                                planeta_neutral tmp = new planeta_neutral();
+                                tmp = tmp.generarPlaneta(this);
+                                juego.getArray_neutrales().add(tmp);
+                                juego.validarDimensiones();
+                                if (!juego.isValidarJuego()) {
+                                    juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
+                                    JOptionPane.showMessageDialog(this, "El nombre del planeta ya existe. \n no fue posible agregarlo");
+                                } else {
+                                    data_planets.addItem(tmp.getNombre());
+                                    reiniciarTablero();
+                                }
+                                break;
+                            case 2:
+                                this.cant_planetaNeutrales.setValue(x - 1);
+                                break;
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No hay más espacio para planetas neutrales");
+                        this.cant_planetaNeutrales.setValue(x - 1);
+                        juego.getMapa().setPlanetasNeutrales(x - 1);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "No hay más espacio para planetas neutrales");
-                    this.cant_planetaNeutrales.setValue(x - 1);
-                    juego.getMapa().setPlanetasNeutrales(x - 1);
-                }
-            } else {
-                if (!juego.getArray_neutrales().isEmpty()) {
-                    juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
-                    iniciarCombo();
-                    reiniciarTablero();
-                }
-                if (x < 0) {
-                    juego.getMapa().setPlanetasNeutrales(0);
-                    this.cant_planetaNeutrales.setValue(0);
+                    if (!juego.getArray_neutrales().isEmpty()) {
+                        juego.getArray_neutrales().remove(juego.getArray_neutrales().size() - 1);
+                        iniciarCombo();
+                        reiniciarTablero();
+                    }
+                    if (x < 0) {
+                        juego.getMapa().setPlanetasNeutrales(0);
+                        this.cant_planetaNeutrales.setValue(0);
+                    }
                 }
             }
-        }
-           
-          
 
         }
         count4++;
@@ -1273,7 +1271,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     }//GEN-LAST:event_estadisticasActionPerformed
     int countp = 0;
     private void productionStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_productionStateChanged
-        if (countp > 0) {
+        if (countp > 0 && numeroDeNeu ) {
             int x = Integer.parseInt(production.getValue().toString());
             aumentarProduc(x);
         }
