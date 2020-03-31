@@ -28,8 +28,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.swing.JOptionPane;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
@@ -1222,7 +1221,7 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "    </div></html>");
 
             }
-            if (game.getMapa().getNeutral().isMostrarEstadisticas()) {
+          else  if (game.getMapa().getNeutral().isMostrarEstadisticas()) {
                 tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202);\">\n"
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
@@ -1236,7 +1235,7 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "    </div></html>");
 
             }
-            if (game.getMapa().getNeutral().isMostrarNaves()) {
+         else   if (game.getMapa().getNeutral().isMostrarNaves()) {
                 tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202);\">\n"
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
@@ -1264,10 +1263,11 @@ public class inicio_partida extends javax.swing.JFrame {
                     + "        Muertes(%):" + tablero[i][j].getPlaneta().getMuertes() + "\n"
                     + "        </p>\n"
                     + "    </div></html>");
-            if (!game.getMapa().isMapaciego()) {
+            
+        }
+        if (game.getMapa().isMapaciego()) {
                 ToolTipManager.sharedInstance().setEnabled(false);
             }
-        }
     }
 
     /**
