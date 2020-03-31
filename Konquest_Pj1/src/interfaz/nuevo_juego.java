@@ -60,7 +60,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     Border border2;
     Border border1;
     public static int filas;
-    public static int columnas;
+    public static int columnas,numeroDeNeu;
     public static galaxia tablero[][];
     public static juego juego;
     static boolean valid_combo;
@@ -1127,6 +1127,7 @@ public class nuevo_juego extends javax.swing.JFrame {
     private void cant_planetaNeutralesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_cant_planetaNeutralesStateChanged
         if (count4 > 0) {
             int x = Integer.parseInt(this.cant_planetaNeutrales.getValue().toString());
+            
             juego.getMapa().setPlanetasNeutrales(x);
             if (x > juego.getArray_neutrales().size()) {
                 juego.validarDimensiones();
@@ -1186,6 +1187,7 @@ public class nuevo_juego extends javax.swing.JFrame {
                     this.cant_planetaNeutrales.setValue(0);
                 }
             }
+            numeroDeNeu=x;
 
         }
         count4++;
