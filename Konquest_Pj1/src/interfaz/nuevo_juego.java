@@ -108,6 +108,10 @@ public class nuevo_juego extends javax.swing.JFrame {
         setTabla();
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
+        if(inicio_partida.isVs){
+        players.disable();
+        delete.setVisible(false);
+        }
 
     }
 
@@ -148,6 +152,10 @@ public class nuevo_juego extends javax.swing.JFrame {
         mouseListener bt = new mouseListener();
         tabla_jugadores.addMouseListener(bt);
         inicializarTablero();
+        if(inicio_partida.isVs){
+        players.disable();
+        delete.setVisible(false);
+        }
 
     }
 
@@ -893,8 +901,9 @@ public class nuevo_juego extends javax.swing.JFrame {
 
     private void aceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptActionPerformed
         if (inicio_partida.isVs) {
-          inicio_partida.cliente.enviarMensaje("INICIARJUEGO");
-        } 
+            inicio_partida.estadoDeVs = 3;
+            inicio_partida.cliente.enviarMensaje("INICIARJUEGO");
+        }
         inicio_partida.game = juego;
         inicio_partida.tablero = tablero;
         inicio_partida.filas = filas;
@@ -903,7 +912,6 @@ public class nuevo_juego extends javax.swing.JFrame {
         inicio_partida.options.setVisible(true);
         inicio_partida.more_options.enable();
         inicio_partida.count_player = 0;
-        inicio_partida.estadoDeVs=3;
         inicio_partida.msj_jugador.setText("Jugador " + juego.getArray_jugadores().get(0).getJugador() + ": seleccione el planeta origen");
         inicio_partida.iniciarContadorPlayer();
 

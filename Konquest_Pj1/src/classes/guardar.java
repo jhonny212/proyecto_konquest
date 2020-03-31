@@ -5,6 +5,11 @@
  */
 package classes;
 
+import interfaz.inicio_partida;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import mapa.juego;
 import planetas.galaxia;
@@ -23,6 +28,24 @@ public class guardar {
     private ArrayList<planeta_jugador> planetas;
     private ArrayList<planeta_neutral> neutrales;
     private ArrayList<String> jugadores;
+    private ArrayList<ErrorSintatico> erroresSintatico;
+    private ArrayList<ErrorLexico> erroresLexico;
+
+    public ArrayList<ErrorSintatico> getErroresSintatico() {
+        return erroresSintatico;
+    }
+
+    public void setErroresSintatico(ArrayList<ErrorSintatico> erroresSintatico) {
+        this.erroresSintatico = erroresSintatico;
+    }
+
+    public ArrayList<ErrorLexico> getErroresLexico() {
+        return erroresLexico;
+    }
+
+    public void setErroresLexico(ArrayList<ErrorLexico> erroresLexico) {
+        this.erroresLexico = erroresLexico;
+    }
 
     public juego getJuego() {
         return juego;
@@ -67,13 +90,50 @@ public class guardar {
     }
 
     private void imprimir() {
-        String txt = "";
-        txt += planetas() + "\n";
-        txt += turnos();
-        System.out.println(txt);
-        txt = config();
-        System.out.println(txt);
+        archivoEntrada file = new archivoEntrada();
+        String path = file.getPath();
+        String path2 = getSimplePath(path, 0);
+        String name = getSimplePath(path, 1);
+        String txt = planetas();
 
+        createFile(txt, path);
+        txt = turnos();
+        createFile(txt, path2 + "/turnos" + name);
+
+        // txt = config();
+        // createFile(txt, path2 + "/config" + name);
+        File f = inicio_partida.archivoSave;
+        f.renameTo(new File(path2 + "/config" + name + ".json"));
+
+    }
+
+    private void createFile(String content, String path) {
+        File file = new File(path + ".json");
+
+        if (!file.exists()) {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                bw.write(content);
+                bw.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
+
+    private String getSimplePath(String path, int x) {
+        String a[] = path.split("/");
+        path = "";
+        if (x == 0) {
+            for (int i = 0; i < a.length - 1; i++) {
+                if (i != 0) {
+                    path += "/" + a[i];
+                }
+            }
+        } else {
+            path = a[a.length - 1];
+        }
+
+        return path;
     }
 
     public String config() {
@@ -370,9 +430,9 @@ public class guardar {
                     }
                 }
             }
-            jugadores+=name;
+            jugadores += name;
             name = juego.getArray_jugadores().get(k).getClass().getSimpleName();
-            name=name.toUpperCase();
+            name = name.toUpperCase();
             jugadores
                     += "       ] ,"
                     + "       tipo: " + name + ""

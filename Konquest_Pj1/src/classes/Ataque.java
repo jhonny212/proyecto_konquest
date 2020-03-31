@@ -21,6 +21,7 @@ public class Ataque {
     private galaxia o, d;
     private int trn;
     int cant;
+    public int getships;
     private boolean verificar;
     private String o_, d_;
     private int tipe;
@@ -28,7 +29,7 @@ public class Ataque {
     public void setTipe(int tipe) {
         this.tipe = tipe;
     }
-    
+
     public String getO_() {
         return o_;
     }
@@ -53,7 +54,6 @@ public class Ataque {
         this.verificar = verificar;
         System.out.println(trn + " ");
     }
-    
 
     public Ataque(String o, String d, int trn, int cant, boolean verificar) {
         this.d_ = d;
@@ -98,39 +98,47 @@ public class Ataque {
     public void setD(galaxia d) {
         this.d = d;
     }
-  public int vivos;
+    public int vivos;
+
     public int[] realizarAtaque(jugador jugador) {
-        if(tipe==1){
-        int total=inicio_partida.tablero[o.getCoordx_()][o.getCoordy_()].getPlaneta().getNaves();
-        System.out.println(total+"<<>> "+cant+" "+o.getPlaneta().getNombre());
-        inicio_partida.tablero[o.getCoordx_()][o.getCoordy_()].getPlaneta().setNaves(total-cant);
-        }
-        double daño2 = d.getPlaneta().getMuertes();
-        double daño1 = o.getPlaneta().getMuertes();
-        int n2 = d.getPlaneta().getNaves();
-        int n1 = cant;
-        vivos=n2;
-        int x = (int) (n1 * daño2);
-        int y = (int) (n2 * daño1);
-
-        if (n1 + 10 > n2) {
-            n2 -= 1;
-        }
-        if (n2 + 10 > n1) {
-            n1 -= 1;
-        }
-
-        n1 = n1 - x - 1;
-        n2 = n2 - y - 1;
-
-        if (n1 < 0) {
-            n1 = 0;
-        }
-        if (n2 < 0) {
-            n2 = 0;
-        }
-
         int t[] = new int[2];
+        int n1 = 0;
+        int n2 = 0;
+        
+            if (tipe == 1) {
+                int total = inicio_partida.tablero[o.getCoordx_()][o.getCoordy_()].getPlaneta().getNaves();
+                System.out.println(total + "<<>> " + cant + " " + o.getPlaneta().getNombre());
+                inicio_partida.tablero[o.getCoordx_()][o.getCoordy_()].getPlaneta().setNaves(total - cant);
+               // getships=total-cant;
+              //  this.o.getPlaneta().setNaves(total-cant);
+            }
+
+            double daño2 = d.getPlaneta().getMuertes();
+            double daño1 = o.getPlaneta().getMuertes();
+            n2 = d.getPlaneta().getNaves();
+            n1 = cant;
+            vivos = n2;
+            int x = (int) (n1 * daño2);
+            int y = (int) (n2 * daño1);
+            if (n1 + 10 > n2) {
+                n2 -= 1;
+            }
+            if (n2 + 10 > n1) {
+                n1 -= 1;
+            }
+
+            n1 = n1 - x - 1;
+            n2 = n2 - y - 1;
+
+            if (n1 < 0) {
+                n1 = 0;
+            }
+            if (n2 < 0) {
+                n2 = 0;
+            }
+
+      
+           
         t[0] = n1;
         t[1] = n2;
         return t;

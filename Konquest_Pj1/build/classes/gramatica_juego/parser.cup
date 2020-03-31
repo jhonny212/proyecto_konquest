@@ -54,7 +54,9 @@ OPP21,OPP31,OPP41,OPP51,
 OPPNAUX1,OPPNAUX2,OPPNAUX3,OPPNAUX4,OPPNAUX5,OPPNAUX6,OPPNAUX7,OPPNAUX8,OPPNAUX9,OPPNAUX10,OPPNAUX11,OPPNAUX12,OPPNAUX13,
 PLAYERS1,PLAYERS2,PLAYERS3,PLAYERS4,PLAYERS5,PLAYERS6,PLAYERS7,PLAYERS8,PLAYERS9,PLAYERSAUX1,PLAYERSAUX2,PLAYERSAUX3
 ,JSON,JSON1,JSON2,JSON3,JSON4,JSON5,JSON6,JSON7,JSONDATOS,SHOWNAVES, SHOWESTADISTICAS, SHOWPRODUCCION 
-,ERRORES;
+,ERRORES,COMILLA1,COMILLA2;
+
+
 
 start with INICIO;
 INICIO  ::=  abreParentesis OPTIONS 
@@ -65,6 +67,9 @@ listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
 :}
 |error OPTIONS
 ;
+
+COMILLA1 ::= abreComilla:e {:RESULT=e;:} | Comilla:e {:RESULT=e;:};
+COMILLA2 ::= cierraComilla:e {:RESULT=e;:} | Comilla:e {:RESULT=e;:};
 
 
 /*
@@ -308,44 +313,185 @@ OPTIONS16 ::= PLANETAS  coma MAPA
   
 
 
-OPM1  ::= JSONDATOS coma JSON1:e 
+OPM1  ::= JSONDATOS:e coma JSON1:e2 
 {:
-System.out.println(xx);
-:}| cierraParentesis:e {:s:} ; 
+
+int x=Integer.parseInt(e2+e);
+if(x!=9){
+String msj="Error de sintaxis atributos de MAPA existen atributos por definir aun";
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
+:}
+| cierraParentesis:e2 
+{:
+String msj="Error de sintaxis atributos de MAPA no hay atributos definidos";
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+
+:} ; 
 
 JSON1 ::=      JSONDATOS:e  JSON2:e2    
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
 RESULT=(xx+yy);
+
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
+
 :}
 | cierraParentesis {:RESULT=0;:}; 
 JSON2 ::= coma JSONDATOS:e  JSON3:e2    
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
 RESULT=(xx+yy);
+
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
+
 :}
 | cierraParentesis {:RESULT=0;:}; 
 JSON3 ::= coma JSONDATOS:e  JSON4:e2    
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
 RESULT=(xx+yy);
+
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
 :}
 | cierraParentesis {:RESULT=0;:}; 
 JSON4 ::= coma JSONDATOS:e  JSON5:e2    
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
 RESULT=(xx+yy);
+
+
+
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
+
 :}
 | cierraParentesis {:RESULT=0;:}; 
 JSON5 ::= coma JSONDATOS:e  JSON6:e2    
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
 RESULT=(xx+yy);
+
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
 :}
 | cierraParentesis {:RESULT=0;:}; 
 JSON6 ::= coma JSONDATOS:e  JSON7:e2  
 {:
 int xx=Integer.parseInt(String.valueOf(e)); int yy=Integer.parseInt(String.valueOf(e2));
+if(xx==yy){
+String msj="Error de sintaxis atributos repetidos entre";
+switch(xx){
+case 1:
+msj+="NOMBRE DE MAPA";
+break;
+case 2:
+msj+="DIMENSIONES DE MAPA";
+break;
+case 3:
+msj+="PLANETAS NEUTRALES";
+break;
+case 4:
+msj+="DECLARACION DE PLANETAS NEUTRALES";
+break;
+
+}
+
+listaErrores.add(new ErrorSintatico((String)e2,e2left,e2right,msj,true));
+}
 RESULT=(xx+yy);
 :}
 | cierraParentesis {:RESULT=0;:}; 
@@ -534,28 +680,28 @@ listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 ;
 
 
-NOMBRE_MAPA ::=name_mapa:e1  dosPuntos  abreComilla  id:e cierraComilla  {:parser.nombre_mapa=(String)e;:} 
-|error name_mapa:e1  dosPuntos  abreComilla  id:e cierraComilla  
+NOMBRE_MAPA ::=name_mapa:e1  dosPuntos  COMILLA1  id:e COMILLA2  {:parser.nombre_mapa=(String)e;:} 
+|error name_mapa:e1  dosPuntos  COMILLA1  id:e cierraComilla  
 {:parser.nombre_mapa=(String)e;
 String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \"id:"+e+"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 :}
-|error dosPuntos:e1  abreComilla  id:e cierraComilla  
+|error dosPuntos:e1  COMILLA1  id:e COMILLA2  
 {:parser.nombre_mapa=(String)e;
 String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \":"+e+"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 :}
-|error abreComilla:e1  id:e cierraComilla  
+|error COMILLA1:e1  id:e COMILLA2  
 {:parser.nombre_mapa=(String)e;
 String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de \""+e+"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 :}
-|error id:e cierraComilla  
+|error id:e COMILLA2  
 {:parser.nombre_mapa=(String)e;
 String msj="Error de sintaxis en la declaracion del \n nombre del mapa , antes de cierre de comilla ";
 listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
 :}
-|error cierraComilla:e  
+|error COMILLA2:e  
 {:
 parser.nombre_mapa="MAPA";
 String msj="Error de sintaxis en la declaracion del \n nombre del mapa en la linea de declaracion";
@@ -702,9 +848,9 @@ OPP0 ::= OPP1  cierraParentesis  OPP01 ;
 OPP01::=  cierraCor | coma  abreParentesis OPP0;
 
 
-OPP2 ::=  name  dosPuntos  abreComilla  id:e  cierraComilla 
+OPP2 ::=  name  dosPuntos  COMILLA1  id:e  COMILLA2 
 {:parser.neutralesNombre_=(String)e;:}
-|error name:e1  dosPuntos  abreComilla  id:e  cierraComilla 
+|error name:e1  dosPuntos  COMILLA1  id:e  COMILLA2 
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
 msj+= " antes de \" nombre:\""+e+"\"\"";
@@ -712,7 +858,7 @@ listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 parser.neutralesNombre_=(String)e;:}
 
 
-|error abreComilla:e1  id:e  cierraComilla 
+|error COMILLA1:e1  id:e  COMILLA2 
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
 msj+= " antes de \" \""+e+"\"\"";
@@ -720,7 +866,7 @@ listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 parser.neutralesNombre_=(String)e;:}
 
 
-|error id:e  cierraComilla 
+|error id:e  COMILLA2 
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta\n";
 msj+= " antes de \" "+e+"\"\"";
@@ -728,7 +874,7 @@ listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
 parser.neutralesNombre_=(String)e;:}
 
 
-|error cierraComilla:e1 {:
+|error COMILLA2:e1 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta \n no se agrego correctamente \n";
 msj+= " antes  de comilla";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
@@ -824,21 +970,21 @@ OPPAUX4 ::= OPP2  coma OPPAUX7
 OPPN0::= OPPN1 OPPN01;
 OPPN01::=   cierraCor |  coma  abreParentesis  OPPN0;
 
-OPP21 ::= name  dosPuntos  abreComilla  id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
-|error name:e1  dosPuntos  abreComilla  id:e 
+OPP21 ::= name  dosPuntos  COMILLA1  id:e {:parser.neutralesNombre_=(String)e;:}  COMILLA2
+|error name:e1  dosPuntos  COMILLA1  id:e 
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
 msj+= " antes  de la declaracion de la \" nombre: \" "+e+" \" \"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
-parser.neutralesNombre_=(String)e;:}  cierraComilla
+parser.neutralesNombre_=(String)e;:}  COMILLA2
 
-|error abreComilla:e1  id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
+|error COMILLA1:e1  id:e {:parser.neutralesNombre_=(String)e;:}  COMILLA2
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
 msj+= " antes  de la declaracion del id \" \" "+e+" \" \"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 :}
-|error id:e {:parser.neutralesNombre_=(String)e;:}  cierraComilla
+|error id:e {:parser.neutralesNombre_=(String)e;:}  COMILLA2
 {:
 String msj="Error de sintaxis en declaracion  de nombre de un planeta neutral \n";
 msj+= " antes  de la declaracion del id,error en las comillas \"  "+e+"  \"";
@@ -1108,15 +1254,15 @@ PLAYERSAUX3::= PLAYERS4  coma  PLAYERS3
 
 
 //--------------------------------------------->
-PLAYERS3::= name:e1  dosPuntos  abreComilla  id:e  cierraComilla
+PLAYERS3::= name:e1  dosPuntos  COMILLA1  id:e  COMILLA2
 {:  parser.nombre_player=(String )e; :}
-|error name:e1  dosPuntos  abreComilla  id:e  cierraComilla
+|error name:e1  dosPuntos  COMILLA1  id:e  COMILLA2
 {:parser.nombre_player=(String )e;
 String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
 msj+= " antes de \""+e1+":\""+e+"\"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
  :}
-|error   dosPuntos:e1  abreComilla  id:e  cierraComilla
+|error   dosPuntos:e1  COMILLA1  id:e  COMILLA2
 {:parser.nombre_player=(String )e;
 String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
 msj+= " antes de \""+e1+" \" "+e+" \"\"";
@@ -1125,20 +1271,20 @@ listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 
 
 
-|error     abreComilla:e1  id:e  cierraComilla
+|error     COMILLA1:e1  id:e  COMILLA2
 {:parser.nombre_player=(String )e;
 String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
 msj+= " antes de \""+e1+""+e+"\"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
  :}
 
-|error       id:e1  cierraComilla
+|error       id:e1  COMILLA2
 {:parser.nombre_player=(String )e1;
 String msj="Error de sintaxis en declaracion  nombre de jugadores \n";
 msj+= " antes de \""+e1+"\"";
 listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
  :}
-| error cierraComilla
+| error COMILLA2
 ;
 
 //------------------------------->
@@ -1166,13 +1312,26 @@ listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
 
 
 //------------------------------------------>aqui jugadores
-PLAYERS5::= abreComilla  id:e  cierraComilla  PLAYERS6
+PLAYERS5::= COMILLA1  id:e  COMILLA2  PLAYERS6
 {:parser.array_planetas.add(new planeta_jugador((String)e));:}
-|error abreComilla  id:e  cierraComilla  PLAYERS6
-{:parser.array_planetas.add(new planeta_jugador((String)e));:}
-|error   id:e  cierraComilla  PLAYERS6
-{:parser.array_planetas.add(new planeta_jugador((String)e));:}
-|error  cierraComilla  PLAYERS6
+|error COMILLA1:e1  id:e  COMILLA2  PLAYERS6
+{:parser.array_planetas.add(new planeta_jugador((String)e));
+String msj="Error de sintaxis en declaracion  del jugador \n";
+msj+=e;
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+
+:}
+|error   id:e  COMILLA2  PLAYERS6
+{:parser.array_planetas.add(new planeta_jugador((String)e));
+String msj="Error de sintaxis en declaracion  del jugador \n";
+msj+=e;
+listaErrores.add(new ErrorSintatico((String)e,eleft,eright,msj,true));
+:}
+|error  COMILLA2:e1  PLAYERS6
+{:
+String msj="Error de sintaxis en declaracion  de un jugador";
+listaErrores.add(new ErrorSintatico((String)e1,e1left,e1right,msj,true));
+:}
 |error  PLAYERS6
 ;
 

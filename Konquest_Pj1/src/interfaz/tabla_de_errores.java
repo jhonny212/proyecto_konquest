@@ -95,6 +95,26 @@ public class tabla_de_errores extends javax.swing.JFrame {
 
     }
 
+    public void setDatasErrors(ArrayList<ErrorSintatico> listaErrores){
+     DefaultTableModel model = new DefaultTableModel();
+     String[] columnas={"Token:","Fila","Columna"};
+        for (int i = 0; i < columnas.length; i++) {
+            String columna = columnas[i];
+            model.addColumn(columna);
+      }
+        this.tabla_errores.setModel(model);
+
+        for (int i = 0; i < listaErrores.size(); i++) {
+            String fila = String.valueOf(listaErrores.get(i).getFil());
+            String columna = String.valueOf(listaErrores.get(i).getCol());
+            String token = listaErrores.get(i).getToken();
+            String datas[] = {token,  fila, columna};
+            model.addRow(datas);
+        }
+        scroll_tabla.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Errores sintaticos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(162, 146, 146)));
+        this.tabla_errores.setModel(model);
+        this.tabla_errores.setRowHeight(15);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

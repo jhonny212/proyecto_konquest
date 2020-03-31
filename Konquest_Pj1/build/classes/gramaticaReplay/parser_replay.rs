@@ -1,2 +1,0 @@
-gramaticaReplay.parser_replay
-gramaticaReplay.CUP$parser_replay$actions

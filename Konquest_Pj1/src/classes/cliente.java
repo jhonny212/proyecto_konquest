@@ -26,6 +26,7 @@ public class cliente extends Thread {
 
     private final String ip;
     private final int numJugador;
+    nuevo_juego nuevo_cargado;
 
     public cliente(String ip, int numJugador) {
         this.ip = ip;
@@ -42,9 +43,10 @@ public class cliente extends Thread {
 
     @Override
     public void run() {
+        boolean run=true;
         try {
             ServerSocket cliente = new ServerSocket(9090);
-            while (true) {
+            while (run) {
                 Socket socket = cliente.accept();
                 DataInputStream flujo = new DataInputStream(socket.getInputStream());
                 String msj = flujo.readUTF();
@@ -52,10 +54,17 @@ public class cliente extends Thread {
                     case 1:
                         if (msj.equals("esperando...")) {
                             guardar save = new guardar(nuevo_juego.juego, nuevo_juego.tablero);
+                            try{
                             String msjEnvio = save.config();
                             msjEnvio += " ENDLESS " + save.planetas();
                             inicio_partida.estadoDeVs = 2;
                             enviarMensaje(msjEnvio);
+                            }catch(NullPointerException e){
+                            inicio_partida.estadoDeVs = 1;
+                            inicio_partida.cliente.stop();
+                            run=false;
+                            }
+                            
                         } else {
                             String array[] = msj.split("ENDLESS");
                             LeerArchivoJuego p = new LeerArchivoJuego();
@@ -64,7 +73,7 @@ public class cliente extends Thread {
                             LeerArchivoSave sav = new LeerArchivoSave();
                             guardar save = sav.getSave(array[1]);
                             archivoVs vs = new archivoVs(null);
-                            nuevo_juego nuevo_cargado = new nuevo_juego();
+                            nuevo_cargado = new nuevo_juego();
                             nuevo_cargado.iniciarJuego(game);
 
                             for (int i = 0; i < game.getArray_neutrales().size(); i++) {
@@ -158,24 +167,24 @@ public class cliente extends Thread {
                             inicio_partida.more_options.enable();
                             inicio_partida.count_player = 0;
                             inicio_partida.estadoDeVs = 3;
-                            inicio_partida.msj_jugador.setText("Jugador " + nuevo_juego.juego.getArray_jugadores().get(0).getJugador() + ": seleccione el planeta origen");
-                            int a = nuevo_juego.DISPOSE_ON_CLOSE;
+                            inicio_partida.iniciarContadorPlayer();
+                            this.nuevo_cargado.dispose();
                         }
 
                         break;
                     case 3:
                         Konquest_Pj1 p = new Konquest_Pj1();
                         Turno turno = p.leer4(msj);
-                        turno.config();
-                        inicio_partida.end_turno.setVisible(true);
-                        turno.setJugador(jugador(turno.getJugador_()));
+                        
+                        turno.config(); 
                         inicio_partida.turnos.add(turno);
                         inicio_partida.count_player = inicio_partida.cliente.numJugador;
+                        inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
                         if (inicio_partida.count_player == 0) {
                             inicio_partida.ejecutarTurnos();
+                            System.out.println("entro aca");
                             inicio_partida.cant_envios.disable();
                         }
-                        inicio_partida.msj_jugador.setText("Jugador " + inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador());
                         inicio_partida.validarMov = true;
                         break;
                     default:

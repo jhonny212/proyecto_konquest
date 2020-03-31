@@ -7,6 +7,7 @@ package interfaz;
 
 import classes.Ataque;
 import classes.CuadroTexto;
+import classes.FixDataReplay;
 import classes.MouseControl;
 import classes.Replay;
 import classes.Turno;
@@ -15,12 +16,14 @@ import classes.archivoVs;
 import classes.cliente;
 import classes.distancia;
 import classes.guardar;
+import classes.partida;
 import classes.servidor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -28,7 +31,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
+import jugadores.humano;
 import jugadores.jugador;
 import konquest_pj1.Konquest_Pj1;
 import mapa.juego;
@@ -52,6 +57,7 @@ public class inicio_partida extends javax.swing.JFrame {
     public static boolean isVs;
     public static cliente cliente;
     private servidor server;
+    public static File archivoSave;
 
     public static void ejecutarTurnos() {
         int x = contadorDeTurnos + 1;
@@ -110,61 +116,70 @@ public class inicio_partida extends javax.swing.JFrame {
         mensajes_txt = new CuadroTexto();
         mensajes_txt.setSize(new Dimension(1280, 550));
         mensajes_txt.setBackground(Color.BLACK);
-        jScrollPane1.setViewportView(mensajes_txt);
         contenido_mapa.setSize(new Dimension((int) contenido_mapa.getSize().getWidth(), 500));
         jScrollPane1.setSize(new Dimension(0, 0));
         showmensajes = false;
-        iniciarTablero();
+        //  iniciarTablero();
 
     }
     static int count2 = 0;
 
     public static void iniciarContadorPlayer() {
-        try {
+        partida pr = new partida(game, tablero);
+        boolean v = pr.terminarJuego(contadorDeTurnos);
+        if (!v) {
+            try {
+                jugador jugador = game.getArray_jugadores().get(count_player);
+                String nameClass = jugador.getClass().getSimpleName();
+                if (!nameClass.equals("humano")) {
+                    Turno trn = game.getArray_jugadores().get(count_player).getTurno(tablero, filas, columnas, contadorDeTurnos, jugador);
+                    turnos.add(trn);
+                    count_player++;
+                }
+                msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
+            } catch (IndexOutOfBoundsException e) {
+                ejecutarTurnos();
+                count_player = 0;
+            }
+            msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
+            cant_envios.disable();
+            if (isVs && count2 > 0) {
+                cliente.enviarMensaje(mensajeServidor);
+                mensajeServidor = "";
+                validarMov = false;
+            } else {
+                try {
+                    if (contadorDeTurnos == 0 && cliente.getNumJugador() != 0) {
+                        validarMov = false;
+                    } else {
+                        validarMov = true;
+                    }
+                } catch (NullPointerException e) {
+                    validarMov = true;
+                }
+
+            }
+            try {
+                if (count_player != cliente.getNumJugador()) {
+                    end_turno.setVisible(false);
+                }
+            } catch (NullPointerException e) {
+
+            }
             jugador jugador = game.getArray_jugadores().get(count_player);
             String nameClass = jugador.getClass().getSimpleName();
             if (!nameClass.equals("humano")) {
-                Turno trn = game.getArray_jugadores().get(count_player).getTurno(tablero, filas, columnas, contadorDeTurnos, jugador);
-                turnos.add(trn);
-                count_player++;
+                iniciarContadorPlayer();
             }
-            msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
-        } catch (IndexOutOfBoundsException e) {
-            ejecutarTurnos();
-            count_player = 0;
-        }
-        msj_jugador.setText("Jugador " + game.getArray_jugadores().get(count_player).getJugador() + ": seleccione el planeta origen");
-        cant_envios.disable();
-        if (isVs && count2 > 0) {
-            cliente.enviarMensaje(mensajeServidor);
-            mensajeServidor = "";
-            validarMov = false;
+
+            count2++;
         } else {
-            try {
-                if (contadorDeTurnos == 0 && cliente.getNumJugador() != 0) {
-                    validarMov = false;
-                } else {
-                    validarMov = true;
-                }
-            } catch (NullPointerException e) {
-                validarMov = true;
-            }
-
-        }
-        try {
-            if (count_player != cliente.getNumJugador()) {
-                end_turno.setVisible(false);
-            }
-        } catch (NullPointerException e) {
-
-        }
-        jugador jugador = game.getArray_jugadores().get(count_player);
-        String nameClass = jugador.getClass().getSimpleName();
-        if (!nameClass.equals("humano")) {
-            iniciarContadorPlayer();
+            JOptionPane.showMessageDialog(open, "Partida finalizada el Ganador es " + pr.getJugador());
+            panel_tablero.disable();
+            cant_envios.disable();
+            end_turno.setVisible(false);
         }
 
-        count2++;
     }
 
     public static void ininiar_O_D(galaxia o, galaxia d) {
@@ -290,6 +305,11 @@ public class inicio_partida extends javax.swing.JFrame {
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 terminar_partidaMouseEntered(evt);
+            }
+        });
+        terminar_partida.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                terminar_partidaActionPerformed(evt);
             }
         });
         more_options.add(terminar_partida, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 190, 40));
@@ -537,12 +557,13 @@ public class inicio_partida extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desean jugar en la misma maquina?", "Message", 1);
+        JOptionPane.showMessageDialog(open, "Seleccione una archivo JSON");
         archivoEntrada archivo = new archivoEntrada();
-        switch (seleccion) {
-
-            case 0:
-                game = Konquest_Pj1.probar1(archivo.generateFile());
+        try {
+            File file = archivo.generateFile();
+            if (file.canRead()) {
+                archivoSave = file;
+                game = Konquest_Pj1.probar1(file);
                 if (!game.getListaDeErroresSintaticos().isEmpty()) {
                     tabla_de_errores tableErrors = new tabla_de_errores();
                     tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
@@ -564,9 +585,20 @@ public class inicio_partida extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, game.getMsj());
                 }
+            }
+
+        } catch (NullPointerException e) {
+        }
+
+
+        /*
+        switch (seleccion) {
+           case 0:
+               
+           
                 break;
             case 1:
-                int seleccion2 = JOptionPane.showConfirmDialog(this, "¿Desdea ser el jugador 1?", "Message", 1);
+                /*     int seleccion2 = JOptionPane.showConfirmDialog(this, "¿Desdea ser el jugador 1?", "Message", 1);
                 int num = 0;
                 switch (seleccion2) {
                     case 0:
@@ -607,11 +639,12 @@ public class inicio_partida extends javax.swing.JFrame {
                     }
 
                 }
-
+               
                 break;
             case 2:
                 break;
-        }
+              
+        }*/
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void showActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showActionPerformed
@@ -777,35 +810,108 @@ public class inicio_partida extends javax.swing.JFrame {
         Konquest_Pj1 p = new Konquest_Pj1();
         archivoEntrada archivo = new archivoEntrada();
         JOptionPane.showMessageDialog(this, "Seleccione un archivo de configuracion");
-        game = p.probar1(archivo.generateFile());
-        JOptionPane.showMessageDialog(this, "Seleccione un archivo de de guardado");
-        guardar save = p.leer2(archivo.generateFile());
-        JOptionPane.showMessageDialog(this, "Seleccione un de replay");
-        p.leer3(archivo.generateFile(), "", false);
-        ArrayList<Turno> turn = p.listTurnos;
-        int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea hacer un replay del juego?");
-        replay = new Replay();;
-        if (seleccion == 0) {
-            replay(turn, save, true);
-            cargarTablero(save, true);
-            iniciarTablero();
-            inicio_partida.options.setVisible(true);
-            inicio_partida.more_options.enable();
-            replay.time = 3;
-            replay.start();
-        } else if (seleccion == 1) {
-            replay(turn, save, true);
-            cargarTablero(save, true);
-            iniciarTablero();
-            inicio_partida.options.setVisible(true);
-            inicio_partida.more_options.enable();
-            replay.time = 0;
-            replay.start();
-        }
+        File f1 = archivo.generateFile();
+        try {
+            if (f1.canRead()) {
+                game = p.probar1(f1);
+                JOptionPane.showMessageDialog(this, "Seleccione un archivo de de guardado");
+                if (!game.getListaDeErroresSintaticos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
+                    tableErrors.show();
+                }
+                if (!game.getListaDeErroresLexicos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorLexico(game.getListaDeErroresLexicos());
+                    tableErrors.show();
+                }
+                File f2 = archivo.generateFile();
+                if (f2.canRead()) {
+                    guardar save = p.leer2(f2);
 
+                    JOptionPane.showMessageDialog(this, "Seleccione un de replay");
+                    p.leer3(archivo.generateFile(), "", false);
+                    ArrayList<Turno> turn = p.listTurnos;
+
+                    if (!p.erroresSin.isEmpty()) {
+                        tabla_de_errores tableErrors = new tabla_de_errores();
+                        tableErrors.setTitle("Error sintatico en gramatica de REPLAY");
+                        tableErrors.setDatasErrors(p.erroresSin);
+                        tableErrors.show();
+                    }
+                    if (!p.erroresLex.isEmpty()) {
+                        tabla_de_errores tableErrors = new tabla_de_errores();
+                        tableErrors.setTitle("Error lexico en gramatica de REPLAY");
+                        tableErrors.errorLexico(p.erroresLex);
+                        tableErrors.show();
+                    }
+
+                    if (!save.getErroresSintatico().isEmpty()) {
+                        tabla_de_errores tableErrors = new tabla_de_errores();
+                        tableErrors.setTitle("Error sintatico en gramatica de GUARDAR");
+
+                        tableErrors.setDatasErrors(save.getErroresSintatico());
+                        tableErrors.show();
+                    }
+                    if (!save.getErroresLexico().isEmpty()) {
+                        tabla_de_errores tableErrors = new tabla_de_errores();
+                        tableErrors.setTitle("Error lexico en gramatica de GUARDAR");
+
+                        tableErrors.errorLexico(save.getErroresLexico());
+                        tableErrors.show();
+                    }
+                    int seleccion = JOptionPane.showConfirmDialog(this, "¿Desea hacer un replay del juego?");
+                    replay = new Replay();
+                    FixDataReplay f = new FixDataReplay();
+                    if (seleccion == 0) {
+                        replay(turn, save, true);
+                        f.cargarTablero2(save, true);
+                        iniciarTablero();
+                        inicio_partida.options.setVisible(true);
+                        inicio_partida.more_options.enable();
+                        replay.time = 2;
+                        replay.start();
+                    } else if (seleccion == 1) {
+                        replay(turn, save, true);
+                        f.cargarTablero2(save, true);
+                        iniciarTablero();
+                        inicio_partida.options.setVisible(true);
+                        inicio_partida.more_options.enable();
+                        replay.time = 0;
+                        replay.start();
+                    }
+                } else {
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
 
     }//GEN-LAST:event_openActionPerformed
 
+    private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
+        archivoVs vs = new archivoVs(turn);
+        for (int i = 0; i < turn.size(); i++) {
+            vs.ArreglarJugadores(i);
+
+            for (int j = 0; j < turn.get(i).getAtaques().size(); j++) {
+                if (v) {
+                    turn.get(i).getAtaques().get(j).setVerificar(false);
+
+                }
+                for (int k = 0; k < game.getArray_neutrales().size(); k++) {
+                    vs.ArreglarNeutrales(save, k);
+                    vs.arreglarDatosDeTurnos(i, k, j);
+                }
+
+                for (int k = 0; k < game.getPlanetas().size(); k++) {
+                    vs.arreglarPlanetas(i, j, k);
+                }
+            }
+
+        }
+        turnos = turn;
+    }
     private void mostrar_posicionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_posicionesActionPerformed
         // TODO add your handling code here:
 
@@ -813,6 +919,7 @@ public class inicio_partida extends javax.swing.JFrame {
     }//GEN-LAST:event_mostrar_posicionesActionPerformed
 
     private void barra_mensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_barra_mensajesActionPerformed
+        jScrollPane1.setViewportView(mensajes_txt);
 
         if (showmensajes) {
             jPanel1.setSize(new Dimension(1290, 660));
@@ -850,34 +957,60 @@ public class inicio_partida extends javax.swing.JFrame {
         tablero = null;
         server = new servidor();
         server.start();
-       // String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
-    
-            cliente = new cliente("192.168.1.9", 0);
-            cliente.start();
-            archivoEntrada archivo = new archivoEntrada();
-            game = Konquest_Pj1.probar1(archivo.generateFile());
-            if (!game.getListaDeErroresSintaticos().isEmpty()) {
-                tabla_de_errores tableErrors = new tabla_de_errores();
-                tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
-                tableErrors.show();
-            }
-            if (!game.getListaDeErroresLexicos().isEmpty()) {
-                tabla_de_errores tableErrors = new tabla_de_errores();
-                tableErrors.errorLexico(game.getListaDeErroresLexicos());
-                tableErrors.show();
-            }
-            game.voidValidarTodos();
-            isVs = true;
-            if (game.isValidarJuego()) {
-                nuevo_juego nuevo_cargado = new nuevo_juego();
-                nuevo_cargado.show();
-                mensajes_txt.setText("");
-                nuevo_cargado.iniciarJuego(game);
-                nuevo_cargado.setSize();
+        String numeroJugador = JOptionPane.showInputDialog(this, "Ingrese la ip del computador", 0);
+
+        cliente = new cliente(numeroJugador, 0);
+        cliente.start();
+        archivoEntrada archivo = new archivoEntrada();
+        File f1 = archivo.generateFile();
+        try {
+            if (f1.canRead()) {
+                game = Konquest_Pj1.probar1(f1);
+                if (!game.getListaDeErroresSintaticos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorSintatico_juego(game.getListaDeErroresSintaticos());
+                    tableErrors.show();
+                }
+                if (!game.getListaDeErroresLexicos().isEmpty()) {
+                    tabla_de_errores tableErrors = new tabla_de_errores();
+                    tableErrors.errorLexico(game.getListaDeErroresLexicos());
+                    tableErrors.show();
+                }
+                game.voidValidarTodos();
+                isVs = true;
+                if (game.getArray_jugadores().size() == 2) {
+
+                    if (game.getArray_jugadores().get(0).getClass().equals(humano.class)
+                            && game.getArray_jugadores().get(1).getClass().equals(humano.class)) {
+
+                        if (game.isValidarJuego()) {
+                            nuevo_juego nuevo_cargado = new nuevo_juego();
+                            nuevo_cargado.show();
+                            mensajes_txt.setText("");
+                            nuevo_cargado.iniciarJuego(game);
+                            nuevo_cargado.setSize();
+                        } else {
+                            JOptionPane.showMessageDialog(this, game.getMsj());
+                        }
+
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Los dos jugadores tienen que ser humanos");
+
+                        cliente.stop();
+
+                    }
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Solo pueden haber dos jugadores");
+
+                    cliente.stop();
+                }
+
             } else {
-                JOptionPane.showMessageDialog(this, game.getMsj());
+                cliente.stop();
             }
-       
+        } catch (NullPointerException e) {
+        }
 
         /* JOptionPane.showMessageDialog(this,"Usted sera el jugador 1");
         estadoDeVs=1;
@@ -911,7 +1044,7 @@ public class inicio_partida extends javax.swing.JFrame {
             } catch (NumberFormatException e) {
             }
          */
-                 
+
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void cant_enviosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cant_enviosActionPerformed
@@ -972,29 +1105,22 @@ public class inicio_partida extends javax.swing.JFrame {
         } catch (NumberFormatException e) {
         }
     }//GEN-LAST:event_jMenuItem3ActionPerformed
-    private void replay(ArrayList<Turno> turn, guardar save, boolean v) {
-        archivoVs vs = new archivoVs(turn);
-        for (int i = 0; i < turn.size(); i++) {
-            vs.ArreglarJugadores(i);
-            for (int j = 0; j < turn.get(i).getAtaques().size(); j++) {
-                if (v) {
-                    turn.get(i).getAtaques().get(j).setVerificar(false);
-                }
-                for (int k = 0; k < game.getArray_neutrales().size(); k++) {
-                    vs.ArreglarNeutrales(save, k);
-                    vs.arreglarDatosDeTurnos(i, k, j);
-                }
 
-                for (int k = 0; k < game.getPlanetas().size(); k++) {
-                    vs.arreglarPlanetas(i, j, k);
-                }
-            }
+    private void terminar_partidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_terminar_partidaActionPerformed
+        // TODO add your handling code here:
 
-        }
-        turnos = turn;
-    }
+        end_turno.setVisible(false);
+        cant_envios.setVisible(false);
+        panel_tablero.removeAll();
+        panel_tablero.repaint();
+        contenido_mapa.repaint();
+        contenido_mapa.validate();
+        contenido_mapa.revalidate();
 
-    private void cargarTablero(guardar save, boolean par) {
+    }//GEN-LAST:event_terminar_partidaActionPerformed
+
+    
+    public static void cargarTablero(guardar save, boolean par) {
         filas = (int) game.getMapa().getTamaño().getWidth();
         columnas = (int) game.getMapa().getTamaño().getHeight();
         tablero = new galaxia[filas][columnas];
@@ -1007,8 +1133,9 @@ public class inicio_partida extends javax.swing.JFrame {
         }
 
         for (int i = 0; i < game.getArray_neutrales().size(); i++) {
-            if (!par) {
-                for (int j = 0; j < save.getNeutrales().size(); j++) {
+
+            for (int j = 0; j < save.getNeutrales().size(); j++) {
+                try {
                     if (save.getNeutrales().get(j).getNombre().equals(game.getArray_neutrales().get(i).getNombre())) {
                         String dueño = save.getNeutrales().get(j).getDueño();
                         int naves = save.getNeutrales().get(j).getNaves();
@@ -1020,52 +1147,65 @@ public class inicio_partida extends javax.swing.JFrame {
                         if (!dueño.equals("none")) {
                             game.getArray_neutrales().get(i).setDueño(dueño);
                         }
-                        game.getArray_neutrales().get(i).setColor(c);
-                        game.getArray_neutrales().get(i).setNaves(naves);
-                        game.getArray_neutrales().get(i).setProduccion(produc);
+                        if (!par) {
+                            game.getArray_neutrales().get(i).setNaves(naves);
+                            game.getArray_neutrales().get(i).setProduccion(produc);
+                        }
                         game.getArray_neutrales().get(i).setX_(x);
                         game.getArray_neutrales().get(i).setY_(y);
-                        break;
+                        game.getArray_neutrales().get(i).setColor(c);
                     }
-
+                } catch (Exception e) {
                 }
+                break;
             }
 
-            tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].inicializarPlanetaNeutral(game.getArray_neutrales().get(i));
-            tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].setBackground(tablero[game.getArray_neutrales().get(i).getX_()][game.getArray_neutrales().get(i).getY_()].getColor());
+            int x = game.getArray_neutrales().get(i).getX_();
+            int y = game.getArray_neutrales().get(i).getY_();
+
+            tablero[x][y].inicializarPlanetaNeutral(game.getArray_neutrales().get(i));
+            tablero[x][y].setBackground(tablero[x][y].getColor());
 
         }
-        for (int i = 0; i < game.getPlanetas().size(); i++) {
+        for (int i = 0;
+                i < game.getPlanetas()
+                        .size(); i++) {
 
             for (int j = 0; j < save.getPlanetas().size(); j++) {
-                if (save.getPlanetas().get(j).getNombre().equals(game.getPlanetas().get(i).getNombre())) {
-                    String dueño = save.getPlanetas().get(j).getDueño();
-                    int naves = save.getPlanetas().get(j).getNaves();
-                    int produc = save.getPlanetas().get(j).getProduccion();
-                    int x = save.getPlanetas().get(j).getX_();
-                    int y = save.getPlanetas().get(j).getY_();
-                    Color c = save.getPlanetas().get(j).getColorPlaneta();
-                    game.getPlanetas().get(i).setDueño(dueño);
-                    if (!par) {
-                        game.getPlanetas().get(i).setColor(c);
-                        game.getPlanetas().get(i).setNaves(naves);
-                        game.getPlanetas().get(i).setProduccion(produc);
+                try {
+                    if (save.getPlanetas().get(j).getNombre().equals(game.getPlanetas().get(i).getNombre())) {
+                        String dueño = save.getPlanetas().get(j).getDueño();
+                        int naves = save.getPlanetas().get(j).getNaves();
+                        int produc = save.getPlanetas().get(j).getProduccion();
+                        int x = save.getPlanetas().get(j).getX_();
+                        int y = save.getPlanetas().get(j).getY_();
+                        Color c = save.getPlanetas().get(j).getColorPlaneta();
+                        game.getPlanetas().get(i).setDueño(dueño);
+                        if (!par) {
+                            game.getPlanetas().get(i).setNaves(naves);
+                            game.getPlanetas().get(i).setProduccion(produc);
+
+                        }
                         game.getPlanetas().get(i).setX_(x);
                         game.getPlanetas().get(i).setY_(y);
+                        game.getPlanetas().get(i).setColor(c);
                     }
-
-                    break;
+                } catch (Exception e) {
                 }
-
+                break;
             }
 
-            tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].inicializarPlanetaJugador(game.getPlanetas().get(i));
-            tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].setBackground(tablero[game.getPlanetas().get(i).getX_()][game.getPlanetas().get(i).getY_()].getColor());
+            int x = game.getPlanetas().get(i).getX_();
+            int y = game.getPlanetas().get(i).getY_();
+            tablero[x][y].inicializarPlanetaJugador(game.getPlanetas().get(i));
+            tablero[x][y].setBackground(tablero[x][y].getColor());
         }
     }
 
     public static void reiniciar(int i, int j) {
-        if (tablero[i][j].getPlaneta().getClass().equals(planeta_neutral.class)) {
+        if (tablero[i][j].getPlaneta().getClass().equals(planeta_neutral.class
+        )) {
+
             if (game.getMapa().getNeutral().isMostrarNaves() && game.getMapa().getNeutral().isMostrarEstadisticas()) {
                 tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202);\">\n"
                         + "        <p style=\"color: black;\">\n"
@@ -1081,12 +1221,13 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "        </p>\n"
                         + "    </div></html>");
 
-            } else if (game.getMapa().getNeutral().isMostrarEstadisticas()) {
+            }
+            if (game.getMapa().getNeutral().isMostrarEstadisticas()) {
                 tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202);\">\n"
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
                         + "        <br>\n"
-                        + "        Dueño:" + tablero[i][j].getPlaneta().getNombre() + "\n"
+                        + "        Dueño:" + tablero[i][j].getPlaneta().getDueño() + "\n"
                         + "        <br>\n"
                         + "        Produccion:" + tablero[i][j].getPlaneta().getProduccion() + "\n"
                         + "        <br>\n"
@@ -1094,7 +1235,8 @@ public class inicio_partida extends javax.swing.JFrame {
                         + "        </p>\n"
                         + "    </div></html>");
 
-            } else if (game.getMapa().getNeutral().isMostrarNaves()) {
+            }
+            if (game.getMapa().getNeutral().isMostrarNaves()) {
                 tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202);\">\n"
                         + "        <p style=\"color: black;\">\n"
                         + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
@@ -1106,21 +1248,24 @@ public class inicio_partida extends javax.swing.JFrame {
 
             }
 
-        } else if (tablero[i][j].getPlaneta().getClass().equals(planeta_jugador.class)) {
-            if (game.getMapa().isMapaciego()) {
-                tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202); width:200px\">\n"
-                        + "        <p style=\"color: black;\">\n"
-                        + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
-                        + "        <br>\n"
-                        + "        Dueño:" + tablero[i][j].getPlaneta().getDueño() + "\n"
-                        + "        <br>\n"
-                        + "        Naves:" + tablero[i][j].getPlaneta().getNaves() + "\n"
-                        + "        <br>\n"
-                        + "        Produccion:" + tablero[i][j].getPlaneta().getProduccion() + "\n"
-                        + "        <br>\n"
-                        + "        Muertes(%):" + tablero[i][j].getPlaneta().getMuertes() + "\n"
-                        + "        </p>\n"
-                        + "    </div></html>");
+        } else if (tablero[i][j].getPlaneta().getClass().equals(planeta_jugador.class
+        )) {
+
+            tablero[i][j].setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202); width:200px\">\n"
+                    + "        <p style=\"color: black;\">\n"
+                    + "        Nombre:" + tablero[i][j].getPlaneta().getNombre() + "\n"
+                    + "        <br>\n"
+                    + "        Dueño:" + tablero[i][j].getPlaneta().getDueño() + "\n"
+                    + "        <br>\n"
+                    + "        Naves:" + tablero[i][j].getPlaneta().getNaves() + "\n"
+                    + "        <br>\n"
+                    + "        Produccion:" + tablero[i][j].getPlaneta().getProduccion() + "\n"
+                    + "        <br>\n"
+                    + "        Muertes(%):" + tablero[i][j].getPlaneta().getMuertes() + "\n"
+                    + "        </p>\n"
+                    + "    </div></html>");
+            if (!game.getMapa().isMapaciego()) {
+                ToolTipManager.sharedInstance().setEnabled(false);
             }
         }
     }
@@ -1139,16 +1284,24 @@ public class inicio_partida extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(inicio_partida.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(inicio_partida.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(inicio_partida.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(inicio_partida.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(inicio_partida.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(inicio_partida.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(inicio_partida.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(inicio_partida.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 

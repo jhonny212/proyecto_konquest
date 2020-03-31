@@ -111,7 +111,7 @@ public class archivoVs {
             o.setCoordy_(game.getArray_neutrales().get(k).getY_());
             o.inicializarPlanetaNeutral(game.getArray_neutrales().get(k));
             turn.get(i).getAtaques().get(j).setO(o);
-        } else if (turn.get(i).getAtaques().get(j).getD_().equals(game.getArray_neutrales().get(k).getNombre())) {
+        } if (turn.get(i).getAtaques().get(j).getD_().equals(game.getArray_neutrales().get(k).getNombre())) {
             galaxia d = new galaxia();
             d.setCoordx_(game.getArray_neutrales().get(k).getX_());
             d.setCoordy_(game.getArray_neutrales().get(k).getY_());

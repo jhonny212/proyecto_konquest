@@ -1,0 +1,97 @@
+{	PLANETAS_NEUTRALES: [
+		{
+			nombre:"planeta17",
+			datos:{
+				naves:9,
+				produccion:4,
+				dueño:"none"		
+			},
+			color:{
+				rojo:255,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:2,
+				coord_y:1
+                              }             },		{
+			nombre:"planeta10",
+			datos:{
+				naves:13,
+				produccion:17,
+				dueño:"none"		
+			},
+			color:{
+				rojo:255,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:3,
+				coord_y:2
+                              }             },		{
+			nombre:"planeta7",
+			datos:{
+				naves:12,
+				produccion:18,
+				dueño:"none"		
+			},
+			color:{
+				rojo:255,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:3,
+				coord_y:3
+                              }             }		],
+	PLANETAS: [
+		{
+			nombre:"A",
+			datos:{
+				naves:10,
+				produccion:10,
+				dueño:"Jose"		
+			},
+			color:{
+				rojo:0,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:0,
+				coord_y:3
+                              }             },		{
+			nombre:"C",
+			datos:{
+				naves:15,
+				produccion:12,
+				dueño:"Jose"		
+			},
+			color:{
+				rojo:0,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:1,
+				coord_y:1
+                              }             },		{
+			nombre:"B",
+			datos:{
+				naves:15,
+				produccion:9,
+				dueño:"pc1"		
+			},
+			color:{
+				rojo:0,
+				verde:255,
+				azul:0			
+			},
+			posicion:{
+				coord_x:5,
+				coord_y:1
+                              }             }	],	JUGADOR:[
+		nombre:"Jose",
+	nombre:"pc1"
+	]}

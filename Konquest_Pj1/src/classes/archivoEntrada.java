@@ -26,7 +26,7 @@ public class archivoEntrada {
 //Indicamos lo que podemos seleccionar
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 //Creamos el filtro
-        FileNameExtensionFilter filtro = new FileNameExtensionFilter("*.txt", "txt");
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("*.json", "json");
 //Le indicamos el filtro
         fc.setFileFilter(filtro);
 //Abrimos la ventana, guardamos la opcion seleccionada por el usuario
@@ -39,5 +39,16 @@ public class archivoEntrada {
 // verificar que el archivo no sea nulo y tipo:ide
 
         return file;
+    }
+
+    public String getPath() {
+        JFileChooser seleccion = new JFileChooser();
+        int opcion = seleccion.showOpenDialog(null);
+        String path = "";
+        if (opcion == JFileChooser.APPROVE_OPTION) {
+            path = seleccion.getSelectedFile().getAbsolutePath();
+        }
+        System.out.println(path+"------------_>");
+        return path;
     }
 }

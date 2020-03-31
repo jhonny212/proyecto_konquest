@@ -18,6 +18,11 @@ public class partida {
 
     private String jugador;
     private boolean isEnd;
+
+    public String getJugador() {
+        return jugador;
+    }
+    
     juego juego;
     galaxia tablero[][];
     ArrayList<String> lista = new ArrayList();
@@ -31,9 +36,10 @@ public class partida {
 
     public boolean terminarJuego(int contadorDeTurnos) {
         int finalizacion = juego.getMapa().getFinalizacion();
-
+        System.out.println(finalizacion);
         if (finalizacion != 0) {
-            if (finalizacion == contadorDeTurnos) {
+            if (finalizacion <= contadorDeTurnos) {
+                isEnd=true;
                 terminarJuego2(2);
             }
         } else {
@@ -72,15 +78,22 @@ public class partida {
                 }
             }
         }
-        if (!isEnd) {
+        if(type==1){
+          if (!isEnd) {
+              isEnd=true;
             this.jugador = name1;
         }
+        }else {
+        jugadorGanador();
+        }
+      
     }
 
     public void jugadorGanador() {
         ArrayList<jugador> listaJugadores = juego.getArray_jugadores();
         int cantPlanetas=0;
         int aux=0;
+       
         for (int i = 0; i < listaJugadores.size(); i++) {
             cantPlanetas=0;
             for (int j = 0; j < lista.size(); j++) {
@@ -91,6 +104,7 @@ public class partida {
             if(i!=0){
                 if(aux>cantPlanetas){
                 this.jugador=listaJugadores.get(i).getJugador();
+                aux=cantPlanetas;
                 }
             }else{
             this.jugador=listaJugadores.get(i).getJugador();    

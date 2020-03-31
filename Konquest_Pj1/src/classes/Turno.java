@@ -93,7 +93,7 @@ public class Turno {
                 if (datos[1] == 0) {
                     inicio_partida.tablero[d.getCoordx_()][d.getCoordy_()].getPlaneta().setNaves(0);
                     inicio_partida.tablero[d.getCoordx_()][d.getCoordy_()].getPlaneta().setDueño(jugador.getJugador());
-                    inicio_partida.tablero[d.getCoordx_()][d.getCoordy_()].setBackground(jugador.getColor());
+                    inicio_partida.tablero[d.getCoordx_()][d.getCoordy_()].setBackground(o.getPlaneta().getColorPlaneta());
                     inicio_partida.mensajes_txt.append(Color.white, "El planeta ");
                     inicio_partida.mensajes_txt.append(d.getPlaneta().getColorPlaneta(), d.getPlaneta().getNombre());
                     inicio_partida.mensajes_txt.append(Color.white, " ha caido ante ");

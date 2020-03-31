@@ -15,21 +15,27 @@ import java.util.ArrayList;
  * @author jhonny
  */
 public class LeerArchivoSave {
-    public guardar getSave(String texto){
-    parser_save parser = null;
-        
+    
+    public guardar getSave(String texto) {
+        parser_save parser = null;
+        lexico_save scan = null;
         try {
-            lexico_save scan = new lexico_save(new BufferedReader(new StringReader(texto)));
+            scan = new lexico_save(new BufferedReader(new StringReader(texto)));
             parser.neutrales = new ArrayList();
             parser.planetas = new ArrayList();
             parser.jugadores = new ArrayList();
-
+            parser.errores = new ArrayList();
+            
             parser = new parser_save(scan);
             parser.parse();
-
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         guardar guardar = new guardar(parser.planetas, parser.neutrales, parser.jugadores);
-    return guardar;}
+        guardar.setErroresSintatico(parser.errores);
+        guardar.setErroresLexico(scan.ErrorLexico);
+        
+        return guardar;
+    }
 }

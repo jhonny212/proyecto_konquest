@@ -5,7 +5,8 @@
  */
 package konquest_pj1;
 
-import classes.Replay;
+import classes.ErrorLexico;
+import classes.ErrorSintatico;
 import classes.Turno;
 import classes.guardar;
 import gramaticaReplay.lexico_replay;
@@ -15,8 +16,7 @@ import static gramaticaReplay.parser_replay.turnos_;
 import gramaticaTurnosCliente_Servidor.lexico_cliente_servidor;
 import gramaticaTurnosCliente_Servidor.parser_cliente_servidor;
 import gramatica_guardar.LeerArchivoSave;
-import gramatica_guardar.lexico_save;
-import gramatica_guardar.parser_save;
+
 import gramatica_juego.LeerArchivoJuego;
 import gramatica_juego.lexico_juego;
 import gramatica_juego.parser;
@@ -38,11 +38,15 @@ import planetas_neutral.planeta_neutral;
 public class Konquest_Pj1 {
 
     public static ArrayList<Turno> listTurnos;
+    public static ArrayList<ErrorSintatico> erroresSin;
+    public static ArrayList<ErrorLexico> erroresLex;
 
     public static Turno leer3(File file, String txt, boolean isVs) {
         parser_replay parser = null;
+        lexico_replay scan =null;
         ataques = new ArrayList();
         turnos_ = new ArrayList();
+        parser.errores=new ArrayList();
         try {
             String texto = "";
             if (isVs) {
@@ -50,7 +54,7 @@ public class Konquest_Pj1 {
             } else {
                 texto = leer(file);
             }
-            lexico_replay scan = new lexico_replay(new BufferedReader(new StringReader(texto)));
+            scan= new lexico_replay(new BufferedReader(new StringReader(texto)));
 
             parser = new parser_replay(scan);
 
@@ -66,6 +70,8 @@ public class Konquest_Pj1 {
         } catch (IndexOutOfBoundsException e) {
             trn = new Turno();
         }
+        erroresSin=parser.errores;
+        erroresLex=scan.ErrorLexico;
         return trn;
     }
 
@@ -125,27 +131,27 @@ public class Konquest_Pj1 {
     }
 
     public static void main(String[] args) {
-        inicio_partida start = new inicio_partida();
-        start.show();
-       
-        // generarCompilador();
+      inicio_partida start = new inicio_partida();
+      start.show();
+
+    // generarCompilador();
     }
 
     public static guardar leer2(File file) {
 
         String texto = leer(file);
-        LeerArchivoSave save=new LeerArchivoSave ();
-        guardar guardar=save.getSave(texto);
+        LeerArchivoSave save = new LeerArchivoSave();
+        guardar guardar = save.getSave(texto);
         return guardar;
     }
 
     private static void generarCompilador() {
         try {
-            String ruta = "src/gramatica_juego/"; //ruta donde tenemos los archivos con extension .jflex y .cup
-            String opcFlex[] = {ruta + "lexico.jflex", "-d", ruta};
-            jflex.Main.generate(opcFlex);
-            // String opcCUP[] = {"-destdir", ruta, "-parser", "parser", ruta + "parser.cup"};
-            //  java_cup.Main.main(opcCUP);
+            String ruta = "src/gramaticaReplay/"; //ruta donde tenemos los archivos con extension .jflex y .cup
+           // String opcFlex[] = {ruta + "lexico.jflex", "-d", ruta};
+           // jflex.Main.generate(opcFlex);
+             String opcCUP[] = {"-destdir", ruta, "-parser", "parser_replay", ruta + "parser_replay.cup"};
+              java_cup.Main.main(opcCUP);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,7 +186,11 @@ public class Konquest_Pj1 {
     }
 
     public static juego probar1(File file) {
-        String texto = leer(file);
+        String texto = "";
+        try {
+            texto = leer(file);
+        } catch (Exception e) {
+        }
         LeerArchivoJuego game = new LeerArchivoJuego();
         juego juego = game.getGame(texto);
         return juego;

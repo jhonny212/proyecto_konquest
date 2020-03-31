@@ -6,12 +6,16 @@
 package classes;
 
 import interfaz.inicio_partida;
+import static interfaz.inicio_partida.tablero;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
+import javax.swing.ToolTipManager;
+import jugadores.jugador;
 import mapa.juego;
 import planetas.galaxia;
 import planetas.planeta;
+import planetas.planeta_jugador;
 
 /**
  *
@@ -35,8 +39,8 @@ public class MouseControl implements MouseListener {
                 inicio_partida.ininiar_O_D(origen, destino);
                 inicio_partida.origenMov = false;
                 inicio_partida.iniciarMov();
-            }else{
-                  JOptionPane.showMessageDialog(inicio_partida.panel_tablero, "No se puede atacar a ud mismo ");
+            } else {
+                JOptionPane.showMessageDialog(inicio_partida.panel_tablero, "No se puede atacar a ud mismo ");
             }
         }
         if (inicio_partida.validarMov && !inicio_partida.medirDistancia) {
@@ -59,7 +63,7 @@ public class MouseControl implements MouseListener {
             destino = (galaxia) me.getSource();
             distancia distancia = new distancia(origen, destino);
             JOptionPane.showMessageDialog(inicio_partida.panel_tablero, distancia.getmsj());
-            inicio_partida.validarMov=true;
+            inicio_partida.validarMov = true;
 
         }
         if (inicio_partida.medirDistancia) {
@@ -81,10 +85,45 @@ public class MouseControl implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent me) {
+        int g = me.getButton();
+        System.out.println(g);
+        galaxia o = (galaxia) me.getSource();
+        System.out.println(o.getPlaneta().getDueño());
+        System.out.println(o.getPlaneta().getNombre());
+
+        if (o.getPlaneta().getClass().equals(planeta_jugador.class)) {
+            String player = inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador();
+
+            if (player.equals(o.getPlaneta().getDueño())) {
+                ToolTipManager.sharedInstance().setEnabled(true);
+            }
+        } else {
+            String player = inicio_partida.game.getArray_jugadores().get(inicio_partida.count_player).getJugador();
+
+            if (player.equals(o.getPlaneta().getDueño())) {
+                 o.setToolTipText("<html> <div style=\"background-color: rgb(206, 202, 202); width:200px\">\n"
+                    + "        <p style=\"color: black;\">\n"
+                    + "        Nombre:" + o.getPlaneta().getNombre() + "\n"
+                    + "        <br>\n"
+                    + "        Dueño:" + o.getPlaneta().getDueño() + "\n"
+                    + "        <br>\n"
+                    + "        Naves:" + o.getPlaneta().getNaves() + "\n"
+                    + "        <br>\n"
+                    + "        Produccion:" + o.getPlaneta().getProduccion() + "\n"
+                    + "        <br>\n"
+                    + "        Muertes(%):" + o.getPlaneta().getMuertes() + "\n"
+                    + "        </p>\n"
+                    + "    </div></html>");
+            }
+            ToolTipManager.sharedInstance().setEnabled(true);
+            
+        }
+
     }
 
     @Override
     public void mouseExited(MouseEvent me) {
+        ToolTipManager.sharedInstance().setEnabled(false);
     }
 
 }
