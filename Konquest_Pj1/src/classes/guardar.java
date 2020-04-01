@@ -90,20 +90,24 @@ public class guardar {
     }
 
     private void imprimir() {
-        archivoEntrada file = new archivoEntrada();
-        String path = file.getPath();
-        String path2 = getSimplePath(path, 0);
-        String name = getSimplePath(path, 1);
-        String txt = planetas();
+        try {
+            archivoEntrada file = new archivoEntrada();
+            String path = file.getPath();
+            String path2 = getSimplePath(path, 0);
+            String name = getSimplePath(path, 1);
+            String txt = planetas();
 
-        createFile(txt, path);
-        txt = turnos();
-        createFile(txt, path2 + "/turnos" + name);
+            createFile(txt, path);
+            txt = turnos();
+            createFile(txt, path2 + "/turnos" + name);
 
-        // txt = config();
-        // createFile(txt, path2 + "/config" + name);
-        File f = inicio_partida.archivoSave;
-        f.renameTo(new File(path2 + "/config" + name + ".json"));
+            // txt = config();
+            // createFile(txt, path2 + "/config" + name);
+            File f = inicio_partida.archivoSave;
+            f.renameTo(new File(path2 + "/config" + name + ".json"));
+
+        } catch (NullPointerException e) {
+        }
 
     }
 

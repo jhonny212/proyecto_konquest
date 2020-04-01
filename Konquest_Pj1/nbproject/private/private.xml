@@ -3,10 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/konquest_pj1/Konquest_Pj1.java</file>
             <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/interfaz/inicio_partida.java</file>
-            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/classes/cliente.java</file>
-            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/interfaz/nuevo_juego.java</file>
-            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/classes/servidor.java</file>
+            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/gramatica_juego/parser.java</file>
+            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/OtherClasses/replayFile.java</file>
+            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/gramaticaReplay/parser_replay.java</file>
+            <file>file:/home/jhonny/Escritorio/5to.%20Semestre/compiladores1/proyectos/pj/Konquest_Pj1/src/gramaticaReplay/parser_replay.cup</file>
         </group>
     </open-files>
 </project-private>
